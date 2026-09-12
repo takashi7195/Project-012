@@ -50,6 +50,11 @@ select { padding: 8px; font-size: clamp(16px, 4vw, 18px); flex: 1; min-width: 0;
   display: flex; justify-content: center; align-items: center;
 }
 
+.boat-number {
+  font-family: Arial, sans-serif;
+  line-height: 1;
+}
+
 @keyframes spin {
   0% { transform: translateY(calc(var(--item-height) * -12)); }
   100% { transform: translateY(calc(var(--item-height) * -6)); }
@@ -60,12 +65,13 @@ select { padding: 8px; font-size: clamp(16px, 4vw, 18px); flex: 1; min-width: 0;
   transition: none;
 }
 
-.bg-1 { background-color: #FFFFFF; color: #000000; }
-.bg-2 { background-color: #000000; color: #FFFFFF; }
-.bg-3 { background-color: #FF0000; color: #FFFFFF; }
-.bg-4 { background-color: #0000FF; color: #FFFFFF; }
-.bg-5 { background-color: #FFFF00; color: #000000; }
-.bg-6 { background-color: #008000; color: #FFFFFF; }
+/* BOAT RACE公式オッズ画面の艇色に合わせる。 */
+.bg-1 { background-color: #EBEBEB; color: #000000; }
+.bg-2 { background-color: #505050; color: #FFFFFF; }
+.bg-3 { background-color: #F04141; color: #FFFFFF; }
+.bg-4 { background-color: #4184D0; color: #FFFFFF; }
+.bg-5 { background-color: #ECE962; color: #000000; }
+.bg-6 { background-color: #54B74D; color: #FFFFFF; }
 
 button { padding: 15px 30px; font-size: 20px; cursor: pointer; width: 100%; background-color: #333; color: #fff; border: none; border-radius: 8px; }
 button:disabled { background-color: #ccc; cursor: not-allowed; }

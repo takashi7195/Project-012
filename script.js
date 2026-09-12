@@ -121,7 +121,10 @@ function populateReel(reel) {
     for (let b = 1; b <= 6; b++) {
       const item = document.createElement('div');
       item.className = `item bg-${b}`;
-      item.textContent = b;
+      const number = document.createElement('span');
+      number.className = 'boat-number';
+      number.textContent = b;
+      item.appendChild(number);
       reel.appendChild(item);
     }
   }
