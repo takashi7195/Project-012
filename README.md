@@ -1,4 +1,4 @@
-# AI3連単
+# AI3連単（Project-012）
 
 ボートレースの3連単予想ゲームです。
 
@@ -13,4 +13,11 @@
 - このゲームにおける「コース＝艇番」はゲーム上の簡易モデルであり、実際のレース予想を保証するものではありません。
 
 ## 公開URL
-https://takashi7195.github.io/Project-002/
+https://takashi7195.github.io/Project-012/
+
+## 開発環境
+- Project-002のmain（`ace9acecda5c434039c6ffe09eae1fc159f22d65`）をコピーした独立プロジェクトです。
+- HTML・CSS・JavaScriptと画像だけで動作し、ビルドは不要です。
+- Supabaseなどの外部データベース、コメント機能、データ保存処理はありません。
+- 開発・公開先はProject-012です。Project-002への自動同期はありません。
+- `docs/HISTORY.md`はコピー元の開発履歴です。
