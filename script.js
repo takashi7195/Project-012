@@ -184,7 +184,7 @@ async function stopRoulette(slot, finalBoat, delay) {
       reel.style.transform = `translateY(${currentY}px)`;
 
       // 2. 目標位置を計算 (現在の位置より「先」にある目的数字)
-      const itemHeight = slot.querySelector('.item').offsetHeight;
+      const itemHeight = slot.querySelector('.item').getBoundingClientRect().height;
       let targetY = -(finalBoat - 1 + 6) * itemHeight; // 探索の基準をセット2の範囲に設定
 
       // 上→下へ回転しているのでtargetYはcurrentYより大きい値にする
@@ -203,12 +203,17 @@ async function stopRoulette(slot, finalBoat, delay) {
 
       requestAnimationFrame(() => {
         reel.style.transition = `transform ${duration}s cubic-bezier(0.2, 0.8, 0.3, 1)`;
-        reel.style.transform = `translateY(${targetY}px)`;
+        // 艇の位置を高さの倍数で保持し、画面回転・幅変更にも追従する。
+        const targetIndex = Math.round(targetY / itemHeight);
+        reel.style.transform = `translateY(calc(var(--item-height) * ${targetIndex}))`;
         // 停止後に確定したクラスを付与
         slot.className = `slot bg-${finalBoat}`;
       });
 
-      setTimeout(resolve, duration * 1000); // transition完了まで待つ
+      setTimeout(() => {
+        reel.style.transition = 'none';
+        resolve();
+      }, duration * 1000); // transition完了まで待つ
     }, delay);
   });
 }

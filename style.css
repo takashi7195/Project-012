@@ -1,36 +1,40 @@
+* { box-sizing: border-box; }
+
 body {
   font-family: sans-serif;
   margin: 0;
   min-height: 100vh;
+  min-height: 100svh;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 10vh;
-  background-image: url('boat_002.png');
+  padding: clamp(24px, 6svh, 80px) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+  background-image: url('boat_002.webp');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;
 }
 .container {
-  max-width: 600px;
+  max-width: 640px;
   width: 100%;
   background-color: rgba(255, 255, 255, 0.88);
-  padding: 20px;
+  padding: clamp(12px, 3vw, 20px);
   border-radius: 12px;
 }
-h1 { margin-top: 0; margin-bottom: 20px; font-size: 28px; color: #333; text-align: center; }
+h1 { margin-top: 0; margin-bottom: 20px; font-size: clamp(18px, 5vw, 28px); color: #333; text-align: center; }
 .selectors { display: flex; gap: 10px; margin-bottom: 20px; }
-select { padding: 10px; font-size: 18px; width: 100%; }
+select { padding: 8px; font-size: clamp(16px, 4vw, 18px); flex: 1; min-width: 0; min-height: 44px; }
 #results { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
 .slot { 
-  width: 100px; height: 100px; 
+  --slot-size: clamp(64px, 21vw, 100px);
+  width: var(--slot-size); height: var(--slot-size);
   display: flex; justify-content: center; align-items: center; 
-  font-size: 48px; font-weight: bold; border-radius: 12px; border: 3px solid #333; flex-shrink: 0;
+  font-size: clamp(32px, 10vw, 48px); font-weight: bold; border-radius: 12px; border: 3px solid #333; flex-shrink: 0;
   overflow: hidden;
   position: relative;
   box-sizing: border-box;
-  --item-height: 100px;
+  --item-height: calc(var(--slot-size) - 6px);
 }
 
 .reel {
@@ -42,7 +46,7 @@ select { padding: 10px; font-size: 18px; width: 100%; }
 }
 
 .item {
-  width: 100%; height: 100px;
+  width: 100%; height: var(--item-height);
   display: flex; justify-content: center; align-items: center;
 }
 
@@ -56,15 +60,6 @@ select { padding: 10px; font-size: 18px; width: 100%; }
   transition: none;
 }
 
-@media (max-width: 400px) {
-  body { padding-top: 4vh; }
-  .container { padding: 14px; }
-  h1 { font-size: 20px; }
-  select { padding: 8px; font-size: 16px; width: 46%; }
-  .slot { width: 72px; height: 72px; font-size: 32px; --item-height: 72px; }
-  .item { height: 72px; }
-  button { padding: 12px 20px; font-size: 18px; width: 92%; display: block; margin: 0 auto; }
-}
 .bg-1 { background-color: #FFFFFF; color: #000000; }
 .bg-2 { background-color: #000000; color: #FFFFFF; }
 .bg-3 { background-color: #FF0000; color: #FFFFFF; }
