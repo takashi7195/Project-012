@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>コメント欄の画面案 | AIタカシの3連単予想</title>
+  <link rel="stylesheet" href="style.css?ui=select48">
+  <style>
+    body { display:block; }
+    .preview-page { width:min(100%, 680px); margin:0 auto; padding:clamp(24px,6svh,64px) 12px 48px; }
+    .preview-note { margin:0 4px 10px; color:#fff; font-size:12px; text-shadow:0 1px 4px #00264d; }
+    .game-preview { margin:0 auto 24px; }
+    .game-preview h1 { font-size:clamp(20px,5vw,28px); }
+    .comment-title { width:fit-content; margin:0 auto 14px; padding:8px 18px; border-radius:999px; background:rgba(255,255,255,.94); color:#25364a; font-size:20px; line-height:1.25; }
+    .comment-form, .comment-card { background:rgba(255,255,255,.94); border:1px solid rgba(255,255,255,.9); border-radius:12px; box-shadow:0 3px 14px rgba(0,28,58,.12); }
+    .comment-form { padding:16px; }
+    .field-label { display:block; margin:0 0 6px; color:#273442; font-size:14px; font-weight:600; }
+    .nickname-input, .comment-input { display:block; width:100%; border:1px solid #8a929a; border-radius:7px; background:#fff; color:#1f2933; font:16px/1.45 system-ui,sans-serif; padding:10px 12px; }
+    .nickname-input { height:46px; margin-bottom:14px; }
+    .comment-input { min-height:104px; resize:vertical; }
+    .privacy-hint { margin:7px 0 14px; color:#536171; font-size:12px; line-height:1.5; }
+    .post-button { display:block; width:100%; min-height:46px; border:0; border-radius:7px; background:#174c73; color:#fff; font:600 16px system-ui,sans-serif; }
+    .comments-list { display:grid; gap:14px; margin-top:18px; }
+    .comment-card { padding:15px 16px; }
+    .comment-meta { display:flex; align-items:center; justify-content:space-between; gap:12px; color:#384757; font-size:13px; }
+    .comment-author { font-weight:700; }
+    .comment-time { color:#647181; font-size:12px; }
+    .comment-text { margin:9px 0 14px; color:#202a34; font-size:15px; line-height:1.65; }
+    .reply { border-left:3px solid #4184d0; padding:2px 0 2px 11px; }
+    .reply-label { color:#28649b; font-size:12px; font-weight:700; }
+    .reply-text { margin:3px 0 0; color:#2d3844; font-size:14px; line-height:1.55; }
+    @media (max-width:400px) { .preview-page { padding-inline:10px; } .comment-form,.comment-card { padding:13px; } }
+  </style>
+</head>
+<body>
+  <main class="preview-page">
+    <p class="preview-note">画面案・投稿機能はまだありません</p>
+    <section class="container game-preview" aria-label="ゲーム画面のイメージ">
+      <h1>AIタカシの3連単予想</h1>
+      <div class="selectors">
+        <select aria-label="ボートレース場"><option>桐生</option></select>
+        <select aria-label="レース"><option>1R</option></select>
+      </div>
+      <div id="results" aria-label="抽選結果の表示例">
+        <div class="slot bg-1">1</div><div class="slot bg-2">2</div><div class="slot bg-3">3</div>
+      </div>
+      <button type="button">START</button>
+    </section>
+
+    <section aria-labelledby="comments-title">
+      <h2 class="comment-title" id="comments-title">コメント</h2>
+      <form class="comment-form">
+        <label class="field-label" for="nickname">ニックネーム（任意）</label>
+        <input class="nickname-input" id="nickname" type="text" placeholder="ニックネーム">
+        <label class="field-label" for="comment">コメント</label>
+        <textarea class="comment-input" id="comment" rows="3" placeholder="レースの感想をどうぞ"></textarea>
+        <p class="privacy-hint">電話番号など個人情報は投稿前にチェックします。</p>
+        <button class="post-button" type="button">コメントを投稿</button>
+      </form>
+
+      <div class="comments-list" aria-label="コメントの表示例">
+        <article class="comment-card">
+          <div class="comment-meta"><span class="comment-author">ボート好き</span><time class="comment-time">3分前</time></div>
+          <p class="comment-text">最後まで迷ったけど、今日は5号艇に期待！</p>
+          <div class="reply"><div class="reply-label">AIタカシ</div><p class="reply-text">5号艇かぁ…その目、さっきまで僕も考えてたんだよね。</p></div>
+        </article>
+        <article class="comment-card">
+          <div class="comment-meta"><span class="comment-author">ニックネーム未設定</span><time class="comment-time">12分前</time></div>
+          <p class="comment-text">ルーレットの最後の1着、待ってる時間がいいですね。</p>
+          <div class="reply"><div class="reply-label">AIタカシ</div><p class="reply-text">でしょ？あの数秒が一番ドキドキするんだよ。</p></div>
+        </article>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
