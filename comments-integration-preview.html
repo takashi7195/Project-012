@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIタカシの3連単予想</title>
+    <link rel="stylesheet" href="style.css?ui=select48">
+    <style>
+        body { display: block; }
+        .comments-preview-page { width: min(100%, 664px); margin: 0 auto; padding: clamp(18px, 4svh, 36px) 12px 48px; }
+        .preview-note { margin: 0 4px 10px; color: #fff; font-size: 12px; text-shadow: 0 1px 4px #00264d; }
+        .game-preview { margin: 0 auto 24px; }
+        .comment-title { width: fit-content; margin: 0 auto 14px; padding: 8px 18px; border-radius: 999px; background: rgba(255,255,255,.94); color: #25364a; font-size: 20px; line-height: 1.25; }
+        .comment-form, .comment-card { background: rgba(255,255,255,.94); border: 1px solid rgba(255,255,255,.9); border-radius: 12px; box-shadow: 0 3px 14px rgba(0,28,58,.12); }
+        .comment-form { padding: 16px; }
+        .field-label { display: block; margin: 0 0 6px; color: #273442; font-size: 14px; font-weight: 600; }
+        .nickname-input, .comment-input { display: block; width: 100%; border: 1px solid #8a929a; border-radius: 7px; background: #fff; color: #1f2933; font: 16px/1.45 system-ui,sans-serif; padding: 10px 12px; }
+        .nickname-input { height: 46px; margin-bottom: 14px; }
+        .comment-input { min-height: 104px; resize: vertical; }
+        .privacy-hint { margin: 7px 0 14px; color: #536171; font-size: 12px; line-height: 1.5; }
+        .post-button { display: block; width: 100%; min-height: 46px; border: 0; border-radius: 7px; background: #174c73; color: #fff; font: 600 16px system-ui,sans-serif; }
+        .post-button:disabled { background: #8795a2; cursor: not-allowed; }
+        .comments-list { display: grid; gap: 14px; margin-top: 18px; }
+        .comment-card { padding: 15px 16px; }
+        .comment-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #384757; font-size: 13px; }
+        .comment-author { font-weight: 700; }
+        .comment-time { color: #647181; font-size: 12px; }
+        .comment-text { margin: 9px 0 14px; color: #202a34; font-size: 15px; line-height: 1.65; }
+        .reply { border-left: 3px solid #4184d0; padding: 2px 0 2px 11px; }
+        .reply-label { color: #28649b; font-size: 12px; font-weight: 700; }
+        .reply-text { margin: 3px 0 0; color: #2d3844; font-size: 14px; line-height: 1.55; }
+        @media (max-width: 400px) { .comments-preview-page { padding-inline: 10px; } .comment-form, .comment-card { padding: 13px; } }
+    </style>
+</head>
+<body>
+<main class="comments-preview-page">
+    <p class="preview-note">統合画面案／サンプル表示・投稿機能はまだありません</p>
+    <div class="container">
+        <h1>AIタカシの3連単予想</h1>
+        <div class="selectors">
+            <select id="stadium-select">
+                <option value="桐生">桐生</option>
+                <option value="戸田">戸田</option>
+                <option value="江戸川">江戸川</option>
+                <option value="平和島">平和島</option>
+                <option value="多摩川">多摩川</option>
+                <option value="浜名湖">浜名湖</option>
+                <option value="蒲郡">蒲郡</option>
+                <option value="常滑">常滑</option>
+                <option value="津">津</option>
+                <option value="三国">三国</option>
+                <option value="びわこ">びわこ</option>
+                <option value="住之江">住之江</option>
+                <option value="尼崎">尼崎</option>
+                <option value="鳴門">鳴門</option>
+                <option value="丸亀">丸亀</option>
+                <option value="児島">児島</option>
+                <option value="宮島">宮島</option>
+                <option value="徳山">徳山</option>
+                <option value="下関">下関</option>
+                <option value="若松">若松</option>
+                <option value="芦屋">芦屋</option>
+                <option value="福岡">福岡</option>
+                <option value="唐津">唐津</option>
+                <option value="大村">大村</option>
+            </select>
+            <select id="race-select">
+                <option value="1R">1R</option>
+                <option value="2R">2R</option>
+                <option value="3R">3R</option>
+                <option value="4R">4R</option>
+                <option value="5R">5R</option>
+                <option value="6R">6R</option>
+                <option value="7R">7R</option>
+                <option value="8R">8R</option>
+                <option value="9R">9R</option>
+                <option value="10R">10R</option>
+                <option value="11R">11R</option>
+                <option value="12R">12R</option>
+            </select>
+        </div>
+
+        <div id="results">
+            <div class="slot" id="slot-1"><div class="reel"></div></div>
+            <div class="slot" id="slot-2"><div class="reel"></div></div>
+            <div class="slot" id="slot-3"><div class="reel"></div></div>
+        </div>
+
+        <button id="start-btn">START</button>
+        <div class="version">v0.1.2</div>
+    </div>
+    <section aria-labelledby="comments-title">
+        <h2 class="comment-title" id="comments-title">コメント</h2>
+        <form class="comment-form">
+            <label class="field-label" for="nickname">ニックネーム（任意）</label>
+            <input class="nickname-input" id="nickname" type="text" placeholder="ニックネーム">
+            <label class="field-label" for="comment">コメント</label>
+            <textarea class="comment-input" id="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ"></textarea>
+            <p class="privacy-hint">電話番号など個人情報は投稿前にチェックします。</p>
+            <button class="post-button" type="button" disabled>投稿機能の準備中</button>
+        </form>
+        <div class="comments-list" id="comments-list" aria-label="サンプルコメント100件"></div>
+    </section>
+</main>
+    <script src="script.js"></script>
+    <script src="comments-preview-data.js"></script>
+</body>
+</html>
+
