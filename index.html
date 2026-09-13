@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIタカシの3連単予想</title>
-    <link rel="stylesheet" href="style.css?ui=comments01">
+    <link rel="stylesheet" href="style.css?ui=comments-live02">
 </head>
 <body>
     <main class="site-stack">
@@ -63,21 +63,28 @@
         <div class="version">v0.1.2</div>
     </div>
     <section class="comments-section" aria-labelledby="comments-title">
-        <p class="comments-preview-note">画面確認用のサンプル100件です。投稿機能は準備中です。</p>
         <h2 class="comment-title" id="comments-title">コメント</h2>
-        <form class="comment-form" onsubmit="return false;">
+        <form class="comment-form" id="comment-form">
             <label class="field-label" for="nickname">ニックネーム（任意）</label>
-            <input class="nickname-input" id="nickname" type="text" placeholder="ニックネーム" maxlength="40">
+            <input class="nickname-input" id="nickname" name="nickname" type="text" placeholder="ニックネーム" maxlength="40" autocomplete="nickname">
             <label class="field-label" for="comment">コメント</label>
-            <textarea class="comment-input" id="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ"></textarea>
-            <p class="privacy-hint">画面確認用のサンプルです。入力内容は送信されません。</p>
-            <button class="post-button" type="button" disabled>投稿機能の準備中</button>
+            <textarea class="comment-input" id="comment" name="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ" required></textarea>
+            <div class="form-meta">
+                <p class="privacy-hint">コメントは投稿すると公開されます。個人情報は入力しないでください。<a href="privacy.html">利用案内</a></p>
+                <span class="character-count" id="comment-count" aria-live="off">0/280</span>
+            </div>
+            <p class="comment-status" id="comment-status" role="status" aria-live="polite"></p>
+            <button class="post-button" id="post-button" type="submit">コメントを投稿</button>
         </form>
-        <div class="comments-list" id="comments-list" aria-label="サンプルコメント100件"></div>
+        <div class="comments-list" id="comments-list" aria-label="コメント一覧"></div>
+        <div class="comments-loading" id="comments-loading" role="status" aria-live="polite" hidden>loading...</div>
+        <p class="comments-load-status" id="comments-load-status" role="status" aria-live="polite"></p>
+        <button class="comments-retry" id="comments-retry" type="button" hidden>再読み込み</button>
+        <div class="comments-sentinel" id="comments-sentinel" aria-hidden="true"></div>
     </section>
     </main>
     <script src="script.js"></script>
-    <script src="comments-preview-data.js"></script>
+    <script src="comment-safety.js?api=live03"></script>
+    <script src="comments.js?api=live03"></script>
 </body>
 </html>
-

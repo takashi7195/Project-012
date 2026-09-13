@@ -1,3 +1,10 @@
 GEMINI.md
 
 *.bak*
+
+# Local-only Supabase CLI and its short-lived deployment helper.
+tools/supabase-cli/
+tools/supabase_*.zip
+tools/.supabase-home/
+tools/deploy-comments.ps1
+supabase/.temp/
