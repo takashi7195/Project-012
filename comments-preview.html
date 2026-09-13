@@ -34,7 +34,7 @@
 </head>
 <body>
   <main class="preview-page">
-    <p class="preview-note">画面案・投稿機能はまだありません</p>
+    <p class="preview-note">画面案・サンプル100件／投稿機能はまだありません</p>
     <section class="container game-preview" aria-label="ゲーム画面のイメージ">
       <h1>AIタカシの3連単予想</h1>
       <div class="selectors">
@@ -58,19 +58,9 @@
         <button class="post-button" type="button">コメントを投稿</button>
       </form>
 
-      <div class="comments-list" aria-label="コメントの表示例">
-        <article class="comment-card">
-          <div class="comment-meta"><span class="comment-author">ボート好き</span><time class="comment-time">3分前</time></div>
-          <p class="comment-text">最後まで迷ったけど、今日は5号艇に期待！</p>
-          <div class="reply"><div class="reply-label">AIタカシ</div><p class="reply-text">5号艇かぁ…その目、さっきまで僕も考えてたんだよね。</p></div>
-        </article>
-        <article class="comment-card">
-          <div class="comment-meta"><span class="comment-author">ニックネーム未設定</span><time class="comment-time">12分前</time></div>
-          <p class="comment-text">ルーレットの最後の1着、待ってる時間がいいですね。</p>
-          <div class="reply"><div class="reply-label">AIタカシ</div><p class="reply-text">でしょ？あの数秒が一番ドキドキするんだよ。</p></div>
-        </article>
-      </div>
+      <div class="comments-list" id="comments-list" aria-label="サンプルコメント100件"></div>
     </section>
   </main>
+  <script src="comments-preview-data.js"></script>
 </body>
 </html>
