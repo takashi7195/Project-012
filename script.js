@@ -162,61 +162,60 @@ startBtn.addEventListener('click', async () => {
   });
 
   // 順番に停止：右(3着) -> 中央(2着) -> 左(1着)
-  // STARTからの停止時間: 3秒, 9秒, 18秒
-  await stopRoulette(slots[0], result[2], 3000);  // 右(slot-3)に3着
-  await stopRoulette(slots[1], result[1], 6000);  // 中央(slot-2)に2着 (3000+6000=9000ms)
-  await stopRoulette(slots[2], result[0], 9000);  // 左(slot-1)に1着 (9000+9000=18000ms)
+  // 待ち時間は3秒・6秒・9秒。各リールの減速時間も加わる。
+  await stopRoulette(slots[0], result[2], 3000);  // 3秒待って右を減速
+  await stopRoulette(slots[1], result[1], 6000);  // 右の停止完了から6秒待って中央を減速
+  await stopRoulette(slots[2], result[0], 9000);  // 中央の停止完了から9秒待って左を減速
   
   startBtn.disabled = false;
 });
 
-function startRoulette(slot) {
-  // CSSアニメーションに変更したため、JavaScriptでのinterval制御は不要
+function calculateStopMotion(position, finalBoat) {
+  // 単位は艇1個分。通常回転は6艇/秒なので端末幅に依存しない。
+  const speed = 6;
+  let distance = ((-(finalBoat - 1) - position) % 6 + 6) % 6;
+  // 近すぎると急停止するため、必要ならもう1周分進む。
+  if (distance < 3) distance += 6;
+  return { distance, duration: 2 * distance / speed };
 }
+
+function setReelPosition(reel, position) {
+  // 同じ数字が並ぶ中央の周回へ戻す。見える内容は連続する。
+  const wrapped = -12 + ((position + 12) % 6 + 6) % 6;
+  reel.style.transform = `translateY(calc(var(--item-height) * ${wrapped}))`;
+}
+
 async function stopRoulette(slot, finalBoat, delay) {
   return new Promise(resolve => {
     setTimeout(() => {
       const reel = slot.querySelector('.reel');
+      requestAnimationFrame(startTime => {
+        const matrix = new DOMMatrixReadOnly(window.getComputedStyle(reel).transform);
+        const itemHeight = slot.querySelector('.item').getBoundingClientRect().height;
+        const position = matrix.m42 / itemHeight;
+        const { distance, duration } = calculateStopMotion(position, finalBoat);
 
-      // 1. 回転を停止し、現在の位置を固定
-      const style = window.getComputedStyle(reel);
-      const matrix = new WebKitCSSMatrix(style.transform);
-      const currentY = matrix.m42;
-
-      slot.classList.remove('spinning');
-      reel.style.transform = `translateY(${currentY}px)`;
-
-      // 2. 目標位置を計算 (現在の位置より「先」にある目的数字)
-      const itemHeight = slot.querySelector('.item').getBoundingClientRect().height;
-      let targetY = -(finalBoat - 1 + 6) * itemHeight; // 探索の基準をセット2の範囲に設定
-
-      // 上→下へ回転しているのでtargetYはcurrentYより大きい値にする
-      while (targetY <= currentY) {
-          targetY += 6 * itemHeight;
-      }
-      // スクロール速度が速すぎないように、直近のターゲットを選択
-      while (targetY - currentY > 6 * itemHeight) {
-          targetY -= 6 * itemHeight;
-      }
-
-      // 3. アニメーション実行 (transitionで自然に減速して停止)
-      const distance = Math.abs(targetY - currentY);
-      const speed = 600; // px/s (animation 600px / 1s)
-      const duration = Math.max(distance / speed, 0.5); // 最低0.5秒はかける
-
-      requestAnimationFrame(() => {
-        reel.style.transition = `transform ${duration}s cubic-bezier(0.2, 0.8, 0.3, 1)`;
-        // 艇の位置を高さの倍数で保持し、画面回転・幅変更にも追従する。
-        const targetIndex = Math.round(targetY / itemHeight);
-        reel.style.transform = `translateY(calc(var(--item-height) * ${targetIndex}))`;
-        // 停止後に確定したクラスを付与
-        slot.className = `slot bg-${finalBoat}`;
-      });
-
-      setTimeout(() => {
+        // 同じ描画フレームで位置を引き継ぎ、CSS回転から減速へ移行。
         reel.style.transition = 'none';
-        resolve();
-      }, duration * 1000); // transition完了まで待つ
+        slot.classList.remove('spinning');
+        setReelPosition(reel, position);
+
+        function decelerate(now) {
+          const progress = Math.min((now - startTime) / (duration * 1000), 1);
+          // 等減速: 開始速度は6艇/秒、終了速度は0。加速・逆走しない。
+          const eased = progress * (2 - progress);
+          setReelPosition(reel, position + distance * eased);
+          if (progress < 1) {
+            requestAnimationFrame(decelerate);
+          } else {
+            // 浮動小数点誤差を除き、幅変更後も確定数字の中央を維持。
+            setReelPosition(reel, -(finalBoat - 1));
+            slot.className = `slot bg-${finalBoat}`;
+            resolve();
+          }
+        }
+        requestAnimationFrame(decelerate);
+      });
     }, delay);
   });
 }
