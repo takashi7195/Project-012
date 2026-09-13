@@ -24,7 +24,31 @@ body {
 }
 h1 { margin-top: 0; margin-bottom: 20px; font-size: clamp(18px, 5vw, 28px); color: #333; text-align: center; }
 .selectors { display: flex; gap: 10px; margin-bottom: 20px; }
-select { padding: 8px; font-size: clamp(16px, 4vw, 18px); flex: 1; min-width: 0; min-height: 44px; }
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 48px;
+  min-height: 48px;
+  padding: 0 40px 0 12px;
+  border: 1px solid #777;
+  border-radius: 6px;
+  color: #222;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23333' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px 8px;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+}
+select:focus-visible {
+  outline: 2px solid #1769aa;
+  outline-offset: 2px;
+}
 #results { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
 .slot { 
   --slot-size: clamp(64px, 21vw, 100px);
@@ -83,3 +107,4 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
   line-height: 1.2;
   text-align: right;
 }
+
