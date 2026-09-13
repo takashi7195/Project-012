@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIタカシの3連単予想</title>
-    <link rel="stylesheet" href="style.css?ui=select48">
+    <link rel="stylesheet" href="style.css?ui=comments01">
 </head>
 <body>
+    <main class="site-stack">
     <div class="container">
         <h1>AIタカシの3連単予想</h1>
         <div class="selectors">
@@ -61,7 +62,22 @@
         <button id="start-btn">START</button>
         <div class="version">v0.1.2</div>
     </div>
+    <section class="comments-section" aria-labelledby="comments-title">
+        <p class="comments-preview-note">画面確認用のサンプル100件です。投稿機能は準備中です。</p>
+        <h2 class="comment-title" id="comments-title">コメント</h2>
+        <form class="comment-form" onsubmit="return false;">
+            <label class="field-label" for="nickname">ニックネーム（任意）</label>
+            <input class="nickname-input" id="nickname" type="text" placeholder="ニックネーム" maxlength="40">
+            <label class="field-label" for="comment">コメント</label>
+            <textarea class="comment-input" id="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ"></textarea>
+            <p class="privacy-hint">画面確認用のサンプルです。入力内容は送信されません。</p>
+            <button class="post-button" type="button" disabled>投稿機能の準備中</button>
+        </form>
+        <div class="comments-list" id="comments-list" aria-label="サンプルコメント100件"></div>
+    </section>
+    </main>
     <script src="script.js"></script>
+    <script src="comments-preview-data.js"></script>
 </body>
 </html>
 
