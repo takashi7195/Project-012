@@ -1,5 +1,5 @@
 import { moderationDecision, normalizeComment, normalizeNickname } from "./moderation.mjs";
-import { empatheticReply, generateGeminiReply, isSeriousComment } from "./ai-reply.mjs";
+import { empatheticReply, generateGeminiReply, isSeriousComment, templateReply } from "./ai-reply.mjs";
 
 const projectUrl = Deno.env.get("SUPABASE_URL");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -173,14 +173,16 @@ async function submitComment(request: Request, origin: string) {
 
   const serious = isSeriousComment(body);
   const generatedReply = serious ? null : await generateGeminiReply(body, geminiApiKey || "");
-  const replySource = serious ? "empathetic" : generatedReply ? "gemini" : null;
-  const createPath = replySource ? "rpc/create_comment_with_reply" : "rpc/create_comment";
-  const createPayload = replySource
-    ? { p_nickname: nickname, p_body: body, p_ai_reply: serious ? empatheticReply(body) : generatedReply, p_reply_source: replySource }
-    : { p_nickname: nickname, p_body: body };
-  const createResponse = await rest(createPath, {
+  const replySource = serious ? "empathetic" : generatedReply ? "gemini" : "template";
+  const replyText = serious ? empatheticReply(body) : generatedReply ?? templateReply();
+  const createResponse = await rest("rpc/create_comment_with_reply", {
     method: "POST",
-    body: JSON.stringify(createPayload),
+    body: JSON.stringify({
+      p_nickname: nickname,
+      p_body: body,
+      p_ai_reply: replyText,
+      p_reply_source: replySource,
+    }),
   });
   if (!createResponse.ok) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
   const [created] = await createResponse.json();
