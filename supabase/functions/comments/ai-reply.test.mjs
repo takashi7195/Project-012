@@ -1,14 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {
-  empatheticReply,
-  generateGeminiReply,
-  GEMINI_MODEL,
-  isSafeGeneratedReply,
-  isSeriousComment,
-  TEMPLATE_REPLIES,
-  templateReply,
-} from "./ai-reply.mjs";
+import { generateGeminiReply, GEMINI_MODEL, isUsableReply, TEMPLATE_REPLIES, templateReply } from "./ai-reply.mjs";
 
 test("ordinary comments use a small Gemini request and accept a short response", async () => {
   let request;
@@ -22,17 +14,18 @@ test("ordinary comments use a small Gemini request and accept a short response",
   assert.equal(request.init.headers["x-goog-api-key"], "test-key");
   assert.deepEqual(request.body.contents, [{ role: "user", parts: [{ text: "外れたじゃねーか" }] }]);
   assert.equal(request.body.contents[0].parts[0].text.includes("nickname"), false);
-  assert.match(request.body.system_instruction.parts[0].text, /小学4年生/u);
+  assert.match(request.body.system_instruction.parts[0].text, /通常のAI/u);
   assert.match(request.body.system_instruction.parts[0].text, /ため口/u);
-  assert.match(request.body.system_instruction.parts[0].text, /かなりとぼけた/u);
+  assert.match(request.body.system_instruction.parts[0].text, /おとぼけキャラ/u);
+  assert.doesNotMatch(request.body.system_instruction.parts[0].text, /深刻|危険|禁止|安全|empathetic/u);
   assert.equal(request.body.generationConfig.temperature, 0.9);
 });
 
-test("the ten casual fallback replies are short and pass the output safety checks", () => {
+test("the ten casual fallback replies fit the existing response size limit", () => {
   assert.equal(TEMPLATE_REPLIES.length, 10);
   for (const reply of TEMPLATE_REPLIES) {
     assert.ok(Array.from(reply).length <= 60, reply);
-    assert.equal(isSafeGeneratedReply(reply), true, reply);
+    assert.equal(isUsableReply(reply), true, reply);
   }
 
   for (let index = 0; index < 100; index += 1) {
@@ -50,26 +43,22 @@ test("the helper redacts personal information before sending a comment", async (
   assert.equal(sentText.includes("taro@example.com"), false);
 });
 
-test("serious comments get compassionate canned replies and are not sent to Gemini", async () => {
-  let called = false;
-  const comment = "家族を亡くしてつらいです";
-  const reply = await generateGeminiReply(comment, "test-key", async () => {
-    called = true;
-    throw new Error("must not call provider");
+test("all comments use the normal Gemini reply path after personal information redaction", async () => {
+  let sentText = "";
+  const reply = await generateGeminiReply("家族を亡くしてつらいです。連絡先はtaro@example.com", "test-key", async (_url, init) => {
+    sentText = JSON.parse(init.body).contents[0].parts[0].text;
+    return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "そうなんだ。ぼく、今うなずいてた！" }] } }] }), { status: 200 });
   });
 
-  assert.equal(isSeriousComment(comment), true);
-  assert.equal(reply, null);
-  assert.equal(called, false);
-  assert.match(empatheticReply(comment), /話して|つら|大変|明るく/u);
+  assert.equal(sentText, "家族を亡くしてつらいです。連絡先は[メールアドレス]");
+  assert.equal(reply, "そうなんだ。ぼく、今うなずいてた！");
 });
 
-test("provider errors and unsafe or malformed output use the template fallback", async () => {
+test("provider errors and unusable output use the template fallback", async () => {
   assert.equal(await generateGeminiReply("当たりました", "test-key", async () => new Response("{}", { status: 429 })), null);
   assert.equal(await generateGeminiReply("当たりました", "test-key", async () => new Response("{}", { status: 200 })), null);
-  assert.equal(isSafeGeneratedReply("絶対当たります"), false);
-  assert.equal(isSafeGeneratedReply("それは悔しいですね。"), false);
-  assert.equal(isSafeGeneratedReply("オッケー！風に聞いてみる！"), true);
-  assert.equal(isSafeGeneratedReply("090-1234-5678です"), false);
-  assert.equal(isSafeGeneratedReply("スタートから目が離せないね！"), true);
+  assert.equal(isUsableReply("絶対当たります"), true);
+  assert.equal(isUsableReply("それは悔しいですね。"), true);
+  assert.equal(isUsableReply("090-1234-5678です"), false);
+  assert.equal(isUsableReply("短い返信\nもう一文"), false);
 });
