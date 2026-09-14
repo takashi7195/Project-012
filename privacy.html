@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="index,follow">
     <title>コメントの利用案内 | AIタカシの3連単予想</title>
-    <link rel="stylesheet" href="style.css?ui=comments-live01">
+    <link rel="stylesheet" href="style.css?ui=comments-tip01">
 </head>
 <body>
     <main class="privacy-page">
@@ -23,6 +23,7 @@
         <h2>利用するサービスと連投制限</h2>
         <p>コメントの保存と処理にはSupabaseを利用します。通常のブラウザー投稿では、電話番号・メールアドレス・住所・SNSアカウントを検出した場合、Supabaseへ送る前に種類が分かる形で伏字にし、サーバー側でももう一度確認します。</p>
         <p>Gemini返信では、安全確認を通過したコメントへの返信生成に、伏字処理後のコメント本文だけをGoogleのGemini APIへ送ります。悩みや健康、被害などの内容が含まれる場合も、本文が伏字処理されたうえで送信されます。ニックネーム、IPアドレス、会場・レース情報は送りません。現在はGemini API無料枠を使っています。Googleの無料サービスでは、送信内容や生成結果がサービスの提供・改善に使われることがあり、品質確認のため人が確認する場合もあります。自動伏字で個人情報を完全に検出できるとは限らないため、個人情報や秘密はコメントに書かないでください。</p>
+        <p>AIタカシがチップでの応援を案内する返信をする場合があります。肯定的と判定されたコメントでは20％、否定的と判定されたコメントでは5％の抽選で表示します。中立・混合・判定が難しいコメント、深刻な悩みや金銭的な困窮を含むと判定されたコメントでは案内しません。分類はAIによるため誤る場合があり、実際の表示割合はコメント件数が少ないと上下します。案内リンクはnoteのチップページへ移動します。</p>
         <p>連投制限のため、投稿元を示す技術情報をサーバー内でHMAC化し、その値をコメント本文とは別にデータベースへ保存します。生のIPアドレスはコメント機能のデータベースには保存せず、HMAC値は最終投稿から24時間を過ぎた後に削除します。</p>
         <p>Supabaseの関数ログには、リクエストとレスポンスの情報（ヘッダーや本文を含む）が記録される場合があります。そのため、コメント本文や接続に関する情報がSupabase側のログに含まれることがあります。現在のFreeプランではログ保持期間は1日で、プランにより異なります。ログはコメント用データベースとは別に管理されます。詳しくは<a href="https://supabase.com/docs/guides/functions/logging" target="_blank" rel="noopener noreferrer">Supabaseの関数ログの説明</a>と<a href="https://supabase.com/pricing" target="_blank" rel="noopener noreferrer">プラン別ログ保持期間</a>をご覧ください。</p>
 

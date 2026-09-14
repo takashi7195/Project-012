@@ -7,4 +7,8 @@ tools/supabase-cli/
 tools/supabase_*.zip
 tools/.supabase-home/
 tools/deploy-comments.ps1
+tools/ai-reply-test-server.mjs
+tools/start-ai-reply-test.ps1
 supabase/.temp/
+/ai-reply-test.html
+/ai-reply-test.js

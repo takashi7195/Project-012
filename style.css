@@ -75,6 +75,9 @@ body {
 .reply { border-left: 3px solid #4184d0; padding: 2px 0 2px 11px; }
 .reply-label { color: #28649b; font-size: 12px; font-weight: 700; }
 .reply-text { margin: 3px 0 0; color: #2d3844; font-size: 14px; line-height: 1.55; }
+.tip-link { display: inline-flex; align-items: center; min-height: 34px; margin-top: 10px; padding: 6px 11px; border: 1px solid rgba(40,100,155,.35); border-radius: 7px; background: rgba(244,249,253,.96); color: #245f94; font-size: 13px; line-height: 1.35; text-decoration: none; }
+.tip-link:focus-visible { outline: 2px solid #1769aa; outline-offset: 2px; }
+.tip-link:hover { background: #e8f2fa; }
 h1 { margin-top: 0; margin-bottom: 20px; font-size: clamp(18px, 5vw, 28px); color: #333; text-align: center; }
 .selectors { display: flex; gap: 10px; margin-bottom: 20px; }
 select {

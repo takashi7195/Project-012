@@ -1,5 +1,5 @@
 const sampleComments = [
-  '今日は5号艇に期待！',
+  '当たりました！ありがとう！',
   '最後の1着が決まるまでの時間、やっぱりドキドキする。',
   '桐生の水面を思い浮かべながら回してます。',
   '2号艇が来る気がする。理由はないけど、こういう直感を大事にしたい日。',
@@ -116,6 +116,7 @@ const sampleReplies = [
 ];
 
 const list = document.getElementById('comments-list');
+const noteTipUrl = 'https://note.com/dear_bonobo1836/n/n6ba3e3177429';
 const fragment = document.createDocumentFragment();
 sampleComments.forEach((text, index) => {
   const card = document.createElement('article');
@@ -139,8 +140,20 @@ sampleComments.forEach((text, index) => {
   label.textContent = 'AIタカシ';
   const answer = document.createElement('p');
   answer.className = 'reply-text';
-  answer.textContent = sampleReplies[index % sampleReplies.length];
+  const showTipExample = index === 0;
+  answer.textContent = showTipExample
+    ? '当たった！あれ、ぼくのおなかが鳴ったかも！'
+    : sampleReplies[index % sampleReplies.length];
   reply.append(label, answer);
+  if (showTipExample) {
+    const tipLink = document.createElement('a');
+    tipLink.className = 'tip-link';
+    tipLink.href = noteTipUrl;
+    tipLink.target = '_blank';
+    tipLink.rel = 'noopener noreferrer';
+    tipLink.textContent = 'noteでチップを送る';
+    reply.append(tipLink);
+  }
   card.append(meta, body, reply);
   fragment.append(card);
 });

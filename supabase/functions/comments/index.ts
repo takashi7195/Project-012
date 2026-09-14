@@ -1,5 +1,5 @@
 import { moderationDecision, normalizeComment, normalizeNickname } from "./moderation.mjs";
-import { generateGeminiReply, templateReply } from "./ai-reply.mjs";
+import { chooseReply, generateGeminiReply, templateReply } from "./ai-reply.mjs";
 
 const projectUrl = Deno.env.get("SUPABASE_URL");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -101,7 +101,7 @@ async function listComments(url: URL, origin: string) {
   if (cursorText && !cursor) return jsonResponse({ error: "コメントを読み込めませんでした" }, 400, origin);
 
   const params = new URLSearchParams({
-    select: "id,nickname,body,ai_reply,created_at",
+    select: "id,nickname,body,ai_reply,tip_requested,created_at",
     status: "eq.visible",
     order: "created_at.desc,id.desc",
     limit: String(PAGE_SIZE + 1),
@@ -122,6 +122,7 @@ async function listComments(url: URL, origin: string) {
       nickname: row.nickname || "匿名",
       body: row.body,
       reply: { author: REPLY_LABEL, body: row.ai_reply },
+      tipRequested: row.tip_requested === true,
       createdAt: row.created_at,
     })),
     nextCursor: hasMore && last ? encodeCursor(last) : null,
@@ -171,9 +172,11 @@ async function submitComment(request: Request, origin: string) {
   if (!rateResponse.ok) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
   if (!await rateResponse.json()) return jsonResponse({ error: "コメントを投稿できませんでした" }, 429, origin);
 
-  const generatedReply = await generateGeminiReply(body, geminiApiKey || "");
-  const replySource = generatedReply ? "gemini" : "template";
-  const replyText = generatedReply ?? templateReply();
+  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "");
+  const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
+  const replySource = selectedReply ? "gemini" : "template";
+  const replyText = selectedReply?.reply ?? templateReply();
+  const tipRequested = selectedReply?.tipRequested ?? false;
   const createResponse = await rest("rpc/create_comment_with_reply", {
     method: "POST",
     body: JSON.stringify({
@@ -181,6 +184,7 @@ async function submitComment(request: Request, origin: string) {
       p_body: body,
       p_ai_reply: replyText,
       p_reply_source: replySource,
+      p_tip_requested: tipRequested,
     }),
   });
   if (!createResponse.ok) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
@@ -193,6 +197,7 @@ async function submitComment(request: Request, origin: string) {
       nickname: created.nickname || "匿名",
       body: created.body,
       reply: { author: REPLY_LABEL, body: created.ai_reply },
+      tipRequested: created.tip_requested === true,
       createdAt: created.created_at,
     },
   }, 201, origin);
