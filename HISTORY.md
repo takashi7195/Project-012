@@ -5,7 +5,7 @@
 - v0.1.4では、AI返信を通常のAIに戻し、追加する口調を「ため口」「おとぼけキャラ」の2点だけにした。深刻な話題だけを別返信にする独自分岐と、返信内容のアプリ独自の話題別チェックを削除。投稿側のモデレーション、Gemini標準の安全制御、個人情報の伏字は維持する。
 - 投稿側の安全確認を通過したコメントは、深刻な話題を含む場合も、伏字後の本文だけをGemini APIへ送って返信を生成する。ニックネーム、IPアドレス、会場・レース情報は送らない。無料枠のデータ取り扱いと深刻な話題も送信対象になることを `privacy.html` に記載。
 - コメント投稿・Supabaseへの保存・一覧表示は従来どおり。DBの変更はなく、`reply_source` は `gemini` または `template` を使用する。Geminiが利用できない場合は定型文に戻る。
-- バージョン表記をv0.1.4に更新し、HISTORY.mdに記録。comments Edge FunctionのSupabase Project-012への再デプロイは成功。GitHub mainへのpushでGitHub Pagesへ反映する。
+- バージョン表記をv0.1.4に更新し、HISTORY.mdに記録。comments Edge FunctionはSupabase Project-012へ再デプロイ済み。GitHub Pagesはmainブランチのrootから公開する。
 - 未公開案はstash `draft: normal AI with casual and goofy traits` から取り込み済み。v0.1.4の作業内容に含めた。
 - 確認: コメント関連Node.jsテスト10件成功、Node.js構文チェック、`git diff --check`、Supabase再デプロイ成功ログ。GitHub Pagesへのpush後に公開反映を確認する。v0.1.4の新しい口調での公開投稿はまだ行っていない。
 
