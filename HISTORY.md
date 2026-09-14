@@ -6,10 +6,10 @@
 - v0.1.3は、v0.1.2のルーレット改善を維持し、コメント初回版を加えた版。艇色、抽選ロジック、待ち時間、停止演出は変更していない。
 - コメント欄とSupabase Edge Functionは公開済み。利用者による投稿、コメントDBへの保存、公開一覧への再表示、AIタカシの定型返信を確認済み。確認時点で公開コメントは2件あり、どちらも visible 状態で返信とともに保存されていた。
 - 2026-09-14にGemini返信を本番有効化。Supabaseに `GEMINI_API_KEY` をsecret登録し、Edge Functionを再デプロイ。公開サイトからの通常コメント1件で、AIタカシのGemini返信が表示され、DBの `reply_source=gemini`、`status=visible` を確認した。
-- AIタカシの会話は小学4年生にも伝わる短い言葉とため口にし、通常時は大きくとぼけた明るいボケを返す方針。深刻な内容は従来どおり親身な定型文へ切り替える。口調の変更コードはローカルで実装・テスト済みだが、公開には次のSQL変更とEdge Function再デプロイが必要。
+- AIタカシの会話は小学4年生にも伝わる短い言葉とため口にし、通常時は大きくとぼけた明るいボケを返す。深刻な内容は従来どおり親身な定型文へ切り替える。変更はコミット `bd41984` でmainへ反映し、Supabase RPCの許可値をSQL Editorで更新、comments Edge Functionを再デプロイ済み。新しい本番投稿での口調確認は未実施。
 - Gemini用DB変更は、SQL Editorで `reply_source` 列とservice_role専用RPC `create_comment_with_reply` を追加して適用。SQL Editorで `supabase_migrations.schema_migrations` が存在しないことを確認したため、CLI migration履歴には登録されていない。CLI `link` はscoped tokenで権限エラーが続いた。今後のDB変更でCLIを使う場合は、migration履歴とリンク権限を先に整える。
 - 連投制限キーはHMAC形式で保存され、生IPはコメント用DBに保存しない。15分ごとの削除ジョブは稼働し、直近の実行成功も確認済み。
-- ローカルの低コスト確認: JavaScript/TypeScript構文チェック、コメント安全判定とGemini返信テスト計9件、git diff --checkが成功。
+- ローカルの低コスト確認: Node.js構文チェック、コメント安全判定とGemini返信テスト計10件、git diff --checkが成功。Denoが未導入のため、Deno型チェックは未実施。
 - 削除依頼窓口、通報、投稿者自身の編集・削除、専用管理画面、深刻な内容の本番経路確認、実レース情報APIは残課題。自動伏字・安全判定は完全ではなく、運営者による定期確認が必要。
 - v0.1.3公開時点では作業用PCのローカルGitが未同期で未コミット変更があったが、2026-09-14にGitHub main（`a6ccb2b`）へfast-forward同期した。同期前の変更は確認用にGit stash `pre-sync Project-012 v0.1.3` へ保全している。
 - 以下の古い節は、それぞれの日付時点の状態を記録したもの。後の日付の記録が状態を更新する。
@@ -22,13 +22,14 @@
 - `privacy.html` にGemini無料枠のデータ利用と人による確認の可能性を明記。
 - 試作コード・テスト・Gemini送信を説明する利用案内をコミット `a3003c3` でmainへ反映。新しい専用GoogleプロジェクトのAPIキーで最小のGenerateContentリクエストが成功し、無料枠で応答が返ることを確認した。後続作業でSupabase SQL EditorにGemini用DB変更を適用し、Edge Functionを再デプロイ、`GEMINI_API_KEY` をSupabase secretへ設定した。公開サイトからの通常コメント1件でGemini返信とDB保存を確認済み。深刻な内容の本番経路、API障害時の本番fallbackは未検証。APIキーはチャットへ貼らずSupabase secretで管理する。
 
-## 2026-09-14 — AIタカシの口調を調整（公開待ち）
+## 2026-09-14 — AIタカシの口調を調整して本番反映
 
 - 通常時は小学4年生にも伝わる簡単な言葉、ため口、明るく大きくとぼけるボケを使う。特定の人物そのものを再現するのではなく、軽妙で適当なお調子者という一般的な特徴に置き換える。
 - 深刻な悩み・喪失・危険・被害を示すコメントにはボケを使わず、親身な定型文を返す。
 - Geminiが丁寧語、長文、個人情報、危険な内容などの条件に合わない返信をした場合は採用せず、ため口の定型文10種類から返す。
-- 実装はローカルで完了。`create_comment_with_reply` が `template` を受け入れるSQL migrationを追加した。DB変更はSupabase SQL Editorで未適用のため、Edge Functionの再デプロイと公開反映はまだ行っていない。
-- 検証: コメント関連Nodeテスト10件成功。公開前にSQL migration適用後、Edge Functionを再デプロイし、通常コメントでため口・とぼけた返信とDBの `reply_source` を確認する。深刻コメントを本番へ投稿するテストは行わず、既存のローカルテストで確認する。
+- `create_comment_with_reply` が `template` を受け入れるSQL migrationを追加し、Supabase Project-012 SQL Editorで適用。既存の入力検証とservice_role限定の権限は維持した。
+- コミット `bd41984` をGitHub `main` へpushし、comments Edge FunctionをProject-012へ再デプロイした。定型文、Gemini生成文、深刻な内容向け返信をそれぞれ保存できる構成。
+- 検証: コメント関連Nodeテスト10件成功。Node構文チェックと `git diff --check` も成功。Deno型チェックはDeno未導入のため未実施。再デプロイの成功ログを確認した。新しい本番コメントは追加しておらず、変更後の返信口調とDB `reply_source` の実投稿確認は次回の自然な投稿時に行う。
 
 ## 2026-09-12 23:26 JST — v0.1.1 艇色とルーレット数字の中央配置を調整済み
 
