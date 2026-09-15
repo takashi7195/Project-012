@@ -13,6 +13,8 @@ const ALLOWED_ORIGINS = new Set([
   "https://takashi7195.github.io",
   "http://127.0.0.1:8012",
   "http://localhost:8012",
+  // Temporary LAN origin used to verify the mobile layout from a phone.
+  "http://192.168.11.20:8012",
 ]);
 
 const REPLY_LABEL = "AIタカシ";
