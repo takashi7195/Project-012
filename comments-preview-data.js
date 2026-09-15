@@ -116,7 +116,7 @@ const sampleReplies = [
 ];
 
 const list = document.getElementById('comments-list');
-const noteTipUrl = 'https://note.com/dear_bonobo1836/n/n6ba3e3177429';
+const ofuseTipUrl = 'https://ofuse.me/7de5342a';
 const fragment = document.createDocumentFragment();
 sampleComments.forEach((text, index) => {
   const card = document.createElement('article');
@@ -148,10 +148,10 @@ sampleComments.forEach((text, index) => {
   if (showTipExample) {
     const tipLink = document.createElement('a');
     tipLink.className = 'tip-link';
-    tipLink.href = noteTipUrl;
+    tipLink.href = ofuseTipUrl;
     tipLink.target = '_blank';
     tipLink.rel = 'noopener noreferrer';
-    tipLink.textContent = 'noteでチップを送る';
+    tipLink.textContent = 'AIタカシにジュースをおごる';
     reply.append(tipLink);
   }
   card.append(meta, body, reply);

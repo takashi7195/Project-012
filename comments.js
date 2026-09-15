@@ -1,7 +1,7 @@
 (() => {
   const endpoint = "https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/comments";
   const publicApiKey = "sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64";
-  const noteTipUrl = "https://note.com/dear_bonobo1836/n/n6ba3e3177429";
+  const ofuseTipUrl = "https://ofuse.me/7de5342a";
   const privacy = globalThis.ProjectCommentSafety;
   const form = document.getElementById("comment-form");
   const nicknameInput = document.getElementById("nickname");
@@ -64,10 +64,10 @@
     if (comment.tipRequested === true) {
       const tipLink = document.createElement("a");
       tipLink.className = "tip-link";
-      tipLink.href = noteTipUrl;
+      tipLink.href = ofuseTipUrl;
       tipLink.target = "_blank";
       tipLink.rel = "noopener noreferrer";
-      tipLink.textContent = "noteでチップを送る";
+      tipLink.textContent = "AIタカシにジュースをおごる";
       reply.append(tipLink);
     }
 
