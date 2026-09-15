@@ -9,10 +9,11 @@
   -webkit-text-size-adjust: 100%;
 }
 .reference-ui button, .reference-ui select, .reference-ui input, .reference-ui textarea { font-family: inherit; }
-.reference-ui .site-stack { width: min(100%, 480px); gap: 0; }
-.reference-ui .game-hero { min-height: calc(65svh - max(26px, 7.8svh)); padding-inline: 7px; padding-bottom: 44px; }
+.reference-ui { height: 100dvh; overflow: hidden; }
+.reference-ui .site-stack { width: min(100%, 480px); height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 0; padding-bottom: 0; }
+.reference-ui .game-hero { flex: 0 0 35%; min-height: 0; padding-inline: 7px; padding-bottom: 10px; display: flex; flex-direction: column; justify-content: flex-start; }
 .reference-ui #site-title {
-  margin: 0 0 18px;
+  margin: 0 0 10px;
   color: #fff;
   font-size: clamp(23px, 7.1vw, 36px);
   line-height: 1.35;
@@ -23,31 +24,31 @@
 }
 .reference-ui .selectors {
   width: 64%; min-width: 220px; max-width: 280px;
-  margin: 0 auto 14px; gap: 0; padding: 5px 9px;
+  margin: 0 auto 8px; gap: 0; padding: 4px 8px;
   border: 1px solid #ffffffb3; border-radius: 13px;
   background: linear-gradient(120deg, #ffffffee, #e6f6ffe0);
   box-shadow: inset 0 1px 1px #fff, 0 2px 6px #155d9020;
 }
 .reference-ui .selectors select {
   border: 0; border-radius: 0; background-color: transparent;
-  height: 34px; min-height: 34px;
-  color: #14263c; font-size: 20px; font-weight: 700;
+  height: 30px; min-height: 30px;
+  color: #14263c; font-size: 18px; font-weight: 700;
   padding: 0 28px 0 15px; background-position: right 9px center;
 }
 .reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
 .reference-ui .game-panel {
   position: relative; width: 100%; max-width: none;
-  border-radius: 16px; padding: 22px 18px 16px;
+  border-radius: 15px; padding: 14px 14px 11px;
   border: 1px solid #ffffffcc;
   background: linear-gradient(118deg, #edfaffed 0%, #dff3ffd9 55%, #ffffffd9 100%);
   box-shadow: inset 0 1px 2px #fff, 0 4px 14px #1e609224;
 }
-.reference-ui #results { gap: clamp(10px, 2.8vw, 18px); margin-bottom: 17px; }
+.reference-ui #results { gap: clamp(8px, 2.6vw, 15px); margin-bottom: 10px; }
 .reference-ui .slot {
-  --slot-size: clamp(72px, 22.5vw, 108px);
+  --slot-size: clamp(60px, 19vw, 91px);
   --item-height: var(--slot-size);
   border: 0; border-radius: 15px;
-  font-size: clamp(52px, 15vw, 76px);
+  font-size: clamp(44px, 13vw, 66px);
   box-shadow: 0 2px 3px #10263a30, 0 5px 9px #123b5220;
 }
 .reference-ui .slot::after {
@@ -69,11 +70,12 @@
   border: 1px solid #0873f5;
   box-shadow: inset 0 2px 2px #ffffff55, inset 0 -2px 1px #0455c650, 0 3px 4px #12468040, 0 4px 10px #1971bd25;
 }
-.reference-ui #start-btn { width: 64%; min-height: 44px; margin: 0 auto; padding: 8px 16px; font-size: 22px; line-height: 1.2; border-radius: 13px; }
+.reference-ui #start-btn { width: 64%; min-height: 38px; margin: 0 auto; padding: 6px 14px; font-size: 20px; line-height: 1.2; border-radius: 11px; }
 .reference-ui #start-btn:active, .reference-ui .post-button:active { filter: brightness(.96); transform: translateY(1px); }
 .reference-ui #start-btn:disabled, .reference-ui .post-button:disabled { opacity: .65; cursor: wait; }
 .reference-ui .game-panel .version { position: absolute; right: 9px; bottom: 3px; font-size: 8px; margin: 0; color: #607991; }
 .reference-ui .comments-section {
+  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
   background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
   border: 1px solid #ffffffcc; border-radius: 15px; overflow: hidden;
   box-shadow: 0 4px 18px #1c618f22;
@@ -81,7 +83,7 @@
 .reference-ui .comment-heading { width: 100%; margin: 0; padding: 8px 12px; gap: 8px; background: linear-gradient(110deg, #edf9ffbb, #d8f1ff66); }
 .reference-ui .comment-title { background: none; padding: 0; border-radius: 0; margin: 0; color: #112033; font-size: 22px; font-weight: 800; line-height: 1.4; }
 .reference-ui .comment-open { border-radius: 10px; min-height: 36px; font-size: 14px; padding: 8px 12px; color: #0069e6; border: 1px solid #e3f1ff; box-shadow: 0 2px 4px #2a689033; line-height: 1.3; background: #ffffffed; white-space: nowrap; }
-.reference-ui .comments-list { gap: 0; margin: 0; display: block; }
+.reference-ui .comments-list { gap: 0; margin: 0; display: block; min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .reference-ui .comment-card { border: 0; box-shadow: none; border-radius: 0; background: transparent; padding: 12px 0 14px; margin: 0 13px; }
 .reference-ui .comment-card + .comment-card { border-top: 1px solid #96b7cf66; }
 .reference-ui .comment-meta { justify-content: flex-start; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; line-height: 1.4; }
