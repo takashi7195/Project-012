@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIタカシの3連単予想</title>
-    <link rel="stylesheet" href="style.css?ui=comments-tip01">
+    <link rel="stylesheet" href="style.css?ui=bg-v2-fixed">
+    <link rel="stylesheet" href="ui-reference.css?ui=reference01">
 </head>
-<body>
-    <main class="site-stack">
-    <div class="container">
-        <h1>AIタカシの3連単予想</h1>
+<body class="reference-ui">
+    <main class="site-stack" id="site-content">
+    <section class="game-hero" aria-labelledby="site-title">
+        <h1 id="site-title">AIタカシの3連単予想</h1>
         <div class="selectors">
-            <select id="stadium-select">
+            <select id="stadium-select" aria-label="会場">
                 <option value="桐生">桐生</option>
                 <option value="戸田">戸田</option>
                 <option value="江戸川">江戸川</option>
@@ -37,7 +38,7 @@
                 <option value="唐津">唐津</option>
                 <option value="大村">大村</option>
             </select>
-            <select id="race-select">
+            <select id="race-select" aria-label="レース">
                 <option value="1R">1R</option>
                 <option value="2R">2R</option>
                 <option value="3R">3R</option>
@@ -53,29 +54,23 @@
             </select>
         </div>
 
-        <div id="results">
+        <div class="container game-panel">
+        <div id="results" aria-label="予想結果">
             <div class="slot" id="slot-1"><div class="reel"></div></div>
             <div class="slot" id="slot-2"><div class="reel"></div></div>
             <div class="slot" id="slot-3"><div class="reel"></div></div>
         </div>
 
         <button id="start-btn">START</button>
-        <div class="version">v0.1.7</div>
+        <div class="version">v0.1.8</div>
     </div>
+    </section>
     <section class="comments-section" aria-labelledby="comments-title">
-        <h2 class="comment-title" id="comments-title">コメント</h2>
-        <form class="comment-form" id="comment-form">
-            <label class="field-label" for="nickname">ニックネーム（任意）</label>
-            <input class="nickname-input" id="nickname" name="nickname" type="text" placeholder="ニックネーム" maxlength="40" autocomplete="nickname">
-            <label class="field-label" for="comment">コメント</label>
-            <textarea class="comment-input" id="comment" name="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ" required></textarea>
-            <div class="form-meta">
-                <p class="privacy-hint">コメントは投稿すると公開されます。個人情報は入力しないでください。<a href="privacy.html">利用案内</a></p>
-                <span class="character-count" id="comment-count" aria-live="off">0/280</span>
-            </div>
-            <p class="comment-status" id="comment-status" role="status" aria-live="polite"></p>
-            <button class="post-button" id="post-button" type="submit">コメントを投稿</button>
-        </form>
+        <div class="comment-heading">
+            <h2 class="comment-title" id="comments-title">コメント</h2>
+            <button class="comment-open" id="comment-open" type="button" aria-haspopup="dialog" aria-controls="comment-composer" aria-expanded="false">コメントを書く</button>
+        </div>
+        <p id="comment-notice" class="comment-notice" role="status" aria-live="polite"></p>
         <div class="comments-list" id="comments-list" aria-label="コメント一覧"></div>
         <div class="comments-loading" id="comments-loading" role="status" aria-live="polite" hidden>loading...</div>
         <p class="comments-load-status" id="comments-load-status" role="status" aria-live="polite"></p>
@@ -83,8 +78,32 @@
         <div class="comments-sentinel" id="comments-sentinel" aria-hidden="true"></div>
     </section>
     </main>
+    <div class="composer-layer" id="comment-composer" hidden>
+        <div class="composer-backdrop" aria-hidden="true"></div>
+        <section class="composer-sheet" role="dialog" aria-modal="true" aria-labelledby="composer-title">
+            <div class="composer-handle" aria-hidden="true"></div>
+            <div class="comment-form-header">
+                <h2 id="composer-title">コメントを書く</h2>
+                <button class="comment-close" id="comment-close" type="button" aria-label="コメント入力を閉じる">×</button>
+            </div>
+            <form class="comment-form" id="comment-form">
+                <div class="composer-fields">
+                    <label class="visually-hidden" for="nickname">ニックネーム（任意）</label>
+                    <input class="nickname-input" id="nickname" name="nickname" type="text" placeholder="ニックネーム（任意）" maxlength="40" autocomplete="nickname">
+                    <label class="visually-hidden" for="comment">コメント</label>
+                    <textarea class="comment-input" id="comment" name="comment" rows="3" maxlength="280" placeholder="レースの感想をどうぞ" required aria-describedby="composer-privacy"></textarea>
+                    <p class="privacy-hint" id="composer-privacy">個人情報は入力しないでください　<a href="privacy.html" target="_blank" rel="noopener">利用案内</a></p>
+                    <p class="comment-status" id="comment-status" role="status" aria-live="polite"></p>
+                </div>
+                <div class="composer-footer">
+                    <span class="character-count" id="comment-count" aria-live="off">0/280</span>
+                    <button class="post-button" id="post-button" type="submit">送信</button>
+                </div>
+            </form>
+        </section>
+    </div>
     <script src="script.js"></script>
     <script src="comment-safety.js?api=live03"></script>
-    <script src="comments.js?api=live03"></script>
+    <script src="comments.js?api=reference01"></script>
 </body>
 </html>

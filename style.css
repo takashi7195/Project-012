@@ -9,11 +9,17 @@ body {
   justify-content: center;
   align-items: flex-start;
   padding: clamp(24px, 6svh, 80px) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
-  background-image: url('boat_002.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  isolation: isolate;
+  background-color: #198dcb;
+}
+/* Size the background to the viewport, independently of the comment list. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: url('boat-bg-v2.webp') center center / cover no-repeat;
 }
 .container {
   max-width: 640px;
@@ -166,4 +172,115 @@ button:disabled { background-color: #ccc; cursor: not-allowed; }
 
 @media (max-width: 400px) {
   .comment-form, .comment-card { padding: 13px; }
+}
+
+/* Compact game-first comments UI and keyboard-safe composer. */
+.comment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: min(100%, 640px);
+  margin: 0 auto 12px;
+}
+.comment-heading .comment-title { margin: 0; }
+.comment-open {
+  width: auto;
+  min-height: 42px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.96);
+  color: #1266c5;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 3px 12px rgba(0,28,58,.16);
+}
+.comment-form[hidden] { display: none !important; }
+body.comment-composer-open::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: rgba(4,27,51,.45);
+}
+.comment-form.is-open {
+  display: grid;
+  position: fixed;
+  z-index: 11;
+  left: 50%;
+  bottom: var(--keyboard-height, 0px);
+  transform: translateX(-50%);
+  width: min(640px, calc(100% - 24px));
+  max-height: min(72svh, 560px);
+  overflow-y: auto;
+  margin: 0;
+  padding: 16px;
+  border-radius: 18px 18px 0 0;
+  background: rgba(255,255,255,.98);
+  box-shadow: 0 -8px 30px rgba(0,28,58,.24);
+}
+.comment-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: #172a3c;
+  font-size: 20px;
+}
+.comment-close {
+  width: 40px;
+  min-height: 40px;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #647181;
+  font-size: 28px;
+  line-height: 1;
+}
+.comment-form.is-open .post-button {
+  width: min(180px, 42%);
+  justify-self: end;
+  min-height: 46px;
+  padding: 8px 18px;
+  border-radius: 12px;
+  background: #1677ee;
+  box-shadow: 0 3px 10px rgba(22,119,238,.28);
+}
+
+/* Game panel hierarchy from the approved mobile reference. */
+.container {
+  max-width: 620px;
+  padding: clamp(14px, 3vw, 22px);
+  background: rgba(237,247,255,.78);
+  box-shadow: 0 8px 26px rgba(0,28,58,.14);
+}
+.container h1 {
+  margin-bottom: 14px;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0,35,75,.45);
+}
+.selectors { gap: 8px; margin-bottom: 14px; }
+.selectors select { height: 44px; min-height: 44px; border-color: rgba(40,82,115,.28); background-color: rgba(255,255,255,.9); }
+#results { gap: 8px; margin-bottom: 14px; }
+.slot {
+  --slot-size: clamp(64px, 19vw, 88px);
+  border-width: 2px;
+  border-radius: 14px;
+  font-size: clamp(32px, 9vw, 44px);
+}
+#start-btn {
+  display: block;
+  width: min(210px, 72%);
+  min-height: 46px;
+  margin: 0 auto;
+  padding: 9px 20px;
+  border-radius: 12px;
+  background: #1677ee;
+  box-shadow: 0 4px 12px rgba(22,119,238,.3);
+}
+.version { color: rgba(23,54,81,.58); }
+@media (max-width: 400px) {
+  .comment-form.is-open { width: calc(100% - 16px); padding: 14px; }
+  .comment-form-header { font-size: 18px; }
+  .comment-open { padding-inline: 13px; font-size: 14px; }
 }

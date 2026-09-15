@@ -14,14 +14,31 @@
   const loadStatus = document.getElementById("comments-load-status");
   const retryButton = document.getElementById("comments-retry");
   const sentinel = document.getElementById("comments-sentinel");
+  const openButton = document.getElementById("comment-open");
+  const closeButton = document.getElementById("comment-close");
+  const composer = document.getElementById("comment-composer");
+  const siteContent = document.getElementById("site-content");
+  const notice = document.getElementById("comment-notice");
 
-  if (!privacy || !form || !nicknameInput || !commentInput || !list || !sentinel) return;
+  if (!privacy || !form || !nicknameInput || !commentInput || !list || !sentinel || !openButton || !closeButton || !composer || !siteContent) return;
 
   let cursor = null;
   let hasMore = true;
   let loadingPage = false;
   let hasLoadedOnce = false;
   const renderedIds = new Set();
+  let savedScrollY = 0;
+  let composerOpen = false;
+  let submitting = false;
+
+  function formatCommentTime(date) {
+    const minutes = Math.max(0, Math.floor((Date.now() - date.getTime()) / 60000));
+    if (minutes < 1) return "たった今";
+    if (minutes < 60) return `${minutes}分前`;
+    if (minutes < 1440) return `${Math.floor(minutes / 60)}時間前`;
+    if (minutes < 10080) return `${Math.floor(minutes / 1440)}日前`;
+    return new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "numeric", day: "numeric" }).format(date);
+  }
 
   function makeTextElement(tag, className, text) {
     const element = document.createElement(tag);
@@ -47,9 +64,10 @@
     const createdAt = new Date(comment.createdAt);
     if (!Number.isNaN(createdAt.getTime())) {
       time.dateTime = createdAt.toISOString();
-      time.textContent = new Intl.DateTimeFormat("ja-JP", {
+      time.title = new Intl.DateTimeFormat("ja-JP", {
         year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit",
       }).format(createdAt);
+      time.textContent = formatCommentTime(createdAt);
     }
     meta.append(time);
 
@@ -82,6 +100,42 @@
   function setFormStatus(message, isError = false) {
     formStatus.textContent = message;
     formStatus.classList.toggle("is-error", isError);
+  }
+
+  function setComposerOpen(isOpen) {
+    if (submitting || composerOpen === isOpen) return;
+    composerOpen = isOpen;
+    openButton.setAttribute("aria-expanded", String(isOpen));
+    if (isOpen) {
+      savedScrollY = window.scrollY;
+      composer.hidden = false;
+      siteContent.inert = true;
+      document.body.classList.add("comment-composer-open");
+      Object.assign(document.body.style, { position: "fixed", top: `-${savedScrollY}px`, width: "100%" });
+      setFormStatus("");
+      updateKeyboardOffset();
+      // Synchronous focus inside the tap handler opens the iOS keyboard.
+      commentInput.focus({ preventScroll: true });
+    } else {
+      document.activeElement?.blur();
+      composer.hidden = true;
+      siteContent.inert = false;
+      document.body.classList.remove("comment-composer-open");
+      Object.assign(document.body.style, { position: "", top: "", width: "" });
+      window.scrollTo(0, savedScrollY);
+      openButton.focus({ preventScroll: true });
+    }
+  }
+
+  function updateKeyboardOffset() {
+    const viewport = window.visualViewport;
+    composer.style.setProperty("--composer-top", `${viewport?.offsetTop || 0}px`);
+    composer.style.setProperty("--composer-height", `${viewport?.height || window.innerHeight}px`);
+  }
+
+  function sizeCommentInput() {
+    commentInput.style.height = "76px";
+    commentInput.style.height = `${Math.min(150, Math.max(76, commentInput.scrollHeight))}px`;
   }
 
   async function loadNextPage() {
@@ -125,6 +179,7 @@
 
   async function submitComment(event) {
     event.preventDefault();
+    if (submitting) return;
     const rawBody = commentInput.value.trim();
     if (!rawBody || Array.from(rawBody).length > 280) {
       setFormStatus("コメントは1〜280文字で入力してください。", true);
@@ -137,7 +192,13 @@
     }
     const nickname = privacy.normalizeNickname(nicknameInput.value);
 
+    submitting = true;
     postButton.disabled = true;
+    closeButton.disabled = true;
+    nicknameInput.readOnly = true;
+    commentInput.readOnly = true;
+    form.setAttribute("aria-busy", "true");
+    postButton.textContent = "送信中";
     setFormStatus("");
     try {
       const response = await fetch(endpoint, {
@@ -153,16 +214,44 @@
       list.prepend(makeCard(result.comment));
       form.reset();
       updateCharacterCount();
-      setFormStatus("コメントを投稿しました。");
+      sizeCommentInput();
+      submitting = false;
+      setComposerOpen(false);
+      notice.textContent = "コメントを投稿しました。";
+      list.firstElementChild?.scrollIntoView({ block: "nearest", behavior: "instant" });
     } catch {
       setFormStatus("コメントを投稿できませんでした。時間をおいてもう一度お試しください。", true);
     } finally {
+      submitting = false;
       postButton.disabled = false;
+      closeButton.disabled = false;
+      nicknameInput.readOnly = false;
+      commentInput.readOnly = false;
+      form.removeAttribute("aria-busy");
+      postButton.textContent = "送信";
     }
   }
 
-  commentInput.addEventListener("input", updateCharacterCount);
+  commentInput.addEventListener("input", () => { updateCharacterCount(); sizeCommentInput(); });
   form.addEventListener("submit", submitComment);
+  openButton.addEventListener("click", () => setComposerOpen(true));
+  closeButton.addEventListener("click", () => setComposerOpen(false));
+  composer.querySelector(".composer-backdrop").addEventListener("click", () => setComposerOpen(false));
+  composer.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { event.preventDefault(); setComposerOpen(false); }
+    if (event.key !== "Tab") return;
+    const focusable = [...composer.querySelectorAll('button:not(:disabled), input, textarea, a[href]')];
+    const first = focusable[0];
+    const last = focusable.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+  });
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize", updateKeyboardOffset);
+    window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
+  }
+  window.addEventListener("resize", updateKeyboardOffset);
+  updateKeyboardOffset();
   retryButton.addEventListener("click", () => {
     loadStatus.textContent = "";
     loadNextPage();

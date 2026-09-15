@@ -1,0 +1,143 @@
+/* Approved design references: docs/design/UI-DESIGN.md.
+   Scoped to the live page so archived preview pages keep their original layout. */
+.reference-ui {
+  --ink: #111f33;
+  --blue: #0875f4;
+  font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+  color: var(--ink);
+  padding: max(26px, 7.8svh) max(15px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
+  -webkit-text-size-adjust: 100%;
+}
+.reference-ui button, .reference-ui select, .reference-ui input, .reference-ui textarea { font-family: inherit; }
+.reference-ui .site-stack { width: min(100%, 480px); gap: 0; }
+.reference-ui .game-hero { min-height: calc(65svh - max(26px, 7.8svh)); padding-inline: 7px; padding-bottom: 44px; }
+.reference-ui #site-title {
+  margin: 0 0 18px;
+  color: #fff;
+  font-size: clamp(23px, 7.1vw, 36px);
+  line-height: 1.35;
+  letter-spacing: -.04em;
+  font-weight: 800;
+  white-space: nowrap;
+  text-shadow: 0 2px 3px #195c9466, 0 5px 14px #15549b44;
+}
+.reference-ui .selectors {
+  width: 64%; min-width: 220px; max-width: 280px;
+  margin: 0 auto 14px; gap: 0; padding: 5px 9px;
+  border: 1px solid #ffffffb3; border-radius: 13px;
+  background: linear-gradient(120deg, #ffffffee, #e6f6ffe0);
+  box-shadow: inset 0 1px 1px #fff, 0 2px 6px #155d9020;
+}
+.reference-ui .selectors select {
+  border: 0; border-radius: 0; background-color: transparent;
+  height: 34px; min-height: 34px;
+  color: #14263c; font-size: 20px; font-weight: 700;
+  padding: 0 28px 0 15px; background-position: right 9px center;
+}
+.reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
+.reference-ui .game-panel {
+  position: relative; width: 100%; max-width: none;
+  border-radius: 16px; padding: 22px 18px 16px;
+  border: 1px solid #ffffffcc;
+  background: linear-gradient(118deg, #edfaffed 0%, #dff3ffd9 55%, #ffffffd9 100%);
+  box-shadow: inset 0 1px 2px #fff, 0 4px 14px #1e609224;
+}
+.reference-ui #results { gap: clamp(10px, 2.8vw, 18px); margin-bottom: 17px; }
+.reference-ui .slot {
+  --slot-size: clamp(72px, 22.5vw, 108px);
+  --item-height: var(--slot-size);
+  border: 0; border-radius: 15px;
+  font-size: clamp(52px, 15vw, 76px);
+  box-shadow: 0 2px 3px #10263a30, 0 5px 9px #123b5220;
+}
+.reference-ui .slot::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 2px 1px #ffffff75, inset 2px 0 2px #ffffff35, inset 0 -1px 2px #00000025;
+  border: 1px solid #ffffff30;
+}
+.reference-ui .boat-number { font-family: Arial, Helvetica, sans-serif; font-weight: 700; letter-spacing: -.045em; padding-right: .045em; }
+.reference-ui .bg-1 { background: linear-gradient(140deg, #edf0f5, #d8dfe7 90%); color: #142235; }
+.reference-ui .bg-2 { background: linear-gradient(135deg, #555e65, #3d444a 95%); color: #fff; }
+.reference-ui .bg-3 { background: linear-gradient(140deg, #ff666b, #fa414b); color: #fff; }
+.reference-ui .bg-4 { background: linear-gradient(140deg, #559ce6, #3275bb); color: #fff; }
+.reference-ui .bg-5 { background: linear-gradient(140deg, #f8f48a, #e2db46); color: #172537; }
+.reference-ui .bg-6 { background: linear-gradient(140deg, #70c98b, #3da360); color: #fff; }
+.reference-ui #start-btn, .reference-ui .post-button {
+  color: #fff; font-weight: 700; letter-spacing: .025em;
+  background: linear-gradient(180deg, #2f97ff 0%, #147af4 55%, #0765e9 100%);
+  border: 1px solid #0873f5;
+  box-shadow: inset 0 2px 2px #ffffff55, inset 0 -2px 1px #0455c650, 0 3px 4px #12468040, 0 4px 10px #1971bd25;
+}
+.reference-ui #start-btn { width: 64%; min-height: 44px; margin: 0 auto; padding: 8px 16px; font-size: 22px; line-height: 1.2; border-radius: 13px; }
+.reference-ui #start-btn:active, .reference-ui .post-button:active { filter: brightness(.96); transform: translateY(1px); }
+.reference-ui #start-btn:disabled, .reference-ui .post-button:disabled { opacity: .65; cursor: wait; }
+.reference-ui .game-panel .version { position: absolute; right: 9px; bottom: 3px; font-size: 8px; margin: 0; color: #607991; }
+.reference-ui .comments-section {
+  background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
+  border: 1px solid #ffffffcc; border-radius: 15px; overflow: hidden;
+  box-shadow: 0 4px 18px #1c618f22;
+}
+.reference-ui .comment-heading { width: 100%; margin: 0; padding: 8px 12px; gap: 8px; background: linear-gradient(110deg, #edf9ffbb, #d8f1ff66); }
+.reference-ui .comment-title { background: none; padding: 0; border-radius: 0; margin: 0; color: #112033; font-size: 22px; font-weight: 800; line-height: 1.4; }
+.reference-ui .comment-open { border-radius: 10px; min-height: 36px; font-size: 14px; padding: 8px 12px; color: #0069e6; border: 1px solid #e3f1ff; box-shadow: 0 2px 4px #2a689033; line-height: 1.3; background: #ffffffed; white-space: nowrap; }
+.reference-ui .comments-list { gap: 0; margin: 0; display: block; }
+.reference-ui .comment-card { border: 0; box-shadow: none; border-radius: 0; background: transparent; padding: 12px 0 14px; margin: 0 13px; }
+.reference-ui .comment-card + .comment-card { border-top: 1px solid #96b7cf66; }
+.reference-ui .comment-meta { justify-content: flex-start; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; line-height: 1.4; }
+.reference-ui .comment-author { font-weight: 800; color: #12243b; overflow-wrap: anywhere; }
+.reference-ui .comment-time { font-size: 12px; font-weight: 600; color: #8192a9; }
+.reference-ui .comment-text { margin: 5px 0 7px; font-size: 15px; line-height: 1.55; color: #142337; }
+.reference-ui .reply { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 10px; padding: 0; border: 0; align-items: start; }
+.reference-ui .reply-label { border-radius: 5px; padding: 3px 8px; background: #d5eaff; color: #0675ed; font-weight: 700; font-size: 12px; line-height: 1.5; white-space: nowrap; }
+.reference-ui .reply-text { font-size: 13px; color: #304459; line-height: 1.6; margin: 1px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reference-ui .tip-link { grid-column: 2; justify-self: start; margin-top: 3px; font-size: 12px; }
+.reference-ui .comments-loading, .reference-ui .comments-load-status, .reference-ui .comments-empty { color: #41566a; text-shadow: none; padding-inline: 12px; }
+.reference-ui .comments-retry { display: block; width: auto; margin: 12px auto; }
+.reference-ui .comments-retry[hidden], .reference-ui .composer-layer[hidden] { display: none; }
+.reference-ui .comment-notice { margin: 0; padding: 8px 14px; font-size: 13px; color: #24658a; }
+.reference-ui .comment-notice:empty { display: none; }
+.reference-ui .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.reference-ui button:focus-visible, .reference-ui a:focus-visible, .reference-ui select:focus-visible { outline: 2px solid #0069ef; outline-offset: 3px; }
+/* The whole overlay follows the visual viewport; only fields may scroll.
+   The submit footer is never part of that scroll area. */
+.reference-ui.comment-composer-open::after { content: none; }
+.reference-ui .composer-layer { position: fixed; z-index: 50; top: var(--composer-top, 0px); left: 0; width: 100%; height: var(--composer-height, 100dvh); display: flex; align-items: flex-end; justify-content: center; }
+.reference-ui .composer-backdrop { position: fixed; inset: -100vh -100vw; background: #0d294c70; }
+.reference-ui .composer-sheet {
+  position: relative; width: min(100%, 480px); max-height: 100%;
+  display: flex; flex-direction: column; min-height: 0;
+  border-radius: 20px 20px 0 0; background: linear-gradient(130deg, #fff, #fbfdff);
+  padding: 8px 20px 0; box-shadow: 0 -6px 30px #0b244526;
+}
+.reference-ui .composer-handle { width: 40px; height: 5px; background: #c6ccd7; border-radius: 5px; margin: 0 auto 7px; flex: none; }
+.reference-ui .comment-form-header { margin: 0 0 8px; min-height: 38px; flex: none; }
+.reference-ui #composer-title { font-size: 22px; font-weight: 800; color: #101c2f; margin: 0; line-height: 1.35; }
+.reference-ui .comment-close { color: #7e899c; font: 300 34px/1 Arial, sans-serif; width: 38px; min-height: 38px; margin-right: -9px; }
+.reference-ui .comment-close:disabled { background: transparent; opacity: .4; }
+.reference-ui .comment-form {
+  display: flex; flex-direction: column; position: static; transform: none;
+  min-height: 0; width: 100%; max-height: none; overflow: visible;
+  padding: 0; margin: 0; border: 0; border-radius: 0; background: none; box-shadow: none;
+}
+.reference-ui .composer-fields { min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 2px; margin-inline: -2px; }
+.reference-ui .nickname-input, .reference-ui .comment-input { border: 1px solid #c7d0dd; border-radius: 9px; color: #172235; background: #fff; font-size: 16px; line-height: 1.5; padding: 9px 11px; box-shadow: inset 0 1px 2px #12345a03; }
+.reference-ui .nickname-input { height: 38px; margin: 0 0 9px; font-size: 16px; }
+.reference-ui .nickname-input::placeholder, .reference-ui .comment-input::placeholder { color: #8390a3; opacity: 1; }
+.reference-ui .comment-input { height: 76px; min-height: 65px; max-height: 150px; resize: none; }
+.reference-ui .nickname-input:focus, .reference-ui .comment-input:focus { outline: none; border-color: #0677ff; box-shadow: 0 0 0 1px #0677ff; }
+.reference-ui .privacy-hint { margin: 9px 0 0; font-size: 11px; color: #78859a; line-height: 1.5; }
+.reference-ui .privacy-hint a { color: #66748a; text-underline-offset: 2px; white-space: nowrap; }
+.reference-ui .comment-status { margin: 7px 0 0; font-size: 12px; }
+.reference-ui .composer-footer { display: flex; flex: none; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 0 max(9px, env(safe-area-inset-bottom)); }
+.reference-ui .character-count { font-size: 14px; color: #7c899f; font-weight: 600; }
+.reference-ui .post-button { width: 86px; min-height: 42px; padding: 8px 16px; border-radius: 10px; font-size: 21px; box-shadow: inset 0 1px 2px #ffffff45; }
+@media (max-width: 350px) {
+  .reference-ui .game-panel { padding-inline: 12px; }
+  .reference-ui .comment-heading { padding-inline: 10px; }
+  .reference-ui .comment-title { font-size: 20px; }
+  .reference-ui .comment-open { font-size: 13px; padding-inline: 10px; }
+  .reference-ui .reply { gap: 5px 7px; }
+  .reference-ui .composer-sheet { padding-inline: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
