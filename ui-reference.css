@@ -74,7 +74,7 @@
 .reference-ui #start-btn:disabled, .reference-ui .post-button:disabled { opacity: .65; cursor: wait; }
 .reference-ui .game-panel .version { position: absolute; right: 9px; bottom: 3px; font-size: 8px; margin: 0; color: #607991; }
 .reference-ui .comments-section {
-  background: linear-gradient(115deg, #fbfdfff8, #edf8fff5);
+  background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
   border: 1px solid #ffffffcc; border-radius: 15px; overflow: hidden;
   box-shadow: 0 4px 18px #1c618f22;
 }
@@ -87,10 +87,10 @@
 .reference-ui .comment-meta { justify-content: flex-start; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; line-height: 1.4; }
 .reference-ui .comment-author { font-weight: 800; color: #12243b; overflow-wrap: anywhere; }
 .reference-ui .comment-time { font-size: 12px; font-weight: 600; color: #65778d; }
-.reference-ui .comment-text { margin: 5px 0 7px; font-size: 16px; font-weight: 500; line-height: 1.55; color: #0f1d2f; }
+.reference-ui .comment-text { margin: 5px 0 7px; font-size: 15px; font-weight: 500; line-height: 1.55; color: #0f1d2f; }
 .reference-ui .reply { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 10px; padding: 0; border: 0; align-items: start; }
 .reference-ui .reply-label { border-radius: 5px; padding: 3px 8px; background: #d5eaff; color: #0675ed; font-weight: 700; font-size: 12px; line-height: 1.5; white-space: nowrap; }
-.reference-ui .reply-text { font-size: 14px; font-weight: 500; color: #24394f; line-height: 1.6; margin: 1px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reference-ui .reply-text { font-size: 13px; font-weight: 500; color: #24394f; line-height: 1.6; margin: 1px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .reference-ui .tip-link { grid-column: 2; justify-self: start; margin-top: 3px; font-size: 12px; }
 .reference-ui .comments-loading, .reference-ui .comments-load-status, .reference-ui .comments-empty { color: #41566a; text-shadow: none; padding-inline: 12px; }
 .reference-ui .comments-retry { display: block; width: auto; margin: 12px auto; }
