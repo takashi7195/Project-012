@@ -80,10 +80,11 @@
     const meta = document.createElement("div");
     meta.className = "comment-meta";
     const nickname = comment.nickname || "匿名";
-    meta.append(
-      makeUserAvatar(nickname),
-      makeTextElement("span", "comment-author", nickname),
-    );
+    const metaContent = document.createElement("div");
+    metaContent.className = "comment-meta-content";
+    const authorLine = document.createElement("div");
+    authorLine.className = "comment-author-line";
+    authorLine.append(makeTextElement("span", "comment-author", nickname));
 
     const time = document.createElement("time");
     time.className = "comment-time";
@@ -95,9 +96,10 @@
       }).format(createdAt);
       time.textContent = formatCommentTime(createdAt);
     }
-    meta.append(time);
-
+    authorLine.append(time);
     const body = makeTextElement("p", "comment-text", comment.body || "");
+    metaContent.append(authorLine, body);
+    meta.append(makeUserAvatar(nickname), metaContent);
     const reply = document.createElement("div");
     reply.className = "reply";
     const replyAvatar = document.createElement("img");
@@ -124,7 +126,7 @@
       replyContent.append(tipLink);
     }
 
-    card.append(meta, body, reply);
+    card.append(meta, reply);
     return card;
   }
 

@@ -84,8 +84,10 @@
 .reference-ui .comments-list { gap: 0; margin: 0; display: block; }
 .reference-ui .comment-card { border: 0; box-shadow: none; border-radius: 0; background: transparent; padding: 12px 0 14px; margin: 0 13px; }
 .reference-ui .comment-card + .comment-card { border-top: 1px solid #96b7cf66; }
-.reference-ui .comment-meta { justify-content: flex-start; flex-wrap: wrap; gap: 6px 10px; font-size: 14px; line-height: 1.4; }
+.reference-ui .comment-meta { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: start; gap: 0 10px; font-size: 14px; line-height: 1.4; }
 .reference-ui .user-avatar { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; background: var(--avatar-color, #7c8795); color: #fff; font-size: 15px; font-weight: 800; line-height: 1; }
+.reference-ui .comment-meta-content { min-width: 0; }
+.reference-ui .comment-author-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; min-height: 28px; }
 .reference-ui .comment-author { font-weight: 800; color: #12243b; overflow-wrap: anywhere; }
 .reference-ui .comment-time { font-size: 12px; font-weight: 600; color: #8192a9; }
 .reference-ui .comment-text { margin: 5px 0 7px; font-size: 15px; line-height: 1.55; color: #142337; }
