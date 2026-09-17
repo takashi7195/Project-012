@@ -45,9 +45,9 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.equal(request.init.headers["x-goog-api-key"], "test-key");
   assert.equal(request.body.contents.length, 1);
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
-  assert.match(request.body.contents[0].parts[0].text, /1回で内容が完結/u);
+  assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
-  assert.equal(request.body.system_instruction.parts[0].text, "あなたは通常のAIとして、ユーザーのコメントに1回で完結するよう自然に返答してください。話し方はため口にしてください。");
+  assert.equal(Object.hasOwn(request.body, "system_instruction"), false);
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
