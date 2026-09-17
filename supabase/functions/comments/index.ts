@@ -203,6 +203,7 @@ async function submitComment(request: Request, origin: string) {
   const generatedReplies = await generateGeminiReply(body, geminiApiKey || "", fetch, (code) => { aiDiagnostic = code; });
   if (!generatedReplies) diagnostic(requestId, aiDiagnostic);
   const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
+  if (generatedReplies && !selectedReply) diagnostic(requestId, "reply_rejected");
   const replySource = selectedReply ? "gemini" : "template";
   const replyText = selectedReply?.reply ?? templateReply();
   const tipRequested = selectedReply?.tipRequested ?? false;
