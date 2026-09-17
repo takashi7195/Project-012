@@ -2,6 +2,7 @@
   const endpoint = "https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/comments";
   const publicApiKey = "sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64";
   const ofuseTipUrl = "https://ofuse.me/7de5342a";
+  const aiAvatarUrl = "ai-takashi-avatar.png";
   const privacy = globalThis.ProjectCommentSafety;
   const form = document.getElementById("comment-form");
   const nicknameInput = document.getElementById("nickname");
@@ -47,6 +48,27 @@
     return element;
   }
 
+  function avatarInitial(nickname) {
+    const value = typeof nickname === "string" ? nickname.trim() : "";
+    return value && value !== "匿名" ? Array.from(value)[0] : "匿";
+  }
+
+  function avatarColor(nickname) {
+    const palette = ["#7b58c9", "#e84f8a", "#3f9d70", "#d58b36", "#3f83b8", "#8b6a58"];
+    const value = typeof nickname === "string" ? nickname.trim() : "";
+    if (!value || value === "匿名") return "#7c8795";
+    let hash = 0;
+    for (const character of value) hash = (hash * 31 + character.codePointAt(0)) >>> 0;
+    return palette[hash % palette.length];
+  }
+
+  function makeUserAvatar(nickname) {
+    const avatar = makeTextElement("span", "user-avatar", avatarInitial(nickname));
+    avatar.style.setProperty("--avatar-color", avatarColor(nickname));
+    avatar.setAttribute("aria-hidden", "true");
+    return avatar;
+  }
+
   function makeCard(comment) {
     const card = document.createElement("article");
     card.className = "comment-card";
@@ -57,7 +79,11 @@
 
     const meta = document.createElement("div");
     meta.className = "comment-meta";
-    meta.append(makeTextElement("span", "comment-author", comment.nickname || "匿名"));
+    const nickname = comment.nickname || "匿名";
+    meta.append(
+      makeUserAvatar(nickname),
+      makeTextElement("span", "comment-author", nickname),
+    );
 
     const time = document.createElement("time");
     time.className = "comment-time";
@@ -74,10 +100,19 @@
     const body = makeTextElement("p", "comment-text", comment.body || "");
     const reply = document.createElement("div");
     reply.className = "reply";
-    reply.append(
+    const replyAvatar = document.createElement("img");
+    replyAvatar.className = "reply-avatar";
+    replyAvatar.src = aiAvatarUrl;
+    replyAvatar.alt = "";
+    replyAvatar.width = 32;
+    replyAvatar.height = 32;
+    const replyContent = document.createElement("div");
+    replyContent.className = "reply-content";
+    replyContent.append(
       makeTextElement("div", "reply-label", comment.reply?.author || "AIタカシ"),
       makeTextElement("p", "reply-text", comment.reply?.body || ""),
     );
+    reply.append(replyAvatar, replyContent);
 
     if (comment.tipRequested === true) {
       const tipLink = document.createElement("a");
@@ -86,7 +121,7 @@
       tipLink.target = "_blank";
       tipLink.rel = "noopener noreferrer";
       tipLink.textContent = "AIタカシにジュースをおごる";
-      reply.append(tipLink);
+      replyContent.append(tipLink);
     }
 
     card.append(meta, body, reply);
