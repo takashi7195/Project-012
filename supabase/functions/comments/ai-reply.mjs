@@ -2,6 +2,8 @@ import { redactPersonalInfo } from "./moderation.mjs";
 
 export const GEMINI_MODEL = "gemini-3.1-flash-lite";
 
+const SYSTEM_INSTRUCTION = `通常のAIとして、ため口でなれなれしく返答してください。疑問形や質問で終わらず、返信の中で内容を完結させてください。`;
+
 export const TEMPLATE_REPLIES = [
   "なるほど！ぼくも今うなずいた！",
   "そっかそっか！ぼくの耳がぴくっとした！",
@@ -116,6 +118,7 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch) {
         method: "POST",
         headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
         body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
           contents: [{ role: "user", parts: [{ text: task }] }],
           generationConfig: {
             temperature: 0.9,

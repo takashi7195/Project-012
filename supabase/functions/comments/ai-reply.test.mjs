@@ -47,7 +47,7 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
-  assert.equal(Object.hasOwn(request.body, "system_instruction"), false);
+  assert.equal(request.body.system_instruction.parts[0].text, "通常のAIとして、ため口でなれなれしく返答してください。疑問形や質問で終わらず、返信の中で内容を完結させてください。");
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
