@@ -49,8 +49,8 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.contents[0].parts[0].text, /特定の題材や言い方に頼らず/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントに自然につながる表現/u);
   assert.doesNotMatch(request.body.contents[0].parts[0].text, /のどの渇き|おなか・おやつ|食べ物や飲み物/u);
-  assert.match(request.body.contents[0].parts[0].text, /AIタカシにジュースをおごる/u);
-  assert.equal(request.body.system_instruction.parts[0].text, "あなたは通常のAIとして、ユーザーのコメントに自然に返答してください。話し方はため口にしてください。おとぼけキャラとして返答してください。");
+  assert.match(request.body.contents[0].parts[0].text, /🍺 タカシに生ビールをおごる/u);
+  assert.equal(request.body.system_instruction.parts[0].text, "あなたは通常のAIとして、ユーザーのコメントに自然に返答してください。話し方はため口にしてください。");
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
@@ -58,14 +58,13 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.ok(request.body.generationConfig.maxOutputTokens >= 128);
 });
 
-test("positive comments request a tip for 20 percent of server-side random draws", () => {
-  assert.deepEqual(chooseReply(candidates(), () => 0.199999), { reply: tipReply, tipRequested: true });
-  assert.deepEqual(chooseReply(candidates(), () => 0.2), { reply: regularReply, tipRequested: false });
+test("positive comments request a tip for 30 percent of server-side random draws", () => {
+  assert.deepEqual(chooseReply(candidates(), () => 0.299999), { reply: tipReply, tipRequested: true });
+  assert.deepEqual(chooseReply(candidates(), () => 0.3), { reply: regularReply, tipRequested: false });
 });
 
-test("negative comments, including ordinary complaints, request a tip for 5 percent", () => {
-  assert.deepEqual(chooseReply(candidates({ sentiment: "negative" }), () => 0.049999), { reply: tipReply, tipRequested: true });
-  assert.deepEqual(chooseReply(candidates({ sentiment: "negative" }), () => 0.05), { reply: regularReply, tipRequested: false });
+test("negative comments do not request a tip", () => {
+  assert.deepEqual(chooseReply(candidates({ sentiment: "negative" }), () => 0), { reply: regularReply, tipRequested: false });
 });
 
 test("neutral, mixed, uncertain, and serious hardship comments never request a tip", () => {
