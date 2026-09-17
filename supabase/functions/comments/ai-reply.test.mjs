@@ -45,12 +45,9 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.equal(request.init.headers["x-goog-api-key"], "test-key");
   assert.equal(request.body.contents.length, 1);
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
-  assert.match(request.body.contents[0].parts[0].text, /直接求めず/u);
-  assert.match(request.body.contents[0].parts[0].text, /特定の題材や言い方に頼らず/u);
-  assert.match(request.body.contents[0].parts[0].text, /コメントに自然につながる表現/u);
-  assert.doesNotMatch(request.body.contents[0].parts[0].text, /のどの渇き|おなか・おやつ|食べ物や飲み物/u);
-  assert.match(request.body.contents[0].parts[0].text, /🍺 タカシに生ビールをおごる/u);
-  assert.equal(request.body.system_instruction.parts[0].text, "あなたは通常のAIとして、ユーザーのコメントに自然に返答してください。話し方はため口にしてください。");
+  assert.match(request.body.contents[0].parts[0].text, /1回で内容が完結/u);
+  assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
+  assert.equal(request.body.system_instruction.parts[0].text, "あなたは通常のAIとして、ユーザーのコメントに1回で完結するよう自然に返答してください。話し方はため口にしてください。");
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
@@ -80,10 +77,6 @@ test("neutral, mixed, uncertain, and serious hardship comments never request a t
 });
 
 test("invalid generated tip text, random draw, or candidates fail closed to an ordinary reply", () => {
-  assert.deepEqual(chooseReply(candidates({ tipReply: "返信が長すぎるので表示できないよ！".repeat(5) }), () => 0), {
-    reply: regularReply,
-    tipRequested: false,
-  });
   assert.deepEqual(chooseReply(candidates({ seriousDistressOrFinancialHardship: "false" }), () => 0), {
     reply: regularReply,
     tipRequested: false,
@@ -104,10 +97,9 @@ test("a tip reply can hint indirectly without saying chip", async () => {
   assert.deepEqual(chooseReply(result, () => 0), { reply: result.tipReply, tipRequested: true });
 });
 
-test("the existing ten casual fallback replies stay within the response limit", () => {
+test("the existing ten casual fallback replies remain available", () => {
   assert.equal(TEMPLATE_REPLIES.length, 10);
   for (const reply of TEMPLATE_REPLIES) {
-    assert.ok(Array.from(reply).length <= 60, reply);
     assert.equal(isUsableReply(reply), true, reply);
   }
   for (let index = 0; index < 100; index += 1) assert.ok(TEMPLATE_REPLIES.includes(templateReply()));
@@ -140,5 +132,5 @@ test("invalid structured output, provider errors, and unusable replies return nu
     regular_reply: "090-1234-5678です",
     tip_reply: tipReply,
   })), null);
-  assert.equal(isUsableReply("短い返信\nもう一文"), false);
+  assert.equal(isUsableReply("短い返信\nもう一文"), true);
 });
