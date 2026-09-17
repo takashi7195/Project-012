@@ -122,7 +122,7 @@
       tipLink.href = ofuseTipUrl;
       tipLink.target = "_blank";
       tipLink.rel = "noopener noreferrer";
-      tipLink.textContent = "AIタカシにジュースをおごる";
+      tipLink.textContent = "🍺 タカシに生ビールをおごる";
       replyContent.append(tipLink);
     }
 
