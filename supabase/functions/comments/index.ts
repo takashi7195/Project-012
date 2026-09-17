@@ -33,6 +33,10 @@ function jsonResponse(body: unknown, status: number, origin: string) {
   });
 }
 
+function diagnostic(requestId: string, code: string, details: Record<string, unknown> = {}) {
+  console.warn(JSON.stringify({ event: "comment_diagnostic", requestId, code, ...details }));
+}
+
 function safeCursor(raw: string | null) {
   if (!raw) return null;
   try {
@@ -130,38 +134,55 @@ async function listComments(url: URL, origin: string) {
 }
 
 async function submitComment(request: Request, origin: string) {
+  const requestId = crypto.randomUUID();
   const declaredLength = Number(request.headers.get("content-length") || "0");
-  if (declaredLength > 8_192) return jsonResponse({ error: "コメントを投稿できませんでした" }, 413, origin);
+  if (declaredLength > 8_192) {
+    diagnostic(requestId, "input_invalid");
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 413, origin);
+  }
 
   let payload: unknown;
   try {
     payload = JSON.parse(await readBodyWithinLimit(request, 8_192));
   } catch (error) {
-    if (error instanceof RangeError) return jsonResponse({ error: "コメントを投稿できませんでした" }, 413, origin);
+    if (error instanceof RangeError) {
+      diagnostic(requestId, "input_invalid");
+      return jsonResponse({ error: "コメントを投稿できませんでした" }, 413, origin);
+    }
+    diagnostic(requestId, "input_invalid");
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
   }
-  if (!payload || typeof payload !== "object") return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
+  if (!payload || typeof payload !== "object") {
+    diagnostic(requestId, "input_invalid");
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
+  }
 
   const bodyValue = (payload as Record<string, unknown>).body;
   const nicknameValue = (payload as Record<string, unknown>).nickname;
   if (typeof bodyValue !== "string" || (nicknameValue != null && typeof nicknameValue !== "string")) {
+    diagnostic(requestId, "input_invalid");
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
   }
 
   const nicknameInput = typeof nicknameValue === "string" ? nicknameValue : "";
   const moderatedText = `${nicknameInput}\n${bodyValue}`;
   if (moderationDecision(moderatedText) === "block") {
+    diagnostic(requestId, "moderation_blocked");
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 422, origin);
   }
 
   const body = normalizeComment(bodyValue);
-  if (!body) return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
+  if (!body) {
+    diagnostic(requestId, "input_invalid");
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 400, origin);
+  }
   const nickname = normalizeNickname(nicknameInput);
 
   let key: string;
   try {
     key = await rateKey(request);
   } catch {
+    diagnostic(requestId, "config_missing");
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
   }
 
@@ -169,10 +190,18 @@ async function submitComment(request: Request, origin: string) {
     method: "POST",
     body: JSON.stringify({ p_rate_key: key }),
   });
-  if (!rateResponse.ok) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
-  if (!await rateResponse.json()) return jsonResponse({ error: "コメントを投稿できませんでした" }, 429, origin);
+  if (!rateResponse.ok) {
+    diagnostic(requestId, "database_error", { operation: "claim_comment_rate_limit", status: rateResponse.status });
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  }
+  if (!await rateResponse.json()) {
+    diagnostic(requestId, "rate_limited");
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 429, origin);
+  }
 
-  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "");
+  let aiDiagnostic = "unknown_error";
+  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "", fetch, (code) => { aiDiagnostic = code; });
+  if (!generatedReplies) diagnostic(requestId, aiDiagnostic);
   const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
   const replySource = selectedReply ? "gemini" : "template";
   const replyText = selectedReply?.reply ?? templateReply();
@@ -187,9 +216,15 @@ async function submitComment(request: Request, origin: string) {
       p_tip_requested: tipRequested,
     }),
   });
-  if (!createResponse.ok) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  if (!createResponse.ok) {
+    diagnostic(requestId, "database_error", { operation: "create_comment_with_reply", status: createResponse.status });
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  }
   const [created] = await createResponse.json();
-  if (!created) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  if (!created) {
+    diagnostic(requestId, "database_error", { operation: "create_comment_with_reply", status: "empty" });
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  }
 
   return jsonResponse({
     comment: {
@@ -207,7 +242,10 @@ Deno.serve(async (request: Request) => {
   const origin = request.headers.get("origin") || "";
   if (!ALLOWED_ORIGINS.has(origin)) return new Response("Forbidden", { status: 403 });
   if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: headersFor(origin) });
-  if (!projectUrl || !serviceRoleKey || !hmacSecret) return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  if (!projectUrl || !serviceRoleKey || !hmacSecret) {
+    console.warn(JSON.stringify({ event: "comment_diagnostic", code: "config_missing" }));
+    return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+  }
 
   try {
     const url = new URL(request.url);
@@ -215,6 +253,7 @@ Deno.serve(async (request: Request) => {
     if (request.method === "POST") return await submitComment(request, origin);
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 405, origin);
   } catch {
+    console.warn(JSON.stringify({ event: "comment_diagnostic", code: "unknown_error" }));
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 500, origin);
   }
 });

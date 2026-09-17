@@ -44,6 +44,10 @@ export function isUsableReply(text) {
   return redactPersonalInfo(reply) === reply;
 }
 
+function reportDiagnostic(onDiagnostic, code, details = {}) {
+  try { onDiagnostic(code, details); } catch { /* diagnostics must never affect replies */ }
+}
+
 function secureRandomUnit() {
   const sample = new Uint32Array(1);
   crypto.getRandomValues(sample);
@@ -96,9 +100,13 @@ function parseCandidates(text) {
   };
 }
 
-export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch) {
+export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, onDiagnostic = () => {}) {
   const safeComment = redactPersonalInfo(String(comment ?? "").trim());
-  if (!apiKey || !safeComment || Array.from(safeComment).length > 280) return null;
+  if (!apiKey) { reportDiagnostic(onDiagnostic, "config_missing"); return null; }
+  if (!safeComment || Array.from(safeComment).length > 280) {
+    reportDiagnostic(onDiagnostic, "input_invalid");
+    return null;
+  }
 
   const task = [
     "伏字処理済みのコメントを読み、次の項目を1つのJSONで返してください。",
@@ -130,13 +138,29 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch) {
         signal: controller.signal,
       },
     );
-    if (!response.ok) return null;
+    if (!response.ok) {
+      const code = response.status === 401 || response.status === 403
+        ? "gemini_http_401_403"
+        : response.status === 429
+          ? "gemini_http_429"
+          : response.status >= 500
+            ? "gemini_http_5xx"
+            : "gemini_http_error";
+      reportDiagnostic(onDiagnostic, code, { status: response.status });
+      return null;
+    }
     const result = await response.json();
+    const finishReason = result?.candidates?.[0]?.finishReason;
     const generated = result?.candidates?.[0]?.content?.parts
       ?.map((part) => typeof part?.text === "string" ? part.text : "")
       .join("");
-    return parseCandidates(generated);
-  } catch {
+    const parsed = parseCandidates(generated);
+    if (!parsed) {
+      reportDiagnostic(onDiagnostic, finishReason === "MAX_TOKENS" ? "gemini_max_tokens" : "gemini_invalid_json", finishReason ? { finishReason } : {});
+    }
+    return parsed;
+  } catch (error) {
+    reportDiagnostic(onDiagnostic, error?.name === "AbortError" ? "gemini_timeout" : "gemini_network_error");
     return null;
   } finally {
     clearTimeout(timeout);

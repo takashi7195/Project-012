@@ -134,3 +134,18 @@ test("invalid structured output, provider errors, and unusable replies return nu
   })), null);
   assert.equal(isUsableReply("短い返信\nもう一文"), true);
 });
+
+test("diagnostics classify Gemini quota, token, and timeout failures", async () => {
+  let code;
+  assert.equal(await generateGeminiReply("確認", "test-key", async () => new Response("{}", { status: 429 }), (value) => { code = value; }), null);
+  assert.equal(code, "gemini_http_429");
+  code = undefined;
+  assert.equal(await generateGeminiReply("確認", "test-key", async () => new Response(JSON.stringify({
+    candidates: [{ finishReason: "MAX_TOKENS" }],
+  }), { status: 200 }), (value) => { code = value; }), null);
+  assert.equal(code, "gemini_max_tokens");
+  code = undefined;
+  const abort = new DOMException("aborted", "AbortError");
+  assert.equal(await generateGeminiReply("確認", "test-key", async () => { throw abort; }, (value) => { code = value; }), null);
+  assert.equal(code, "gemini_timeout");
+});
