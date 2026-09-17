@@ -118,7 +118,7 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
   ].join("\n");
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 12_000);
+  const timeout = setTimeout(() => controller.abort(), 8_000);
   try {
     const response = await fetchImpl(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
