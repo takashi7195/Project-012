@@ -248,7 +248,6 @@
     nicknameInput.readOnly = true;
     commentInput.readOnly = true;
     form.setAttribute("aria-busy", "true");
-    postButton.textContent = "送信中";
     setFormStatus("");
     try {
       const response = await fetch(endpoint, {
@@ -278,7 +277,6 @@
       nicknameInput.readOnly = false;
       commentInput.readOnly = false;
       form.removeAttribute("aria-busy");
-      postButton.textContent = "送信";
     }
   }
 
