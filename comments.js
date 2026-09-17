@@ -20,8 +20,10 @@
   const composer = document.getElementById("comment-composer");
   const siteContent = document.getElementById("site-content");
   const notice = document.getElementById("comment-notice");
+  const avatarDialog = document.getElementById("avatar-dialog");
+  const avatarDialogClose = document.getElementById("avatar-dialog-close");
 
-  if (!privacy || !form || !nicknameInput || !commentInput || !list || !sentinel || !openButton || !closeButton || !composer || !siteContent) return;
+  if (!privacy || !form || !nicknameInput || !commentInput || !list || !sentinel || !openButton || !closeButton || !composer || !siteContent || !avatarDialog || !avatarDialogClose) return;
 
   let cursor = null;
   let hasMore = true;
@@ -102,19 +104,24 @@
     meta.append(makeUserAvatar(nickname), metaContent);
     const reply = document.createElement("div");
     reply.className = "reply";
+    const replyAvatarButton = document.createElement("button");
+    replyAvatarButton.className = "reply-avatar-button";
+    replyAvatarButton.type = "button";
+    replyAvatarButton.setAttribute("aria-label", "AIタカシの画像を拡大表示");
     const replyAvatar = document.createElement("img");
     replyAvatar.className = "reply-avatar";
     replyAvatar.src = aiAvatarUrl;
     replyAvatar.alt = "";
-    replyAvatar.width = 32;
-    replyAvatar.height = 32;
+    replyAvatar.width = 40;
+    replyAvatar.height = 40;
+    replyAvatarButton.append(replyAvatar);
     const replyContent = document.createElement("div");
     replyContent.className = "reply-content";
     replyContent.append(
       makeTextElement("div", "reply-label", comment.reply?.author || "AIタカシ"),
       makeTextElement("p", "reply-text", comment.reply?.body || ""),
     );
-    reply.append(replyAvatar, replyContent);
+    reply.append(replyAvatarButton, replyContent);
 
     if (comment.tipRequested === true) {
       const tipLink = document.createElement("a");
@@ -137,6 +144,12 @@
   function setFormStatus(message, isError = false) {
     formStatus.textContent = message;
     formStatus.classList.toggle("is-error", isError);
+  }
+
+  function setAvatarDialogOpen(isOpen) {
+    avatarDialog.hidden = !isOpen;
+    document.body.classList.toggle("avatar-dialog-open", isOpen);
+    if (isOpen) avatarDialogClose.focus({ preventScroll: true });
   }
 
   function setComposerOpen(isOpen) {
@@ -273,6 +286,14 @@
   form.addEventListener("submit", submitComment);
   openButton.addEventListener("click", () => setComposerOpen(true));
   closeButton.addEventListener("click", () => setComposerOpen(false));
+  list.addEventListener("click", (event) => {
+    if (event.target.closest(".reply-avatar-button")) setAvatarDialogOpen(true);
+  });
+  avatarDialogClose.addEventListener("click", () => setAvatarDialogOpen(false));
+  avatarDialog.querySelector("[data-avatar-close]").addEventListener("click", () => setAvatarDialogOpen(false));
+  avatarDialog.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") { event.preventDefault(); setAvatarDialogOpen(false); }
+  });
   composer.querySelector(".composer-backdrop").addEventListener("click", () => setComposerOpen(false));
   composer.addEventListener("keydown", (event) => {
     if (event.key === "Escape") { event.preventDefault(); setComposerOpen(false); }

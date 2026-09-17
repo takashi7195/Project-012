@@ -84,15 +84,17 @@
 .reference-ui .comments-list { gap: 0; margin: 0; display: block; }
 .reference-ui .comment-card { border: 0; box-shadow: none; border-radius: 0; background: transparent; padding: 12px 0 14px; margin: 0 13px; }
 .reference-ui .comment-card + .comment-card { border-top: 1px solid #96b7cf66; }
-.reference-ui .comment-meta { display: grid; grid-template-columns: 28px minmax(0, 1fr); align-items: start; gap: 0 10px; font-size: 14px; line-height: 1.4; }
-.reference-ui .user-avatar { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px; width: 28px; height: 28px; border-radius: 50%; background: var(--avatar-color, #7c8795); color: #fff; font-size: 15px; font-weight: 800; line-height: 1; }
+.reference-ui .comment-meta { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: start; gap: 0 10px; font-size: 14px; line-height: 1.4; }
+.reference-ui .user-avatar { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 40px; width: 40px; height: 40px; border-radius: 50%; background: var(--avatar-color, #7c8795); color: #fff; font-size: 19px; font-weight: 800; line-height: 1; }
 .reference-ui .comment-meta-content { min-width: 0; }
 .reference-ui .comment-author-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; min-height: 28px; }
 .reference-ui .comment-author { font-weight: 800; color: #12243b; overflow-wrap: anywhere; }
 .reference-ui .comment-time { font-size: 12px; font-weight: 600; color: #8192a9; }
 .reference-ui .comment-text { margin: 5px 0 7px; font-size: 15px; line-height: 1.55; color: #142337; }
-.reference-ui .reply { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 5px 10px; padding: 0; border: 0; align-items: start; }
-.reference-ui .reply-avatar { display: block; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; grid-row: 1; }
+.reference-ui .reply { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 5px 10px; padding: 0; border: 0; align-items: start; }
+.reference-ui .reply-avatar-button { display: block; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; grid-row: 1; }
+.reference-ui .reply-avatar { display: block; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.reference-ui .reply-avatar-button:focus-visible { outline: 2px solid #0069ef; outline-offset: 3px; }
 .reference-ui .reply-content { min-width: 0; }
 .reference-ui .reply-label { width: fit-content; border-radius: 5px; padding: 3px 8px; background: #d5eaff; color: #0675ed; font-weight: 700; font-size: 12px; line-height: 1.5; white-space: nowrap; }
 .reference-ui .reply-text { font-size: 13px; color: #304459; line-height: 1.6; margin: 1px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -102,6 +104,13 @@
 .reference-ui .comments-retry[hidden], .reference-ui .composer-layer[hidden] { display: none; }
 .reference-ui .comment-notice { margin: 0; padding: 8px 14px; font-size: 13px; color: #24658a; }
 .reference-ui .comment-notice:empty { display: none; }
+.reference-ui .avatar-dialog[hidden] { display: none; }
+.reference-ui .avatar-dialog { position: fixed; z-index: 70; inset: 0; display: grid; place-items: center; padding: 24px; }
+.reference-ui .avatar-dialog-backdrop { position: absolute; inset: 0; background: #06213bb8; }
+.reference-ui .avatar-dialog-card { position: relative; width: min(84vw, 340px); padding: 20px; border-radius: 20px; background: #ffffff; box-shadow: 0 12px 36px #001c3b55; text-align: center; }
+.reference-ui .avatar-dialog-card img { display: block; width: min(64vw, 260px); height: auto; margin: 8px auto 10px; border-radius: 50%; }
+.reference-ui .avatar-dialog-card p { margin: 0; color: #172235; font-size: 16px; font-weight: 800; }
+.reference-ui .avatar-dialog-close { position: absolute; top: 5px; right: 8px; width: 38px; min-height: 38px; border: 0; background: transparent; color: #6d7b8f; font: 300 32px/1 Arial, sans-serif; cursor: pointer; }
 .reference-ui .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .reference-ui button:focus-visible, .reference-ui a:focus-visible, .reference-ui select:focus-visible { outline: 2px solid #0069ef; outline-offset: 3px; }
 /* The whole overlay follows the visual viewport; only fields may scroll.
@@ -142,8 +151,8 @@
   .reference-ui .comment-heading { padding-inline: 10px; }
   .reference-ui .comment-title { font-size: 20px; }
   .reference-ui .comment-open { font-size: 13px; padding-inline: 10px; }
-  .reference-ui .reply { gap: 5px 7px; grid-template-columns: 30px minmax(0, 1fr); }
-  .reference-ui .reply-avatar { width: 30px; height: 30px; }
+  .reference-ui .reply { gap: 5px 7px; grid-template-columns: 40px minmax(0, 1fr); }
+  .reference-ui .reply-avatar-button, .reference-ui .reply-avatar { width: 40px; height: 40px; }
   .reference-ui .composer-sheet { padding-inline: 16px; }
 }
 @media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
