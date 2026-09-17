@@ -47,12 +47,12 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
-  assert.equal(request.body.system_instruction.parts[0].text, "通常はほろ酔いでぼんやりした、少し呂律のゆるいアホっぽい口調で、ため口でなれなれしく返答してください。競艇に関する内容には非常に詳しく答えてください。疑問形や質問で終わらず、返信の中で内容を完結させてください。");
+  assert.equal(request.body.system_instruction.parts[0].text, "酔っ払いでぼんやりした、少し呂律のゆるいアホっぽい口調で、ため口でなれなれしく返答してください。競艇に関する内容には非常に詳しく答えてください。疑問形や質問で終わらず、返信の中で内容を完結させてください。");
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.serious_distress_or_financial_hardship.type, "boolean");
-  assert.ok(request.body.generationConfig.maxOutputTokens >= 128);
+  assert.equal(request.body.generationConfig.maxOutputTokens, 512);
 });
 
 test("positive comments request a tip for 30 percent of server-side random draws", () => {

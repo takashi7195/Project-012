@@ -42,6 +42,6 @@ export function normalizeNickname(input) {
 export function normalizeComment(input) {
   const text = redactPersonalInfo(String(input ?? "").trim());
   const length = Array.from(text).length;
-  if (length < 1 || length > 280) return null;
+  if (length < 1 || length > 300) return null;
   return text;
 }

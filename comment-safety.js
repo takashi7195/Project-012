@@ -25,7 +25,7 @@
   function normalizeComment(input) {
     const text = redactPersonalInfo(String(input ?? "").trim());
     const length = Array.from(text).length;
-    return length >= 1 && length <= 280 ? text : null;
+    return length >= 1 && length <= 300 ? text : null;
   }
 
   function normalizeNickname(input) {

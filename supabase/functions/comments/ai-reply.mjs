@@ -2,7 +2,7 @@ import { redactPersonalInfo } from "./moderation.mjs";
 
 export const GEMINI_MODEL = "gemini-3.1-flash-lite";
 
-const SYSTEM_INSTRUCTION = `通常はほろ酔いでぼんやりした、少し呂律のゆるいアホっぽい口調で、ため口でなれなれしく返答してください。競艇に関する内容には非常に詳しく答えてください。疑問形や質問で終わらず、返信の中で内容を完結させてください。`;
+const SYSTEM_INSTRUCTION = `酔っ払いでぼんやりした、少し呂律のゆるいアホっぽい口調で、ため口でなれなれしく返答してください。競艇に関する内容には非常に詳しく答えてください。疑問形や質問で終わらず、返信の中で内容を完結させてください。`;
 
 export const TEMPLATE_REPLIES = [
   "なるほど！ぼくも今うなずいた！",
@@ -103,7 +103,7 @@ function parseCandidates(text) {
 export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, onDiagnostic = () => {}) {
   const safeComment = redactPersonalInfo(String(comment ?? "").trim());
   if (!apiKey) { reportDiagnostic(onDiagnostic, "config_missing"); return null; }
-  if (!safeComment || Array.from(safeComment).length > 280) {
+  if (!safeComment || Array.from(safeComment).length > 300) {
     reportDiagnostic(onDiagnostic, "input_invalid");
     return null;
   }
@@ -118,7 +118,7 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
   ].join("\n");
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8_000);
+  const timeout = setTimeout(() => controller.abort(), 12_000);
   try {
     const response = await fetchImpl(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
@@ -130,7 +130,7 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
           contents: [{ role: "user", parts: [{ text: task }] }],
           generationConfig: {
             temperature: 0.9,
-            maxOutputTokens: 256,
+            maxOutputTokens: 512,
             responseMimeType: "application/json",
             responseJsonSchema: RESPONSE_JSON_SCHEMA,
           },

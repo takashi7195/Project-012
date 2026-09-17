@@ -46,6 +46,6 @@ test("blocks explicit threats and payment/contact solicitations", () => {
 test("checks redacted length and nickname privacy", () => {
   assert.equal(normalizeComment("  090-1234-3245  "), "[電話番号]");
   assert.equal(normalizeComment("　"), null);
-  assert.equal(normalizeComment("あ".repeat(281)), null);
+  assert.equal(normalizeComment("あ".repeat(301)), null);
   assert.equal(normalizeNickname("taro@example.com"), "[メールアドレス]");
 });

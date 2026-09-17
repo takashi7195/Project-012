@@ -138,7 +138,7 @@
   }
 
   function updateCharacterCount() {
-    characterCount.textContent = `${Array.from(commentInput.value).length}/280`;
+    characterCount.textContent = `${Array.from(commentInput.value).length}/300`;
   }
 
   function setFormStatus(message, isError = false) {
@@ -231,13 +231,13 @@
     event.preventDefault();
     if (submitting) return;
     const rawBody = commentInput.value.trim();
-    if (!rawBody || Array.from(rawBody).length > 280) {
-      setFormStatus("コメントは1〜280文字で入力してください。", true);
+    if (!rawBody || Array.from(rawBody).length > 300) {
+      setFormStatus("コメントは1〜300文字で入力してください。", true);
       return;
     }
     const body = privacy.normalizeComment(rawBody);
     if (!body) {
-      setFormStatus("コメントは1〜280文字で入力してください。", true);
+      setFormStatus("コメントは1〜300文字で入力してください。", true);
       return;
     }
     const nickname = privacy.normalizeNickname(nicknameInput.value);
