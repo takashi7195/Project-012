@@ -47,6 +47,44 @@ const slots = [
   document.getElementById('slot-1')
 ];
 
+const RACE_PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/race-prediction';
+const RACE_PREDICTION_API_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64';
+const STADIUM_CODES = {
+  桐生: 1, 戸田: 2, 江戸川: 3, 平和島: 4, 多摩川: 5, 浜名湖: 6,
+  蒲郡: 7, 常滑: 8, 津: 9, 三国: 10, びわこ: 11, 住之江: 12,
+  尼崎: 13, 鳴門: 14, 丸亀: 15, 児島: 16, 宮島: 17, 徳山: 18,
+  下関: 19, 若松: 20, 芦屋: 21, 福岡: 22, 唐津: 23, 大村: 24,
+};
+
+async function requestLivePrediction(stadium, raceValue) {
+  const stadiumCode = STADIUM_CODES[stadium];
+  const raceNumber = Number.parseInt(String(raceValue).replace('R', ''), 10);
+  if (!stadiumCode || !Number.isInteger(raceNumber)) return null;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8_000);
+  try {
+    const response = await fetch(RACE_PREDICTION_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        apikey: RACE_PREDICTION_API_KEY,
+      },
+      body: JSON.stringify({ stadiumCode, raceNumber }),
+      signal: controller.signal,
+    });
+    if (!response.ok) return null;
+    const payload = await response.json();
+    const prediction = payload?.prediction;
+    if (!Array.isArray(prediction) || prediction.length !== 3 || new Set(prediction).size !== 3 || prediction.some((boat) => !Number.isInteger(boat) || boat < 1 || boat > 6)) return null;
+    return prediction;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function generateCombinations() {
   const combs = [];
   for (let i = 1; i <= 6; i++) {
@@ -146,8 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
 startBtn.addEventListener('click', async () => {
   startBtn.disabled = true;
   const stadium = stadiumSelect.value;
-  const dist = calculateDistribution(stadium);
-  const result = selectCombination(dist);
+  const raceValue = document.getElementById('race-select')?.value || '1R';
+  const livePrediction = await requestLivePrediction(stadium, raceValue);
+  const result = livePrediction || selectCombination(calculateDistribution(stadium));
 
   // result[0]=1着(slot-1), result[1]=2着(slot-2), result[2]=3着(slot-3)
   // 演出順: 3着(slot-3) -> 2着(slot-2) -> 1着(slot-1)
