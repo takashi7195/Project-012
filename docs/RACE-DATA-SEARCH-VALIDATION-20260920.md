@@ -33,6 +33,8 @@
 
 設計にある`race_data.coverage`も取り込みトリガーで更新するよう補完し、既存40 batchを再集計した。coverage 40行、all-scope 40行、coverage欠落batch 0行を確認した。all-scopeは既存テーブルの主キー制約に合わせ`stadium_code=0`を使用する。
 
+再解析コマンド`race-ingestion/reparse-payload.mjs`を追加した。保存済みpayloadを新parser/rules版としてstagingへ渡し、`p_publish=false`で現行headを切り替えない。保護対象のProject-012本番refでは実行を拒否する。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。

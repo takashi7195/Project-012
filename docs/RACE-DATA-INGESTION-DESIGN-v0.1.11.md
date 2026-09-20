@@ -1,7 +1,7 @@
 # v0.1.11 競艇データ基盤 詳細設計書
 
 作成日: 2026-09-20 JST  
-状態: 段階7の実装版。`race_data`スキーマ、service_role限定RPC、Edge Function、Cron、直近1か月の取り込み、管理用の汎用読み取りRPCを実装済み。公開検索API、Gemini Function Calling、完全な障害試験は未完了。実DBのバックフィルキューも直近30日に制限済み。
+状態: 段階7の実装版。`race_data`スキーマ、service_role限定RPC、Edge Function、Cron、直近1か月の取り込み、再解析コマンド、管理用の汎用読み取りRPCを実装済み。公開検索API、Gemini Function Calling、完全な障害試験は未完了。実DBのバックフィルキューも直近30日に制限済み。
 対応計画: [実装計画書](RACE-DATA-INGESTION-PLAN-v0.1.11.md)
 
 ## 1. 設計原則

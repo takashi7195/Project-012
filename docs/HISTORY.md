@@ -209,3 +209,6 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 02:30
 設計上の`race_data.coverage`が空のままになっていた差分を修正。`snapshot_races`更新トリガーで場別/all-scopeを更新し、既存batchを再集計。実DBでcoverage 40行、all-scope 40行、欠落batch 0件を確認した。all-scopeの`stadium_code=0`は既存主キーの非NULL制約に合わせた表現。
+
+### 2026-09-21 03:00
+計画書の再解析コマンドを実装。`race-ingestion/reparse-payload.mjs`は既存payloadを新しいparser/rules版としてstaging保存し、現行headを公開切替しない。Project-012本番refの拒否とRPC引数をテストし、全38テストが成功。
