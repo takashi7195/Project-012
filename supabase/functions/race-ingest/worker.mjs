@@ -24,6 +24,7 @@ export async function runWorker({
   chunkSize = DEFAULT_CHUNK_SIZE,
   normalize = normalizeSnapshot,
   buildPayload = toIngestionRecords,
+  recordFailure,
 } = {}) {
   if (typeof workerId !== "string" || workerId.trim() === "") throw new Error("workerId is required");
   const task = await claimTask(workerId);
@@ -33,8 +34,10 @@ export async function runWorker({
     if (!accepted) throw Object.assign(new Error("lease_lost"), { code: "lease_lost" });
   };
 
+  let fetchMeta = null;
   try {
     const fetched = await fetchDaily(task.raceDate);
+    fetchMeta = fetched?.meta ?? null;
     if (fetched?.status === "not_modified") {
       await finish("succeeded");
       return { status: "not_modified", raceDate: task.raceDate };
@@ -58,6 +61,13 @@ export async function runWorker({
       now,
       retryAfterSeconds: error?.retryAfterSeconds ?? null,
     });
+    if (typeof recordFailure === "function") {
+      try {
+        await recordFailure(task, { ...(fetchMeta ?? {}), ...(error?.metadata ?? {}) }, { ...decision, code });
+      } catch {
+        // Failure logging must not prevent the task lease from being released.
+      }
+    }
     await finish(decision.state, decision.nextAttemptAt, decision.errorCode);
     return { status: decision.state, raceDate: task.raceDate, errorCode: code, issues: error?.issues ?? null };
   }

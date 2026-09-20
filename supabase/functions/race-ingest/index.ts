@@ -81,18 +81,21 @@ async function fetchDaily(baseUrl: string, raceDate: string) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), fetchTimeoutMs);
   const startedAt = new Date().toISOString();
+  const startedTick = performance.now();
+  const metadata = () => ({ requestStartedAt: startedAt, elapsedMs: Math.round(performance.now() - startedTick) });
   try {
     let response: Response;
     try {
       response = await fetch(apiUrl(baseUrl, raceDate), { signal: controller.signal, headers: { accept: "application/json" } });
     } catch (error) {
-      if (error instanceof DOMException && error.name === "AbortError") throw Object.assign(new Error("API request timed out"), { code: "fetch_timeout" });
-      throw Object.assign(new Error("API request failed"), { code: "fetch_network", detail: String(error) });
+      if (error instanceof DOMException && error.name === "AbortError") throw Object.assign(new Error("API request timed out"), { code: "fetch_timeout", metadata: metadata() });
+      throw Object.assign(new Error("API request failed"), { code: "fetch_network", detail: String(error), metadata: metadata() });
     }
-    if (response.status === 304) return { status: "not_modified", startedAt };
+    const responseMeta = { ...metadata(), httpStatus: response.status, etag: response.headers.get("etag"), lastModified: response.headers.get("last-modified") };
+    if (response.status === 304) return { status: "not_modified", startedAt, meta: responseMeta };
     if (!response.ok) {
       const code = response.status === 404 ? "fetch_404" : response.status === 429 ? "fetch_429" : response.status >= 500 ? "fetch_5xx" : "fetch_http_error";
-      const error = Object.assign(new Error(`API HTTP ${response.status}`), { code, httpStatus: response.status });
+      const error = Object.assign(new Error(`API HTTP ${response.status}`), { code, httpStatus: response.status, metadata: responseMeta });
       if (response.status === 429) {
         const retryAfter = Number(response.headers.get("retry-after"));
         Object.assign(error, { retryAfterSeconds: Number.isFinite(retryAfter) && retryAfter >= 0 ? retryAfter : null });
@@ -100,9 +103,10 @@ async function fetchDaily(baseUrl: string, raceDate: string) {
       throw error;
     }
     const text = await readLimited(response);
+    responseMeta.bytes = new TextEncoder().encode(text).byteLength;
     let parsed: unknown;
-    try { parsed = JSON.parse(text); } catch { throw Object.assign(new Error("API returned invalid JSON"), { code: "invalid_json" }); }
-    return { status: "fetched", startedAt, json: parsed };
+    try { parsed = JSON.parse(text); } catch { throw Object.assign(new Error("API returned invalid JSON"), { code: "invalid_json", metadata: responseMeta }); }
+    return { status: "fetched", startedAt, json: parsed, meta: responseMeta };
   } finally {
     clearTimeout(timeout);
   }
@@ -148,6 +152,20 @@ async function main(mode: "today" | "yesterday" | "backfill") {
       } : null;
     },
     fetchDaily: (raceDate: string) => fetchDaily(sourceBaseUrl, raceDate),
+    recordFailure: async (task: any, metadata: any, decision: any) => await restRpc("race_data_record_ingestion_failure", {
+      p_task_id: task.taskId,
+      p_source_code: task.sourceCode,
+      p_race_date: task.raceDate,
+      p_request_started_at: metadata.requestStartedAt ?? null,
+      p_http_status: metadata.httpStatus ?? null,
+      p_elapsed_ms: metadata.elapsedMs ?? null,
+      p_bytes: metadata.bytes ?? null,
+      p_etag: metadata.etag ?? null,
+      p_last_modified: metadata.lastModified ?? null,
+      p_status: "failed",
+      p_error_code: decision.code ?? decision.errorCode ?? null,
+      p_error_detail: { retry_state: decision.state },
+    }),
     writeSnapshotChunk: async (payload: any, { publish }: { publish: boolean }) => await restRpc("race_data_ingest_snapshot", {
       p_source_code: payload.sourceCode,
       p_race_date: payload.records?.[0]?.race?.raceDate,

@@ -150,3 +150,10 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 - HTTP 429の`Retry-After`秒数をworkerの再試行時刻へ引き渡す処理を実装。
 - 429の再試行時刻を確認するテストを追加し、全28テストが成功。
 - `race-ingest` Edge Functionを再デプロイ。
+
+### 2026-09-20 22:40
+取得・失敗時の詳細ログを実装。
+- 失敗時にもHTTP状態、取得サイズ、所要時間、ETag、Last-Modified、エラーコードを`race_data.ingestion_runs`へ保存するRPCを追加。
+- 失敗ログの保存に失敗しても、タスクのリース解放を妨げない構造にした。
+- 詳細ログのworker試験を追加し、全29テストが成功。
+- `race-ingest` Edge Functionを再デプロイ。

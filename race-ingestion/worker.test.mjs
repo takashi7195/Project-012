@@ -85,6 +85,25 @@ test("worker passes Retry-After from a 429 failure to the retry scheduler", asyn
   assert.equal(finished[0].nextAttemptAt, "2026-09-20T00:00:37.000Z");
 });
 
+test("worker records failure metadata before releasing the lease", async () => {
+  const events = [];
+  const result = await runWorker({
+    workerId: "worker-log",
+    claimTask: async () => ({ taskId: "task-log", raceDate: "2026-09-20", attemptCount: 1, leaseToken: "lease-log" }),
+    fetchDaily: async () => { throw Object.assign(new Error("server error"), { code: "fetch_5xx", metadata: { httpStatus: 503, elapsedMs: 1234, bytes: 456 } }); },
+    recordFailure: async (task, metadata, decision) => { events.push({ task, metadata, decision }); },
+    writeSnapshotChunk: async () => { throw new Error("must not write"); },
+    finishTask: async () => true,
+    now: new Date("2026-09-20T00:00:00.000Z"),
+  });
+  assert.equal(result.status, "retry");
+  assert.equal(events.length, 1);
+  assert.equal(events[0].metadata.httpStatus, 503);
+  assert.equal(events[0].metadata.elapsedMs, 1234);
+  assert.equal(events[0].metadata.bytes, 456);
+  assert.equal(events[0].decision.state, "retry");
+});
+
 test("the first leased attempt uses the five-minute retry delay", async () => {
   let finished;
   const result = await runWorker({
