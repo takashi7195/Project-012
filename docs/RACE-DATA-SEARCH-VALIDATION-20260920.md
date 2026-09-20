@@ -23,6 +23,8 @@
 
 値は定期取得の進行で変化するため、機能の固定期待値には使わない。検索は現行batchのみを対象とし、旧projectionの重複を集計しない。
 
+追加フィルター用の3索引（projectionと級別/年齢、projectionと選手名、projectionと賭式/払戻し）も実DBで存在を確認した。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。

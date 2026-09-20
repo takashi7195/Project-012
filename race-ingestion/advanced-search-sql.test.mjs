@@ -14,3 +14,10 @@ test('advanced search exposes bounded typed filters without changing the origina
   assert.match(sql, /grant execute on function race_data\.search_current_races_filtered.*service_role/s);
   assert.match(sql, /public\.race_data_search_current_races_filtered/);
 });
+
+test('search indexes cover projection filters', () => {
+  const indexes = fs.readFileSync(new URL('../supabase/migrations/20260921000007_search_indexes.sql', import.meta.url), 'utf8');
+  assert.match(indexes, /race_entries_projection_rank_age_idx/);
+  assert.match(indexes, /race_entries_projection_name_search_idx/);
+  assert.match(indexes, /payouts_projection_type_amount_idx/);
+});

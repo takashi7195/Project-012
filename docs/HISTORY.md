@@ -196,3 +196,4 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 - `race_data_search_current_races_filtered` を追加し、登録番号、級別、年齢範囲、賭式、払戻し範囲を組み合わせて検索可能にした。
 - 既存の7引数 `race_data_search_current_races` は変更せず、両方ともservice_role限定。
 - 実DBでA1、選手名、3連単かつ払戻し範囲の検索を各3件上限で確認。
+- projection起点の級別/年齢、選手名、賭式/払戻し範囲用索引を追加し、実DBで3件の存在を確認。
