@@ -190,3 +190,9 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 - 対象レース数、通常払戻しの最大額と同額首位、最年少と同年齢行、結果確定レース数、coverage、`no_match`/`invalid_date_range`警告を返す。
 - 実DBで全件上限、R/艇番絞り込み、選手名絞り込み、構造化行、最年少・結果集計、無効日付を確認。公開検索API・Gemini連携は次段階。
 - 観測値と残制限を `docs/RACE-DATA-SEARCH-VALIDATION-20260920.md` に記録。
+
+### 2026-09-21 01:10
+汎用検索の追加条件を後方互換で実装。
+- `race_data_search_current_races_filtered` を追加し、登録番号、級別、年齢範囲、賭式、払戻し範囲を組み合わせて検索可能にした。
+- 既存の7引数 `race_data_search_current_races` は変更せず、両方ともservice_role限定。
+- 実DBでA1、選手名、3連単かつ払戻し範囲の検索を各3件上限で確認。

@@ -182,7 +182,7 @@ HTTP成功、構造妥当、出走表あり、結果あり、全国全開催を�
 この段階では管理用の読み取りRPCと検証SQLを用意する。公開検索APIやGemini Function Callingは次期対象。
 
 実装済みの `race_data.search_current_races`（publicラッパーは
-`race_data_search_current_races`）は、公開されたday headの現行batchだけを対象に、日付範囲・場・R・艇番・選手名を組み合わせて最大100件まで検索する。各行に出走表、展示、結果、払戻しを含め、集計として対象レース数と通常払戻しの最大額・同額行を返す。`ready` は現在の取り込みwriterが原子的に公開した状態であり、将来の明示的な `published` 状態とともに検索対象とする。
+`race_data_search_current_races`）は、公開されたday headの現行batchだけを対象に、日付範囲・場・R・艇番・選手名を組み合わせて最大100件まで検索する。各行に出走表、展示、結果、払戻しを含め、集計として対象レース数、通常払戻しの最大額・同額行、最年少、結果確定数を返す。追加条件は `race_data_search_current_races_filtered` で登録番号、級別、年齢範囲、賭式、払戻し範囲を組み合わせられる。`ready` は現在の取り込みwriterが原子的に公開した状態であり、将来の明示的な `published` 状態とともに検索対象とする。
 
 - 現行ビューはday_heads→公開batch→accepted projectionを結合する。
 - 履歴ビューは対象の観測run/batchを指定する。初回観測時刻だけで版を決めない。
