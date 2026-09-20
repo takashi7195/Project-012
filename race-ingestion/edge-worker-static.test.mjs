@@ -14,6 +14,8 @@ test("edge worker is authenticated and bound to the known API host", async () =>
   assert.match(index, /16 \* 1024 \* 1024/);
   assert.match(index, /Deno\.serve/);
   assert.match(index, /race_data_enqueue_date_tasks/);
+  assert.match(index, /race_data_disable_tasks_before/);
+  assert.match(index, /rollingStart/);
   assert.match(index, /race_data_claim_next_task/);
   assert.match(index, /race_data_ingest_snapshot/);
   assert.match(index, /race_data_finish_task/);

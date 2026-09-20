@@ -30,6 +30,12 @@ function jstDate(date = new Date()) {
   return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(date);
 }
 
+function shiftDate(dateText: string, days: number) {
+  const date = new Date(`${dateText}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 function apiUrl(baseUrl: string, raceDate: string) {
   if (baseUrl.replace(/\/$/, "") !== sourceBaseUrl) throw Object.assign(new Error("unsupported_source"), { code: "unsupported_source" });
   const [year, month, day] = raceDate.split("-");
@@ -107,10 +113,19 @@ async function main(mode: "today" | "yesterday" | "backfill") {
   const workerId = `edge-${crypto.randomUUID()}`;
   const today = jstDate();
   const yesterday = jstDate(new Date(Date.now() - 86_400_000));
-  const backfillFrom = Deno.env.get("RACE_INGEST_BACKFILL_FROM");
+  const rollingStart = shiftDate(today, -29);
+  const configuredBackfillFrom = Deno.env.get("RACE_INGEST_BACKFILL_FROM");
+  // A stale historical secret must not widen the rolling retention window.
+  const backfillFrom = configuredBackfillFrom && configuredBackfillFrom > rollingStart
+    ? configuredBackfillFrom
+    : rollingStart;
   if (mode === "today") await enqueueRange(today, today, "today", 100);
   if (mode === "yesterday") await enqueueRange(yesterday, yesterday, "yesterday", 50);
-  if (mode === "backfill" && backfillFrom) await enqueueRange(backfillFrom, yesterday, "backfill", -10);
+  if (mode === "backfill") {
+    await restRpc("race_data_disable_tasks_before", { p_cutoff: rollingStart });
+    if (backfillFrom <= yesterday) await enqueueRange(backfillFrom, yesterday, "backfill", -10);
+    diagnostic("race_ingest_backfill_window", { from: backfillFrom, through: yesterday, rollingStart });
+  }
 
   const result = await runWorker({
     workerId,
