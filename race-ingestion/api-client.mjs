@@ -44,7 +44,9 @@ async function readBody(response, maxBytes) {
 }
 
 function classifyError(error) {
-  if (error?.code) return error.code;
+  // DOMException(AbortError) exposes numeric `code = 20` in Node. Do not
+  // leak that implementation detail into scheduler error codes.
+  if (typeof error?.code === "string" && error.code) return error.code;
   if (error?.name === "AbortError") return "fetch_timeout";
   if (error instanceof SyntaxError) return "invalid_json";
   return "fetch_network";

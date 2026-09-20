@@ -16,7 +16,10 @@
 | レースメタデータ検索 | 合格 | タイトル/グレード/距離、天候/風、決まり手/結果状態を検索結果で確認 |
 | coverageテーブル更新 | 合格 | snapshot_racesからall-scopeを再集計し、既存batchの欠落0件を確認 |
 | 再解析コマンド | 合格 | 新parser/rules版をpublishせずstaging保存し、Project-012保護を確認 |
-| 自動テスト | 合格 | node test 38件すべて成功 |
+| 並行worker試験ハーネス | 合格 | 2 workerを同時起動する決定的シミュレーションで、claimとpublishが1回だけになることを確認 |
+| 上流障害試験ハーネス | 合格 | ローカルHTTPサーバーで429（Retry-After）とタイムアウトを再現し、原因コードを分離 |
+| 容量観測試験ハーネス | 合格 | 7つの異なる観測日が揃うまでpending、揃うとreadyになることをfixtureで確認 |
+| 自動テスト | 合格 | node test 41件すべて成功 |
 
 ## 試験SQLの修正
 
@@ -24,7 +27,15 @@
 
 ## 未実施
 
-- 同時workerの実プロセス試験
+- 同時workerの実プロセス試験（決定的なローカルシミュレーションは合格。実Edge Functionの2プロセス同時実行は未実施）
 - DB停止・再開
-- 429/5xx/タイムアウトの実API試験
+- 429/5xx/タイムアウトの実API試験（ローカル障害シミュレーションは合格。提供元への実リクエストでの再現は未実施）
 - 7日連続観測と30日バックフィル完了後の容量再測定
+- 新しい空の開発DBへの完全バックアップ復元（現行の一時テーブル復元スモークは全正規化表・履歴表の件数照合まで拡張済み）
+
+## 追加実装（2026-09-21）
+
+- `race-ingestion/acceptance-harness.test.mjs` を追加した。実DBや提供元APIを変更せず、同時claimの排他と429/タイムアウトの分類をローカルで再現する。
+- `race-ingestion/api-client.mjs` のタイムアウト分類を修正した。NodeのAbortErrorが持つ数値DOMException code（20）を内部エラーコードとして漏らさず、`fetch_timeout`に正規化する。
+- `race-ingestion/backup-restore-smoke.sql` の一時バックアップ照合対象を、正規化表・展示/結果・払戻し・原本履歴・構成要素・観測表まで拡張した。トランザクションをロールバックするため実データは変更しない。
+- `race-ingestion/capacity-acceptance.mjs` を追加し、7日観測の経過前に合格扱いにしない判定を共通化した。
