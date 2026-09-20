@@ -30,7 +30,7 @@ Supabase Cron（開発専用プロジェクト）
 
 Supabase PostgreSQLの専用スキーマ `race_data` と収集専用Functionを使用する。ユーザー承認によりProject-012を使用するが、`race_data`はブラウザー向けに公開しない。収集RPCはservice_role限定のpublicラッパー経由で呼び出す。
 
-Cron/pg_netからFunctionを呼び出し、認証情報はVaultとFunction Secretへ保存する。HTTP呼び出しの受付成功だけで収集成功とせず、DB上のrun状態まで確認する。[Supabaseの定期実行方式](https://supabase.com/docs/guides/functions/schedule-functions)
+Cron/pg_netからFunctionを呼び出し、認証情報はVaultとFunction Secretへ保存する。Project-012ではVault拡張が利用できなかったため、現段階はブラウザー権限を剥奪した`race_data.scheduler_secrets`へCron専用トークンを保存し、Function Secretと同じ値を参照する。Vaultが利用可能になった時点で移行する。HTTP呼び出しの受付成功だけで収集成功とせず、DB上のrun状態まで確認する。[Supabaseの定期実行方式](https://supabase.com/docs/guides/functions/schedule-functions)
 
 workerは小さな処理単位に分割する。初期設定は外部取得30秒、1呼び出しの処理予算60秒、展開後本文上限16MiB、外部リクエスト直列。CPU・メモリ・DB時間を測定し、余裕がなければ一度保存した解析待ちデータを後続workerが処理する。クラウドの実行制約を確認し、1呼び出しで数か月分を処理しない。[Edge Functionの制約](https://supabase.com/docs/guides/functions/limits)
 
