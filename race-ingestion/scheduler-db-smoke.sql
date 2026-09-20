@@ -1,4 +1,5 @@
 begin;
+delete from race_data.sync_tasks where race_date = date '2099-12-30';
 do $$
 declare
   first_claim record;
@@ -6,7 +7,7 @@ declare
   finished boolean;
   queued_count integer;
 begin
-  perform race_data.enqueue_date_tasks('boatraceopenapi-v1', date '2099-12-30', date '2099-12-30', 'scheduler-smoke', -100::smallint);
+  perform race_data.enqueue_date_tasks('boatraceopenapi-v1', date '2099-12-30', date '2099-12-30', 'scheduler-smoke', 1000::smallint);
   select * into first_claim from race_data.claim_next_task('scheduler-smoke-a', 90);
   if first_claim.task_id is null then raise exception 'claim did not return a task'; end if;
 
