@@ -104,6 +104,22 @@ test("worker records failure metadata before releasing the lease", async () => {
   assert.equal(events[0].decision.state, "retry");
 });
 
+test("worker records a not-modified observation before finishing", async () => {
+  const observations = [];
+  const result = await runWorker({
+    workerId: "worker-304",
+    claimTask: async () => ({ taskId: "task-304", raceDate: "2026-09-20", attemptCount: 1, leaseToken: "lease-304" }),
+    fetchDaily: async () => ({ status: "not_modified", meta: { httpStatus: 304, etag: '"abc"', elapsedMs: 12 } }),
+    recordObservation: async (task, metadata) => { observations.push({ task, metadata }); },
+    writeSnapshotChunk: async () => { throw new Error("must not write"); },
+    finishTask: async () => true,
+  });
+  assert.equal(result.status, "not_modified");
+  assert.equal(observations.length, 1);
+  assert.equal(observations[0].metadata.httpStatus, 304);
+  assert.equal(observations[0].metadata.etag, '"abc"');
+});
+
 test("the first leased attempt uses the five-minute retry delay", async () => {
   let finished;
   const result = await runWorker({

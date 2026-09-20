@@ -25,6 +25,7 @@ export async function runWorker({
   normalize = normalizeSnapshot,
   buildPayload = toIngestionRecords,
   recordFailure,
+  recordObservation,
 } = {}) {
   if (typeof workerId !== "string" || workerId.trim() === "") throw new Error("workerId is required");
   const task = await claimTask(workerId);
@@ -39,6 +40,9 @@ export async function runWorker({
     const fetched = await fetchDaily(task.raceDate);
     fetchMeta = fetched?.meta ?? null;
     if (fetched?.status === "not_modified") {
+      if (typeof recordObservation === "function") {
+        try { await recordObservation(task, fetchMeta ?? {}); } catch { /* observation is best effort */ }
+      }
       await finish("succeeded");
       return { status: "not_modified", raceDate: task.raceDate };
     }
@@ -49,7 +53,7 @@ export async function runWorker({
     const chunks = chunkRecords(payload, chunkSize);
     const writes = [];
     for (const [index, chunk] of chunks.entries()) {
-      writes.push(await writeSnapshotChunk(chunk, { publish: index === chunks.length - 1, task }));
+      writes.push(await writeSnapshotChunk(chunk, { publish: index === chunks.length - 1, task, fetchMeta }));
     }
     await finish("succeeded");
     return { status: "succeeded", raceDate: task.raceDate, chunkCount: chunks.length, writes };

@@ -77,7 +77,7 @@ async function readLimited(response: Response) {
   return new TextDecoder().decode(output);
 }
 
-async function fetchDaily(baseUrl: string, raceDate: string) {
+async function fetchDaily(baseUrl: string, raceDate: string, previous: { etag?: string | null; last_modified?: string | null } = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), fetchTimeoutMs);
   const startedAt = new Date().toISOString();
@@ -86,7 +86,10 @@ async function fetchDaily(baseUrl: string, raceDate: string) {
   try {
     let response: Response;
     try {
-      response = await fetch(apiUrl(baseUrl, raceDate), { signal: controller.signal, headers: { accept: "application/json" } });
+      const headers: Record<string, string> = { accept: "application/json" };
+      if (previous.etag) headers["if-none-match"] = previous.etag;
+      if (previous.last_modified) headers["if-modified-since"] = previous.last_modified;
+      response = await fetch(apiUrl(baseUrl, raceDate), { signal: controller.signal, headers });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") throw Object.assign(new Error("API request timed out"), { code: "fetch_timeout", metadata: metadata() });
       throw Object.assign(new Error("API request failed"), { code: "fetch_network", detail: String(error), metadata: metadata() });
@@ -151,7 +154,28 @@ async function main(mode: "today" | "yesterday" | "backfill") {
         leaseUntil: row.lease_until,
       } : null;
     },
-    fetchDaily: (raceDate: string) => fetchDaily(sourceBaseUrl, raceDate),
+    fetchDaily: async (raceDate: string) => {
+      let previous: any = {};
+      try {
+        const rows = await restRpc("race_data_latest_http_metadata", { p_source_code: sourceCode, p_race_date: raceDate });
+        previous = Array.isArray(rows) ? rows[0] ?? {} : {};
+      } catch { /* validator lookup is best effort; fall back to an unconditional GET */ }
+      return await fetchDaily(sourceBaseUrl, raceDate, previous);
+    },
+    recordObservation: async (task: any, metadata: any) => await restRpc("race_data_record_ingestion_failure", {
+      p_task_id: task.taskId,
+      p_source_code: task.sourceCode,
+      p_race_date: task.raceDate,
+      p_request_started_at: metadata.requestStartedAt ?? null,
+      p_http_status: metadata.httpStatus ?? 304,
+      p_elapsed_ms: metadata.elapsedMs ?? null,
+      p_bytes: metadata.bytes ?? null,
+      p_etag: metadata.etag ?? null,
+      p_last_modified: metadata.lastModified ?? null,
+      p_status: "not_modified",
+      p_error_code: null,
+      p_error_detail: { conditional_request: true },
+    }),
     recordFailure: async (task: any, metadata: any, decision: any) => await restRpc("race_data_record_ingestion_failure", {
       p_task_id: task.taskId,
       p_source_code: task.sourceCode,
@@ -166,7 +190,7 @@ async function main(mode: "today" | "yesterday" | "backfill") {
       p_error_code: decision.code ?? decision.errorCode ?? null,
       p_error_detail: { retry_state: decision.state },
     }),
-    writeSnapshotChunk: async (payload: any, { publish }: { publish: boolean }) => await restRpc("race_data_ingest_snapshot", {
+    writeSnapshotChunk: async (payload: any, { publish, fetchMeta }: { publish: boolean; fetchMeta: any }) => await restRpc("race_data_ingest_snapshot_with_metadata", {
       p_source_code: payload.sourceCode,
       p_race_date: payload.records?.[0]?.race?.raceDate,
       p_body_hash: payload.rawHash,
@@ -175,6 +199,11 @@ async function main(mode: "today" | "yesterday" | "backfill") {
       p_parser_version: payload.parserVersion,
       p_rules_version: payload.rulesVersion,
       p_publish: publish,
+      p_http_status: fetchMeta?.httpStatus ?? 200,
+      p_elapsed_ms: fetchMeta?.elapsedMs ?? null,
+      p_bytes: fetchMeta?.bytes ?? null,
+      p_etag: fetchMeta?.etag ?? null,
+      p_last_modified: fetchMeta?.lastModified ?? null,
     }),
     finishTask: async (task: { taskId: string; leaseToken: string }, state: { state: string; nextAttemptAt: string | null; errorCode: string | null }) => {
       return await restRpc("race_data_finish_task", { p_task_id: task.taskId, p_lease_token: task.leaseToken, p_state: state.state, p_next_attempt_at: state.nextAttemptAt, p_error_code: state.errorCode });
