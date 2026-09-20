@@ -199,4 +199,4 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 - projection起点の級別/年齢、選手名、賭式/払戻し範囲用索引を追加し、実DBで3件の存在を確認。
 
 ### 2026-09-21 01:30
-日付ごとのキュー・公開状態・出走表/展示/結果件数を返す`race_data_coverage_report`を追加。30日範囲で正常26日、current head未作成4日、結果未完了0日を確認し、欠損を`missing_head`として区別した。
+日付ごとのキュー・公開状態・出走表/展示/結果件数を返す`race_data_coverage_report`を追加。current head未作成を、キュー進行中の`pending`、隔離/無効化の`failed`、未追跡の`untracked`、成功後head欠落の`no_head_after_success`へ分類するよう更新。実DBの取得時点では30日中27日が正常、3日がpending、失敗0日だった。

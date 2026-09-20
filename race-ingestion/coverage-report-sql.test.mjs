@@ -8,6 +8,9 @@ test('coverage report is service-role-only and distinguishes missing heads', () 
   assert.match(sql, /create or replace function race_data\.coverage_report/);
   assert.match(sql, /generate_series\(v_from, v_to, interval '1 day'\)/);
   assert.match(sql, /'missing_head'/);
+  assert.match(sql, /'pending'/);
+  assert.match(sql, /'failed'/);
+  assert.match(sql, /'untracked'/);
   assert.match(sql, /'result_incomplete'/);
   assert.match(sql, /revoke all on function race_data\.coverage_report\(date,date\)/);
   assert.match(sql, /grant execute on function race_data\.coverage_report\(date,date\) to service_role/);
