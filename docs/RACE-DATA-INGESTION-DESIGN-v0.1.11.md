@@ -1,7 +1,7 @@
 # v0.1.11 競艇データ基盤 詳細設計書
 
 作成日: 2026-09-20 JST  
-状態: 段階4の実装版。`race_data`スキーマ、service_role限定RPC、Edge Function、Cronの基本経路を実装済み。直近1か月の取り込み・完全な障害試験・検索APIは未完了。実DBのバックフィルキューも直近30日に制限済み。
+状態: 段階7の実装版。`race_data`スキーマ、service_role限定RPC、Edge Function、Cron、直近1か月の取り込み、管理用の汎用読み取りRPCを実装済み。公開検索API、Gemini Function Calling、完全な障害試験は未完了。実DBのバックフィルキューも直近30日に制限済み。
 対応計画: [実装計画書](RACE-DATA-INGESTION-PLAN-v0.1.11.md)
 
 ## 1. 設計原則
@@ -179,7 +179,10 @@ HTTP成功、構造妥当、出走表あり、結果あり、全国全開催を�
 
 ## 9. 汎用的な参照の準備
 
-この段階では管理用の読み取りviewと検証SQLを用意する。公開検索APIやGemini Function Callingは次期対象。
+この段階では管理用の読み取りRPCと検証SQLを用意する。公開検索APIやGemini Function Callingは次期対象。
+
+実装済みの `race_data.search_current_races`（publicラッパーは
+`race_data_search_current_races`）は、公開されたday headの現行batchだけを対象に、日付範囲・場・R・艇番・選手名を組み合わせて最大100件まで検索する。各行に出走表、展示、結果、払戻しを含め、集計として対象レース数と通常払戻しの最大額・同額行を返す。`ready` は現在の取り込みwriterが原子的に公開した状態であり、将来の明示的な `published` 状態とともに検索対象とする。
 
 - 現行ビューはday_heads→公開batch→accepted projectionを結合する。
 - 履歴ビューは対象の観測run/batchを指定する。初回観測時刻だけで版を決めない。

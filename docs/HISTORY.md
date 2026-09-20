@@ -181,3 +181,11 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 00:30
 7日連続観測に向けた容量観測を実装。`race_data.capacity_observations`、service_role限定RPC、毎日09:15 JSTのCronを追加し、初回観測（race_data約80.4MB、3,084レース、28スナップショット）を確認。
+
+### 2026-09-21 00:50
+段階7の管理用汎用検索を実装・検証。
+- `race_data.search_current_races` と service_role限定の `public.race_data_search_current_races` を追加。
+- day_headsが指す現行の`ready`/`published` batchだけを検索し、旧projectionの重複を除外。
+- 日付範囲、競艇場、レース番号、艇番、選手名の組み合わせに対応し、出走表・展示・結果・払戻しを1行へまとめて返す。
+- 対象レース数、通常払戻しの最大額と同額首位、coverage、`no_match`/`invalid_date_range`警告を返す。
+- 実DBで全件上限、R/艇番絞り込み、選手名絞り込み、構造化行、無効日付を確認。公開検索API・Gemini連携は次段階。
