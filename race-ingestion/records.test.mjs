@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { normalizeSnapshot } from "./normalize.mjs";
 import { toIngestionRecords, toRpcPayload } from "./records.mjs";
+import { ingestDate } from "./ingest-date.mjs";
 
 test("record payload keeps race identity and separates payout kinds", () => {
   const raw = { programs: { stadiums: { "1": { races: { "1": {
@@ -15,4 +16,8 @@ test("record payload keeps race identity and separates payout kinds", () => {
   assert.equal(payload.records[0].result.payouts[0].payoutKind, "special");
   assert.equal(payload.records[0].result.refunds[0].entryNumber, 1);
   assert.equal(toRpcPayload(snapshot).p_source_code, "boatraceopenapi-v1");
+});
+
+test("ingestion worker refuses the v0.1.10 production project", async () => {
+  await assert.rejects(() => ingestDate("2026-09-20", { supabaseUrl: "https://example.supabase.co", serviceRoleKey: "test", projectRef: "jxjxqfrtvdpvrifktxsf" }), /refusing to ingest/);
 });
