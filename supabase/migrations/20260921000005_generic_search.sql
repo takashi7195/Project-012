@@ -98,6 +98,21 @@ begin
       join current_races l on l.result_projection_id = p.projection_id
       cross join payout_max m
      where p.payout_kind = 'normal' and p.amount_yen = m.amount_yen
+  ), entry_age_min as (
+    select min(e.age_at_race) as age_at_race
+      from race_data.race_entries e
+      join current_races l on l.program_projection_id = e.projection_id
+     where e.age_at_race is not null
+  ), youngest_entries as (
+    select coalesce(jsonb_agg(jsonb_build_object(
+      'race_date', l.race_date, 'stadium_code', l.stadium_code, 'race_number', l.race_number,
+      'entry_number', e.entry_number, 'racer_registration_number', e.racer_registration_number,
+      'name', e.name, 'age_at_race', e.age_at_race
+    ) order by l.race_date, l.stadium_code, l.race_number, e.entry_number), '[]'::jsonb) as entries
+      from race_data.race_entries e
+      join current_races l on l.program_projection_id = e.projection_id
+      cross join entry_age_min m
+     where e.age_at_race = m.age_at_race
   )
   select jsonb_build_object(
     'data', coalesce((select jsonb_agg(jsonb_build_object(
@@ -110,7 +125,13 @@ begin
       'matched_races', (select count(*) from current_races),
       'returned_races', (select count(*) from limited),
       'max_normal_payout_yen', (select amount_yen from payout_max),
-      'max_normal_payout_rows', (select winners from payout_winners)
+      'max_normal_payout_rows', (select winners from payout_winners),
+      'min_entry_age', (select age_at_race from entry_age_min),
+      'youngest_entries', (select entries from youngest_entries),
+      'races_with_completed_result', (select count(*) from current_races l where exists (
+        select 1 from race_data.result_entries re
+         where re.projection_id = l.result_projection_id and re.finish_position is not null
+      ))
     ),
     'coverage', jsonb_build_object(
       'from', case when p_from is null then null else p_from::text end,

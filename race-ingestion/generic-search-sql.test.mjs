@@ -14,6 +14,9 @@ test('generic search is bounded, read-only and uses current published heads', ()
   assert.match(sql, /p_entry_number smallint/);
   assert.match(sql, /p_racer_name text/);
   assert.match(sql, /max_normal_payout_yen/);
+  assert.match(sql, /min_entry_age/);
+  assert.match(sql, /youngest_entries/);
+  assert.match(sql, /races_with_completed_result/);
   assert.match(sql, /revoke all on function race_data\.search_current_races/);
   assert.match(sql, /grant execute on function race_data\.search_current_races.*service_role/s);
   assert.match(sql, /public\.race_data_search_current_races/);
