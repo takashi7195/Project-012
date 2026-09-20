@@ -21,6 +21,14 @@ begin
   select count(*) into queued_count from race_data.sync_tasks where race_date = date '2099-12-30' and state in ('queued', 'retry', 'leased', 'running');
   if queued_count <> 0 then raise exception 'task remained due after success'; end if;
   delete from race_data.sync_tasks where race_date = date '2099-12-30';
+
+  perform race_data.enqueue_date_tasks('boatraceopenapi-v1', date '2099-12-31', date '2099-12-31', 'scheduler-stop-smoke', 1000::smallint);
+  update race_data.sources set enabled = false where code = 'boatraceopenapi-v1';
+  if exists (select 1 from race_data.claim_next_task('scheduler-stop', 90)) then
+    raise exception 'disabled source still yielded a task';
+  end if;
+  update race_data.sources set enabled = true where code = 'boatraceopenapi-v1';
+  delete from race_data.sync_tasks where race_date = date '2099-12-31';
 end;
 $$;
 commit;
