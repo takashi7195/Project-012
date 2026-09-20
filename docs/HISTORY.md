@@ -200,3 +200,6 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 01:30
 日付ごとのキュー・公開状態・出走表/展示/結果件数を返す`race_data_coverage_report`を追加。current head未作成を、キュー進行中の`pending`、隔離/無効化の`failed`、未追跡の`untracked`、成功後head欠落の`no_head_after_success`へ分類するよう更新。実DBの取得時点では30日中27日が正常、3日がpending、失敗0日だった。
+
+### 2026-09-21 01:50
+特定レースの過去スナップショットを追跡する`race_data_list_race_versions`を追加。semantic hash、batch状態、構成要素のpresence、projection ID、最新取り込みrunを上限付きで返し、実DBで11版中10版の取得と`no_match`を確認。

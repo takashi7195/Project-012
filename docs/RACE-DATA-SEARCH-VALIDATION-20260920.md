@@ -27,6 +27,8 @@
 
 30日カバレッジレポートも実DBで確認し、取得時点では対象30日、正常27日、pending 3日、失敗0日、結果未完了0日だった。未開催・未提供・取得失敗は、日付行の`pending`、`failed`、`untracked`、`no_head_after_success`などで区別できる。
 
+レース履歴RPCも確認し、2026-09-20の場コード1・1Rで11版中10版を上限付きで返し、存在しない場では`no_match`を返すことを確認した。各版にsemantic hash、batch状態、構成要素のpresence、projection ID、最新runの状態を含める。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。
