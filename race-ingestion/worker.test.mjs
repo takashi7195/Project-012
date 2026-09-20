@@ -69,6 +69,22 @@ test("transient API failure schedules retry and permanent parse failure quaranti
   assert.equal(outcomes[1].state, "quarantined");
 });
 
+test("worker passes Retry-After from a 429 failure to the retry scheduler", async () => {
+  const finished = [];
+  const now = new Date("2026-09-20T00:00:00.000Z");
+  const result = await runWorker({
+    workerId: "worker-429",
+    claimTask: async () => ({ taskId: "task-429", raceDate: "2026-09-20", attemptCount: 1, leaseToken: "lease-429" }),
+    fetchDaily: async () => { throw Object.assign(new Error("rate limited"), { code: "fetch_429", retryAfterSeconds: 37 }); },
+    writeSnapshotChunk: async () => { throw new Error("must not write"); },
+    finishTask: async (_task, state) => { finished.push(state); return true; },
+    now,
+  });
+  assert.equal(result.status, "retry");
+  assert.equal(finished.length, 1);
+  assert.equal(finished[0].nextAttemptAt, "2026-09-20T00:00:37.000Z");
+});
+
 test("the first leased attempt uses the five-minute retry delay", async () => {
   let finished;
   const result = await runWorker({

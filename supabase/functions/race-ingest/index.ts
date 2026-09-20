@@ -93,7 +93,10 @@ async function fetchDaily(baseUrl: string, raceDate: string) {
     if (!response.ok) {
       const code = response.status === 404 ? "fetch_404" : response.status === 429 ? "fetch_429" : response.status >= 500 ? "fetch_5xx" : "fetch_http_error";
       const error = Object.assign(new Error(`API HTTP ${response.status}`), { code, httpStatus: response.status });
-      if (response.status === 429) Object.assign(error, { retryAfterSeconds: Number(response.headers.get("retry-after")) });
+      if (response.status === 429) {
+        const retryAfter = Number(response.headers.get("retry-after"));
+        Object.assign(error, { retryAfterSeconds: Number.isFinite(retryAfter) && retryAfter >= 0 ? retryAfter : null });
+      }
       throw error;
     }
     const text = await readLimited(response);

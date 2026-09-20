@@ -52,7 +52,12 @@ export async function runWorker({
     return { status: "succeeded", raceDate: task.raceDate, chunkCount: chunks.length, writes };
   } catch (error) {
     const code = error?.code || "worker_error";
-    const decision = classifyRetry({ code, attemptCount: Math.max(0, (task.attemptCount ?? 1) - 1), now });
+    const decision = classifyRetry({
+      code,
+      attemptCount: Math.max(0, (task.attemptCount ?? 1) - 1),
+      now,
+      retryAfterSeconds: error?.retryAfterSeconds ?? null,
+    });
     await finish(decision.state, decision.nextAttemptAt, decision.errorCode);
     return { status: decision.state, raceDate: task.raceDate, errorCode: code, issues: error?.issues ?? null };
   }
