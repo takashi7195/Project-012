@@ -60,6 +60,9 @@ begin
   ), rows_json as (
     select l.race_id, l.race_date, l.stadium_code, l.race_number, l.batch_id,
            l.last_success_at, l.program_presence, l.preview_presence, l.result_presence,
+           coalesce((select jsonb_build_object('closed_at',rp.closed_at,'title',rp.title,'subtitle',rp.subtitle,'grade_code',rp.grade_code,'distance_m',rp.distance_m,'day_number',rp.day_number) from race_data.race_programs rp where rp.projection_id=l.program_projection_id),'{}'::jsonb) as program,
+           coalesce((select jsonb_build_object('weather_code',rv.weather_code,'wind_direction_code',rv.wind_direction_code,'wind_speed',rv.wind_speed,'wave_height',rv.wave_height,'air_temperature',rv.air_temperature,'water_temperature',rv.water_temperature) from race_data.race_previews rv where rv.projection_id=l.preview_projection_id),'{}'::jsonb) as preview,
+           coalesce((select jsonb_build_object('technique_code',rr.technique_code,'remarks',rr.remarks,'weather_code',rr.weather_code,'wind_direction_code',rr.wind_direction_code,'wind_speed',rr.wind_speed,'wave_height',rr.wave_height,'result_state',rr.result_state) from race_data.race_results rr where rr.projection_id=l.result_projection_id),'{}'::jsonb) as result,
            coalesce((select jsonb_agg(jsonb_build_object(
              'entry_number', e.entry_number, 'racer_registration_number', e.racer_registration_number,
              'name', e.name, 'rank_code', e.rank_code, 'age_at_race', e.age_at_race,
@@ -119,6 +122,7 @@ begin
       'race_id', r.race_id, 'race_date', r.race_date, 'stadium_code', r.stadium_code,
       'race_number', r.race_number, 'batch_id', r.batch_id, 'last_success_at', r.last_success_at,
       'presence', jsonb_build_object('program', r.program_presence, 'preview', r.preview_presence, 'result', r.result_presence),
+      'program', r.program, 'preview', r.preview, 'result', r.result,
       'entries', r.entries, 'preview_entries', r.preview_entries, 'result_entries', r.result_entries, 'payouts', r.payouts
     ) order by r.race_date desc, r.stadium_code, r.race_number) from rows_json r), '[]'::jsonb),
     'aggregates', jsonb_build_object(

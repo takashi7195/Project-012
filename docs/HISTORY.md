@@ -203,3 +203,6 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 01:50
 特定レースの過去スナップショットを追跡する`race_data_list_race_versions`を追加。semantic hash、batch状態、構成要素のpresence、projection ID、最新取り込みrunを上限付きで返し、実DBで11版中10版の取得と`no_match`を確認。
+
+### 2026-09-21 02:10
+現行検索結果へレースプログラムのタイトル・グレード・距離、展示時の天候・風・波、結果の決まり手・状態を追加。実DBで`program`、`preview`、`result`を確認した。

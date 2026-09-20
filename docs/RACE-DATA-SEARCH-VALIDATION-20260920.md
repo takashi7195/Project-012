@@ -29,6 +29,8 @@
 
 レース履歴RPCも確認し、2026-09-20の場コード1・1Rで11版中10版を上限付きで返し、存在しない場では`no_match`を返すことを確認した。各版にsemantic hash、batch状態、構成要素のpresence、projection ID、最新runの状態を含める。
 
+現行検索結果に、レースタイトル/グレード/距離、天候/風向/風速/波高、決まり手/結果状態を追加し、実DBで`program`・`preview`・`result`のキーを確認した。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。
