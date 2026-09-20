@@ -178,3 +178,6 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 00:10
 一時テーブル方式の論理バックアップ・復元試験を実施。`races`、`race_entries`、`payouts`、`source_snapshots`の件数と日付範囲が一致し、実DBへの変更なしで合格。完全な別プロジェクト復元試験は未実施。
+
+### 2026-09-21 00:30
+7日連続観測に向けた容量観測を実装。`race_data.capacity_observations`、service_role限定RPC、毎日09:15 JSTのCronを追加し、初回観測（race_data約80.4MB、3,084レース、28スナップショット）を確認。
