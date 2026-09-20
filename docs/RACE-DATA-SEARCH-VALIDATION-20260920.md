@@ -25,6 +25,8 @@
 
 追加フィルター用の3索引（projectionと級別/年齢、projectionと選手名、projectionと賭式/払戻し）も実DBで存在を確認した。
 
+30日カバレッジレポートも実DBで確認し、対象30日、正常26日、current head未作成4日、結果未完了0日、警告`missing_head`を得た。未開催・未提供・取得失敗はこのレポートで個別日付を確認できる。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。
