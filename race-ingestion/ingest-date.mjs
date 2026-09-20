@@ -23,7 +23,7 @@ export async function ingestDate(dateText, {
     error.issues = normalized.issues;
     throw error;
   }
-  const rpcPayload = toRpcPayload(normalized);
+  const rpcPayload = { ...toRpcPayload(normalized), p_publish: true };
   const response = await fetchImpl(`${supabaseUrl.replace(/\/$/, "")}/rest/v1/rpc/ingest_snapshot`, {
     method: "POST",
     headers: { apikey: serviceRoleKey, Authorization: `Bearer ${serviceRoleKey}`, "content-type": "application/json" },

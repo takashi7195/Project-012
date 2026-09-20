@@ -32,9 +32,10 @@ export function toIngestionRecords(snapshot) {
     records.push({
       race: { sourceCode: snapshot.sourceCode, raceDate, stadiumCode, raceNumber },
       components,
-      program: { common: program.common, entries: program.rows },
-      preview: { common: preview.common, entries: preview.rows },
+      program: { presence: program.presence, common: program.common, entries: program.rows },
+      preview: { presence: preview.presence, common: preview.common, entries: preview.rows },
       result: {
+        presence: result.presence,
         common: result.common,
         entries: result.rows,
         payouts: asArray(result.payouts?.rows).map((row) => ({ ...row, combinationEntries: parseCombination(row.combination), payoutKind: payoutKind(row) })),

@@ -45,7 +45,7 @@ create table if not exists race_data.ingestion_runs (
   last_modified text,
   body_hash text,
   snapshot_id uuid,
-  status text not null default 'running' check (status in ('running','succeeded','warning','failed','not_modified')),
+  status text not null default 'running' check (status in ('running','staged','succeeded','warning','failed','not_modified')),
   error_code text,
   error_detail jsonb,
   stage text,
@@ -313,8 +313,9 @@ create or replace function race_data.ingest_snapshot(
   p_snapshot jsonb,
   p_fetched_at timestamptz,
   p_parser_version text,
-  p_rules_version text
-) returns table (run_id uuid, snapshot_id uuid, batch_id uuid, race_count integer)
+  p_rules_version text,
+  p_publish boolean
+) returns table (out_run_id uuid, out_snapshot_id uuid, out_batch_id uuid, out_race_count integer)
 language plpgsql
 security definer
 set search_path = race_data, extensions, pg_catalog
@@ -430,14 +431,18 @@ begin
     on conflict (batch_id,race_id) do update set result_projection_id=excluded.result_projection_id;
     v_count := v_count + 1;
   end loop;
-  update race_data.normalization_batches set state='ready', published_at=now() where id=v_batch_id;
-  insert into race_data.snapshot_observations(source_id,race_date,snapshot_id,batch_id,run_id,fetched_at,published_at,request_body_hash,outcome) values (v_source_id,p_race_date,v_snapshot_id,v_batch_id,v_run_id,p_fetched_at,now(),p_body_hash,'adopted');
-  insert into race_data.day_heads(source_id,race_date,current_batch_id,current_run_id,generation,latest_attempt_at,last_success_at) values(v_source_id,p_race_date,v_batch_id,v_run_id,1,now(),now()) on conflict(source_id,race_date) do update set current_batch_id=excluded.current_batch_id,current_run_id=excluded.current_run_id,generation=race_data.day_heads.generation+1,latest_attempt_at=now(),last_success_at=now();
-  update race_data.ingestion_runs set status='succeeded',stage='published',counts=jsonb_build_object('race_count',v_count) where id=v_run_id;
+  if p_publish then
+    update race_data.normalization_batches set state='ready', published_at=now() where id=v_batch_id;
+    insert into race_data.snapshot_observations(source_id,race_date,snapshot_id,batch_id,run_id,fetched_at,published_at,request_body_hash,outcome) values (v_source_id,p_race_date,v_snapshot_id,v_batch_id,v_run_id,p_fetched_at,now(),p_body_hash,'adopted');
+    insert into race_data.day_heads(source_id,race_date,current_batch_id,current_run_id,generation,latest_attempt_at,last_success_at) values(v_source_id,p_race_date,v_batch_id,v_run_id,1,now(),now()) on conflict(source_id,race_date) do update set current_batch_id=excluded.current_batch_id,current_run_id=excluded.current_run_id,generation=race_data.day_heads.generation+1,latest_attempt_at=now(),last_success_at=now();
+    update race_data.ingestion_runs set status='succeeded',stage='published',counts=jsonb_build_object('race_count',v_count) where id=v_run_id;
+  else
+    update race_data.ingestion_runs set status='staged',stage='staged',counts=jsonb_build_object('race_count',v_count) where id=v_run_id;
+  end if;
   return query select v_run_id,v_snapshot_id,v_batch_id,v_count;
 end;
 $$;
 
-revoke all on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text) from public, anon, authenticated;
+revoke all on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text,boolean) from public, anon, authenticated;
 grant usage on schema race_data to service_role;
-grant execute on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text) to service_role;
+grant execute on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text,boolean) to service_role;
