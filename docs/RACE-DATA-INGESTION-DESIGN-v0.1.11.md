@@ -1,7 +1,7 @@
 # v0.1.11 競艇データ基盤 詳細設計書
 
 作成日: 2026-09-20 JST  
-状態: 設計案。以下のテーブル・処理は未実装。  
+状態: 段階4の実装版。`race_data`スキーマ、service_role限定RPC、Edge Function、Cronの基本経路を実装済み。全期間取り込み・完全な障害試験・検索APIは未完了。
 対応計画: [実装計画書](RACE-DATA-INGESTION-PLAN-v0.1.11.md)
 
 ## 1. 設計原則
@@ -28,7 +28,7 @@ Supabase Cron（開発専用プロジェクト）
 将来: 共通読み取り処理 → コメントAI / 予想 / 分析など
 ```
 
-Supabase PostgreSQLの専用スキーマ `race_data` と収集専用Functionを使用する。開発用プロジェクトは未作成・ID未確定。本番Project-012の接続先をデフォルトにしない。
+Supabase PostgreSQLの専用スキーマ `race_data` と収集専用Functionを使用する。ユーザー承認によりProject-012を使用するが、`race_data`はブラウザー向けに公開しない。収集RPCはservice_role限定のpublicラッパー経由で呼び出す。
 
 Cron/pg_netからFunctionを呼び出し、認証情報はVaultとFunction Secretへ保存する。HTTP呼び出しの受付成功だけで収集成功とせず、DB上のrun状態まで確認する。[Supabaseの定期実行方式](https://supabase.com/docs/guides/functions/schedule-functions)
 
@@ -247,7 +247,7 @@ HTTP成功、構造妥当、出走表あり、結果あり、全国全開催を�
 
 ## 13. 切り戻しと今回の到達点
 
-mainとv0.1.10タグを変更せず、開発専用資源で試験する。停止は収集専用Cron/Functionを対象にし、本番commentsを削除・変更しない。開発データ削除が必要な場合も、対象project ID、schema、バックアップを検証して限定的に行う。
+mainとv0.1.10タグを保全する。停止は収集専用Cron/Functionを対象にし、本番commentsを削除・変更しない。現在はProject-012の`race_data`だけを対象に、Cron停止・Function削除・スキーマ切り戻しを行える。開発データ削除が必要な場合も、対象schemaとバックアップを検証して限定的に行う。
 
 将来本番へ接続する際は、接続設定・Function・DB migration・Cron・Secretsの一覧と復元手順を別途作る。本書作成時点で「DBを含む全環境の復元試験が完了した」とはしない。
 

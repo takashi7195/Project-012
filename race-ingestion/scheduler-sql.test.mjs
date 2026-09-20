@@ -9,11 +9,11 @@ test("scheduler migration exposes bounded queue operations", () => {
   assert.match(sql, /create or replace function race_data\.claim_next_task/);
   assert.match(sql, /create or replace function race_data\.finish_task/);
   assert.match(sql, /for update of t skip locked/);
-  assert.match(sql, /lease_until is not null and lease_until < now\(\)/);
+  assert.match(sql, /expired\.lease_until is not null/);
 });
 
 test("scheduler migration denies browser roles and grants only service_role", () => {
-  assert.equal((sql.match(/revoke all on function/g) ?? []).length, 3);
-  assert.equal((sql.match(/grant execute on function/g) ?? []).length, 3);
+  assert.equal((sql.match(/revoke all on function/g) ?? []).length, 7);
+  assert.equal((sql.match(/grant execute on function/g) ?? []).length, 7);
   assert.doesNotMatch(sql, /grant execute on function race_data\.(enqueue_date_tasks|claim_next_task|finish_task).*anon/);
 });

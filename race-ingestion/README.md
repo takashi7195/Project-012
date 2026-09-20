@@ -1,6 +1,6 @@
-# v0.1.11 race ingestion stage 1
+# v0.1.11 race ingestion
 
-This directory contains the API adapter, structural normalizer, and database payload builder. It intentionally does not change Gemini, comments, the roulette, or the public site.
+This directory contains the API adapter, structural normalizer, database payload builder, task scheduler, and worker core. It does not change Gemini, comments, or the roulette.
 
 Run the local tests from the repository root:
 
@@ -11,4 +11,4 @@ node race-ingestion/evidence-smoke.mjs
 
 `evidence-smoke.mjs` reads the five raw samples outside the repository from `C:\codex\project-012\research\v0.1.11-api-20260920`. Set `RACE_EVIDENCE_DIR` to another evidence directory when needed.
 
-The SQL migration is intentionally not applied to Project-012. It creates the isolated `race_data` schema and an atomic `race_data.ingest_snapshot` RPC for a dedicated development project. Production Project-012 remains the v0.1.10 environment until a separate development Supabase project is available and verified.
+The `race_data` migrations and the `race-ingest` Edge Function are applied to Project-012 by explicit user approval. The schema is private, while service-role-only wrapper RPCs are used by the worker. Cron jobs are configured for today, yesterday, and historical backfill. The current implementation is still limited to the staged ingestion pipeline; Gemini, comments, and roulette do not read this data yet.

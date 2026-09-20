@@ -2,3 +2,6 @@ project_id = "project-012"
 
 [functions.comments]
 verify_jwt = false
+
+[functions.race-ingest]
+verify_jwt = false
