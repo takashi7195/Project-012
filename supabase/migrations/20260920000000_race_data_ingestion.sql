@@ -439,3 +439,5 @@ end;
 $$;
 
 revoke all on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text) from public, anon, authenticated;
+grant usage on schema race_data to service_role;
+grant execute on function race_data.ingest_snapshot(text,date,text,jsonb,timestamptz,text,text) to service_role;
