@@ -206,3 +206,6 @@ v0.1.11の競艇API→DB定期取り込み基盤を段階実装。
 
 ### 2026-09-21 02:10
 現行検索結果へレースプログラムのタイトル・グレード・距離、展示時の天候・風・波、結果の決まり手・状態を追加。実DBで`program`、`preview`、`result`を確認した。
+
+### 2026-09-21 02:30
+設計上の`race_data.coverage`が空のままになっていた差分を修正。`snapshot_races`更新トリガーで場別/all-scopeを更新し、既存batchを再集計。実DBでcoverage 40行、all-scope 40行、欠落batch 0件を確認した。all-scopeの`stadium_code=0`は既存主キーの非NULL制約に合わせた表現。

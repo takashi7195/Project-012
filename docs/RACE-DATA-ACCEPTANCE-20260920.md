@@ -14,6 +14,7 @@
 | 30日カバレッジレポート | 合格 | 日付ごとのキュー/現行batch/出走表・展示・結果件数、pending/failed/untrackedと結果未完了を区別 |
 | レース履歴RPC | 合格 | 特定レースのsnapshot/batch/run履歴、上限、no_matchを確認 |
 | レースメタデータ検索 | 合格 | タイトル/グレード/距離、天候/風、決まり手/結果状態を検索結果で確認 |
+| coverageテーブル更新 | 合格 | snapshot_racesからall-scopeを再集計し、既存batchの欠落0件を確認 |
 | 自動テスト | 合格 | node test 35件すべて成功 |
 
 ## 試験SQLの修正

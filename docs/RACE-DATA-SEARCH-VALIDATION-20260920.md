@@ -31,6 +31,8 @@
 
 現行検索結果に、レースタイトル/グレード/距離、天候/風向/風速/波高、決まり手/結果状態を追加し、実DBで`program`・`preview`・`result`のキーを確認した。
 
+設計にある`race_data.coverage`も取り込みトリガーで更新するよう補完し、既存40 batchを再集計した。coverage 40行、all-scope 40行、coverage欠落batch 0行を確認した。all-scopeは既存テーブルの主キー制約に合わせ`stadium_code=0`を使用する。
+
 ## 残る制限
 
 - browser向け公開API、Gemini Function Calling、任意SQL実行は未実装。
