@@ -140,8 +140,11 @@ test("invalid structured output, provider errors, and unusable replies return nu
 
 test("diagnostics classify Gemini quota, token, and timeout failures", async () => {
   let code;
-  assert.equal(await generateGeminiReply("確認", "test-key", async () => new Response("{}", { status: 429 }), (value) => { code = value; }), null);
+  let details;
+  assert.equal(await generateGeminiReply("確認", "test-key", async () => new Response("{}", { status: 429 }), (value, info) => { code = value; details = info; }), null);
   assert.equal(code, "gemini_http_429");
+  assert.equal(details.stage, "http");
+  assert.equal(typeof details.elapsedMs, "number");
   code = undefined;
   assert.equal(await generateGeminiReply("確認", "test-key", async () => new Response(JSON.stringify({
     candidates: [{ finishReason: "MAX_TOKENS" }],
@@ -151,6 +154,18 @@ test("diagnostics classify Gemini quota, token, and timeout failures", async () 
   const abort = new DOMException("aborted", "AbortError");
   assert.equal(await generateGeminiReply("確認", "test-key", async () => { throw abort; }, (value) => { code = value; }), null);
   assert.equal(code, "gemini_timeout");
+});
+
+test("diagnostics distinguish provider JSON, response shape, and schema failures", async () => {
+  const diagnostics = [];
+  const run = async (response) => generateGeminiReply("確認", "test-key", async () => response, (code, details) => diagnostics.push({ code, details }));
+  await run(new Response("not-json", { status: 200 }));
+  await run(new Response(JSON.stringify({ candidates: [{ finishReason: "SAFETY" }] }), { status: 200 }));
+  await run(geminiResponse({ sentiment: "unknown", serious_distress_or_financial_hardship: false }));
+  assert.deepEqual(diagnostics.map((item) => item.code), ["gemini_invalid_response_json", "gemini_response_shape_invalid", "gemini_invalid_json"]);
+  assert.equal(diagnostics[0].details.stage, "response_json");
+  assert.equal(diagnostics[1].details.stage, "response_shape");
+  assert.equal(diagnostics[2].details.stage, "schema_validation");
 });
 
 test("search-enabled responses still use the existing JSON contract", async () => {

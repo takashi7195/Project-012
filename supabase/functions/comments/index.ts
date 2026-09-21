@@ -200,8 +200,12 @@ async function submitComment(request: Request, origin: string) {
   }
 
   let aiDiagnostic = "unknown_error";
-  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "", fetch, (code) => { aiDiagnostic = code; });
-  if (!generatedReplies) diagnostic(requestId, aiDiagnostic);
+  let aiDiagnosticDetails: Record<string, unknown> = {};
+  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "", fetch, (code, details) => {
+    aiDiagnostic = code;
+    aiDiagnosticDetails = details ?? {};
+  });
+  if (!generatedReplies) diagnostic(requestId, aiDiagnostic, aiDiagnosticDetails);
   const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
   if (generatedReplies && !selectedReply) diagnostic(requestId, "reply_rejected");
   const replySource = selectedReply ? "gemini" : "template";

@@ -77,12 +77,12 @@ export function chooseReply(candidates, random = secureRandomUnit) {
     : { reply: regularReply, tipRequested: false };
 }
 
-function parseCandidates(text) {
+function parseCandidatesDetailed(text) {
   let parsed;
   try {
     parsed = JSON.parse(String(text ?? "").trim());
   } catch {
-    return null;
+    return { parsed: null, reason: "json_parse" };
   }
 
   if (
@@ -90,15 +90,15 @@ function parseCandidates(text) {
     !SENTIMENTS.has(parsed.sentiment) ||
     typeof parsed.serious_distress_or_financial_hardship !== "boolean" ||
     !isUsableReply(parsed.regular_reply)
-  ) return null;
+  ) return { parsed: null, reason: "schema_validation" };
 
   const tipReply = isUsableReply(parsed.tip_reply) ? parsed.tip_reply.trim() : null;
-  return {
+  return { parsed: {
     sentiment: parsed.sentiment,
     seriousDistressOrFinancialHardship: parsed.serious_distress_or_financial_hardship,
     regularReply: parsed.regular_reply.trim(),
     tipReply,
-  };
+  }, reason: null };
 }
 
 export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, onDiagnostic = () => {}) {
@@ -121,6 +121,8 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), GEMINI_TIMEOUT_MS);
+  const startedAt = Date.now();
+  const elapsed = () => Date.now() - startedAt;
   try {
     const response = await fetchImpl(
       `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`,
@@ -149,21 +151,71 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
           : response.status >= 500
             ? "gemini_http_5xx"
             : "gemini_http_error";
-      reportDiagnostic(onDiagnostic, code, { status: response.status });
+      reportDiagnostic(onDiagnostic, code, { stage: "http", status: response.status, elapsedMs: elapsed() });
       return null;
     }
-    const result = await response.json();
+    let result;
+    try {
+      result = await response.json();
+    } catch {
+      reportDiagnostic(onDiagnostic, "gemini_invalid_response_json", { stage: "response_json", elapsedMs: elapsed() });
+      return null;
+    }
+    const candidate = result?.candidates?.[0];
     const finishReason = result?.candidates?.[0]?.finishReason;
-    const generated = result?.candidates?.[0]?.content?.parts
+    const parts = candidate?.content?.parts;
+    const generated = parts
       ?.map((part) => typeof part?.text === "string" ? part.text : "")
       .join("");
-    const parsed = parseCandidates(generated);
-    if (!parsed) {
-      reportDiagnostic(onDiagnostic, finishReason === "MAX_TOKENS" ? "gemini_max_tokens" : "gemini_invalid_json", finishReason ? { finishReason } : {});
+    const groundingMetadata = candidate?.groundingMetadata ?? result?.groundingMetadata;
+    const groundingPresent = Boolean(groundingMetadata);
+    if (finishReason === "MAX_TOKENS") {
+      reportDiagnostic(onDiagnostic, "gemini_max_tokens", {
+        stage: "finish_reason",
+        finishReason,
+        hasCandidates: Array.isArray(result?.candidates),
+        hasParts: Array.isArray(parts),
+        groundingPresent,
+        elapsedMs: elapsed(),
+      });
+      return null;
     }
-    return parsed;
+    if (!candidate || !Array.isArray(parts)) {
+      reportDiagnostic(onDiagnostic, "gemini_response_shape_invalid", {
+        stage: "response_shape",
+        hasCandidates: Array.isArray(result?.candidates),
+        hasContent: Boolean(candidate?.content),
+        hasParts: Array.isArray(parts),
+        finishReason: finishReason ?? null,
+        groundingPresent,
+        elapsedMs: elapsed(),
+      });
+      return null;
+    }
+    const parsed = parseCandidatesDetailed(generated);
+    if (!parsed.parsed) {
+      reportDiagnostic(onDiagnostic, "gemini_invalid_json", {
+          stage: parsed.reason,
+          finishReason: finishReason ?? null,
+          textLength: generated.length,
+          groundingPresent,
+          elapsedMs: elapsed(),
+        });
+      return null;
+    }
+    reportDiagnostic(onDiagnostic, "gemini_succeeded", {
+      stage: "parsed",
+      finishReason: finishReason ?? null,
+      groundingPresent,
+      elapsedMs: elapsed(),
+    });
+    return parsed.parsed;
   } catch (error) {
-    reportDiagnostic(onDiagnostic, error?.name === "AbortError" ? "gemini_timeout" : "gemini_network_error");
+    reportDiagnostic(onDiagnostic, error?.name === "AbortError" ? "gemini_timeout" : "gemini_network_error", {
+      stage: "request",
+      errorName: error?.name ?? "Error",
+      elapsedMs: elapsed(),
+    });
     return null;
   } finally {
     clearTimeout(timeout);

@@ -2,6 +2,9 @@
 
 ## 2026-09-21 — Gemini Web検索（Google Search grounding）を追加
 
+- 定型文フォールバックの原因を切り分けるため、診断ログを強化した。HTTP状態・処理段階・経過時間・応答形状・JSON検証段階・finishReason・検索メタデータ有無を記録し、コメント本文とAPIキーは記録しない。
+- `gemini_invalid_response_json`、`gemini_response_shape_invalid`、`gemini_invalid_json`を分離し、タイムアウトは`gemini_timeout`として経過時間付きで記録する。成功時も`gemini_succeeded`を内部診断として記録する。
+- SupabaseのEdge Functionへ反映する前のコメントAIテスト17件、競艇データ基盤テスト41件が成功した。
 - `gemini-3.1-flash-lite`のGeminiリクエストへ`google_search`ツールを追加した。Geminiが最新事実の確認に必要と判断した場合だけ検索し、雑談では検索しないよう指示している。
 - 既存のJSON応答形式、AIタカシの口調、分類、肯定コメント30%のおねだり抽選、フォールバック処理は維持した。
 - 検索を含む応答に備えてGeminiの待機時間を8秒から15秒へ延長した。
