@@ -7,6 +7,7 @@ import {
   isUsableReply,
   TEMPLATE_REPLIES,
   templateReply,
+  GEMINI_TIMEOUT_MS,
 } from "./ai-reply.mjs";
 
 const regularReply = "ごめん！予想が水しぶきで見えなくなった！";
@@ -44,6 +45,7 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.url, new RegExp(GEMINI_MODEL));
   assert.equal(request.init.headers["x-goog-api-key"], "test-key");
   assert.equal(request.body.contents.length, 1);
+  assert.deepEqual(request.body.tools, [{ google_search: {} }]);
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
@@ -53,6 +55,7 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.serious_distress_or_financial_hardship.type, "boolean");
   assert.equal(request.body.generationConfig.maxOutputTokens, 512);
+  assert.equal(GEMINI_TIMEOUT_MS, 15_000);
 });
 
 test("positive comments request a tip for 30 percent of server-side random draws", () => {
@@ -148,4 +151,24 @@ test("diagnostics classify Gemini quota, token, and timeout failures", async () 
   const abort = new DOMException("aborted", "AbortError");
   assert.equal(await generateGeminiReply("確認", "test-key", async () => { throw abort; }, (value) => { code = value; }), null);
   assert.equal(code, "gemini_timeout");
+});
+
+test("search-enabled responses still use the existing JSON contract", async () => {
+  const result = await generateGeminiReply("今日の多摩川8Rの結果は？", "test-key", async (_url, init) => {
+    const request = JSON.parse(init.body);
+    assert.deepEqual(request.tools, [{ google_search: {} }]);
+    return new Response(JSON.stringify({
+      candidates: [{
+        content: { parts: [{ text: JSON.stringify({
+          sentiment: "neutral",
+          serious_distress_or_financial_hardship: false,
+          regular_reply: "検索してみたけど、結果はまだ確認できないみたいだよ。",
+          tip_reply: tipReply,
+        }) }] },
+        groundingMetadata: { webSearchQueries: ["今日 多摩川 8R 結果"] },
+      }],
+    }), { status: 200 });
+  });
+  assert.equal(result.sentiment, "neutral");
+  assert.equal(result.regularReply, "検索してみたけど、結果はまだ確認できないみたいだよ。");
 });
