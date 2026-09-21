@@ -41,6 +41,8 @@ const STADIUM_DATA = {
 
 const startBtn = document.getElementById('start-btn');
 const stadiumSelect = document.getElementById('stadium-select');
+const raceSelect = document.getElementById('race-select');
+const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
 const slots = [
   document.getElementById('slot-3'),
   document.getElementById('slot-2'),
@@ -143,11 +145,56 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+async function requestPrediction() {
+  const stadiumCode = Array.from(stadiumSelect.options).findIndex((option) => option.value === stadiumSelect.value) + 1;
+  const raceNumber = Number.parseInt(raceSelect.value, 10);
+  const response = await fetch(PREDICTION_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ raceDate: new Date().toISOString().slice(0, 10), stadiumCode, raceNumber })
+  });
+  const data = await response.json();
+  if (!response.ok || data.status === 'api_error' || data.status === 'stale' || data.status === 'closed') {
+    const reason = data.status === 'stale' ? 'データ更新待ち' : data.status === 'closed' ? '締切済み' : '予想データを取得できません';
+    throw new Error(reason);
+  }
+  return data;
+}
+
+function setPredictionRow(kind, combination) {
+  const target = document.querySelector(`[data-prediction="${kind}"]`);
+  if (!target || !Array.isArray(combination)) return;
+  target.replaceChildren(...combination.map((boat, index) => {
+    const fragment = document.createDocumentFragment();
+    const number = document.createElement('span');
+    number.className = `prediction-boat bg-${boat}`;
+    number.textContent = String(boat);
+    fragment.appendChild(number);
+    if (index < combination.length - 1) {
+      const separator = document.createElement('span');
+      separator.className = 'prediction-separator';
+      separator.textContent = '-';
+      fragment.appendChild(separator);
+    }
+    return fragment;
+  }).flatMap((fragment) => [...fragment.childNodes]));
+}
+
 startBtn.addEventListener('click', async () => {
   startBtn.disabled = true;
   const stadium = stadiumSelect.value;
-  const dist = calculateDistribution(stadium);
-  const result = selectCombination(dist);
+  let prediction;
+  try {
+    prediction = await requestPrediction();
+  } catch (error) {
+    startBtn.disabled = false;
+    startBtn.setAttribute('aria-label', error.message);
+    startBtn.title = error.message;
+    return;
+  }
+  const result = prediction.main;
+  setPredictionRow('counter', prediction.counter);
+  setPredictionRow('longshot', prediction.hole);
 
   // result[0]=1着(slot-1), result[1]=2着(slot-2), result[2]=3着(slot-3)
   // 演出順: 3着(slot-3) -> 2着(slot-2) -> 1着(slot-1)
