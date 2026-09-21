@@ -521,3 +521,10 @@
 - Geminiはバックエンドで確定した予想・順位・スコアを変更せず、レース展開文だけを生成する。
 - 各艇にコース、展示順位、展示ST、平均ST、モーター順位、keyFactors、weakFactorsを渡す。
 - keyFactors・weakFactorsは計算結果からバックエンドが生成し、Geminiは入力にない事実を補完・断定しない。
+
+## 2026-09-21 — v0.1.13 予想状態とエラー管理を確定
+
+- success、partial、gemini_error、stale、api_error、closedの状態を定義する。
+- gemini_errorでも予想計算結果（本命・対抗・穴、総合点、順位）は保存・表示し、展開文のみ失敗扱いにする。
+- statusとは別にエラーコード・内容・発生時刻を保存する。
+- stale・api_error・closedでは新規予想を作らず、既存スナップショットを上書きしない。
