@@ -198,6 +198,8 @@ startBtn.addEventListener('click', async () => {
   setPredictionRow('longshot', prediction.hole);
   if (raceDevelopmentText && prediction.narrativeStatus === 'success' && prediction.narrative) {
     raceDevelopmentText.textContent = prediction.narrative;
+  } else if (raceDevelopmentText && prediction.narrativeStatus === 'gemini_error') {
+    raceDevelopmentText.textContent = 'レース展開文を生成できませんでした。予想数字は表示しています。';
   }
 
   // result[0]=1着(slot-1), result[1]=2着(slot-2), result[2]=3着(slot-3)

@@ -40,5 +40,6 @@ test("frontend requests v0.1.14 prediction and renders counter/hole", () => {
   assert.match(script, /setPredictionRow\('counter'/);
   assert.match(script, /setPredictionRow\('longshot'/);
   assert.match(script, /prediction\.narrativeStatus === 'success'/);
+  assert.match(script, /prediction\.narrativeStatus === 'gemini_error'/);
   assert.doesNotMatch(script, /const result = selectCombination\(dist\)/);
 });
