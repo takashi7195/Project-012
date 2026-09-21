@@ -42,6 +42,7 @@ const STADIUM_DATA = {
 const startBtn = document.getElementById('start-btn');
 const stadiumSelect = document.getElementById('stadium-select');
 const raceSelect = document.getElementById('race-select');
+const raceDevelopmentText = document.getElementById('race-development-text');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
 const slots = [
   document.getElementById('slot-3'),
@@ -195,6 +196,9 @@ startBtn.addEventListener('click', async () => {
   const result = prediction.main;
   setPredictionRow('counter', prediction.counter);
   setPredictionRow('longshot', prediction.hole);
+  if (raceDevelopmentText && prediction.narrativeStatus === 'success' && prediction.narrative) {
+    raceDevelopmentText.textContent = prediction.narrative;
+  }
 
   // result[0]=1着(slot-1), result[1]=2着(slot-2), result[2]=3着(slot-3)
   // 演出順: 3着(slot-3) -> 2着(slot-2) -> 1着(slot-1)

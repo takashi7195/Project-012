@@ -1,6 +1,7 @@
 // v0.1.14 roulette prediction endpoint. It reads the published race snapshot,
 // runs deterministic scoring, and stores an immutable prediction snapshot.
 import { calculatePrediction } from "../../../race-prediction/scoring.mjs";
+import { buildNarrativeInput, generateNarrative, NARRATIVE_CONFIG } from "../../../race-prediction/narrative.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +11,13 @@ const cors = {
 const projectUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 const logicVersion = "v0.1.14-roulette-1";
+const narrativeOptions = {
+  model: Deno.env.get("RACE_NARRATIVE_MODEL") || NARRATIVE_CONFIG.model,
+  promptVersion: Deno.env.get("RACE_NARRATIVE_PROMPT_VERSION") || NARRATIVE_CONFIG.promptVersion,
+  timeoutMs: Number(Deno.env.get("RACE_NARRATIVE_TIMEOUT_MS") || NARRATIVE_CONFIG.timeoutMs),
+  maxOutputTokens: Number(Deno.env.get("RACE_NARRATIVE_MAX_OUTPUT_TOKENS") || NARRATIVE_CONFIG.maxOutputTokens),
+  maxChars: Number(Deno.env.get("RACE_NARRATIVE_MAX_CHARS") || NARRATIVE_CONFIG.maxChars),
+};
 
 async function rpc(name: string, body: Record<string, unknown>) {
   const response = await fetch(`${projectUrl}/rest/v1/rpc/${name}`, {
@@ -31,11 +39,60 @@ function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 }
 
+async function saveNarrativeAttempt(predictionId: string, input: any, result: any, startedAt: string, finishedAt: string, durationMs: number, inputHash: string, promptHash: string) {
+  await rpc("race_data_create_narrative_attempt", {
+    p_prediction_id: predictionId,
+    p_model: result.config.model,
+    p_prompt_version: result.config.promptVersion,
+    p_prompt_hash: promptHash,
+    p_narrative_input_hash: inputHash,
+    p_started_at: startedAt,
+    p_finished_at: finishedAt,
+    p_status: result.result ? "success" : "error",
+    p_text: result.result?.text ?? null,
+    p_validated_facts: result.result?.citedFactorIds ?? [],
+    p_error_code: result.errorCode,
+    p_sanitized_error: result.errorCode,
+    p_error_at: result.result ? null : finishedAt,
+    p_token_usage: null,
+    p_duration_ms: durationMs,
+  });
+  return {
+    narrativeStatus: result.result ? "success" : "gemini_error",
+    narrative: result.result?.text ?? null,
+    narrativeErrorCode: result.errorCode ?? null,
+    narrativeInputHash: inputHash,
+  };
+}
+
+async function generateAndSaveNarrative(predictionId: string, race: any, prediction: any) {
+  const input = buildNarrativeInput(race, prediction);
+  const inputHash = await hash(input);
+  const promptHash = await hash({ promptVersion: narrativeOptions.promptVersion, input });
+  const started = new Date().toISOString();
+  const startedMs = Date.now();
+  const result = await generateNarrative(input, Deno.env.get("GEMINI_API_KEY") ?? "", fetch, narrativeOptions);
+  const finished = new Date().toISOString();
+  return saveNarrativeAttempt(predictionId, input, result, started, finished, Date.now() - startedMs, inputHash, promptHash);
+}
+
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (request.method !== "POST") return json(405, { error: "method_not_allowed" });
   try {
     const body = await request.json();
+    if (body.action === "narrative-retry") {
+      const predictionId = String(body.predictionId ?? "");
+      if (!/^[0-9a-f-]{36}$/i.test(predictionId)) return json(400, { error: "invalid_prediction_id" });
+      const stored = await rpc("race_data_get_prediction_snapshot", { p_prediction_id: predictionId });
+      if (!stored?.payload?.prediction) return json(404, { status: "api_error", errorCode: "prediction_not_found" });
+      const storedRace = {
+        race_date: stored.payload.race?.raceDate,
+        stadium_code: stored.payload.race?.stadiumCode,
+        race_number: stored.payload.race?.raceNumber,
+      };
+      return json(200, { predictionId, ...stored.payload.prediction, ...(await generateAndSaveNarrative(predictionId, storedRace, stored.payload.prediction)) });
+    }
     const raceDate = String(body.raceDate ?? new Date().toISOString().slice(0, 10));
     const stadiumCode = Number(body.stadiumCode);
     const raceNumber = Number(body.raceNumber);
@@ -63,7 +120,8 @@ Deno.serve(async (request) => {
       p_input_data_hash: inputDataHash, p_main: prediction.main, p_counter: prediction.counter,
       p_hole: prediction.hole, p_payload: { prediction, race: { raceDate, stadiumCode, raceNumber } },
     });
-    return json(200, { ...prediction, snapshotId, inputDataHash });
+    const narrative = await generateAndSaveNarrative(snapshotId, race, prediction);
+    return json(200, { ...prediction, snapshotId, inputDataHash, ...narrative });
   } catch (error) {
     return json(500, { status: "api_error", errorCode: "prediction_failed", message: String(error?.message ?? error) });
   }
