@@ -49,6 +49,21 @@ function reportDiagnostic(onDiagnostic, code, details = {}) {
   try { onDiagnostic(code, details); } catch { /* diagnostics must never affect replies */ }
 }
 
+function providerErrorSummary(text) {
+  const raw = String(text ?? "").replace(/AIza[0-9A-Za-z_-]{20,}/g, "[REDACTED_KEY]").replace(/Bearer\s+\S+/gi, "Bearer [REDACTED]").slice(0, 1200);
+  try {
+    const parsed = JSON.parse(raw);
+    const error = parsed?.error ?? parsed;
+    return {
+      providerStatus: typeof error?.status === "string" ? error.status : null,
+      providerMessage: typeof error?.message === "string" ? error.message.slice(0, 800) : raw.slice(0, 800),
+      providerReason: typeof error?.reason === "string" ? error.reason.slice(0, 200) : null,
+    };
+  } catch {
+    return { providerStatus: null, providerMessage: raw.slice(0, 800), providerReason: null };
+  }
+}
+
 function secureRandomUnit() {
   const sample = new Uint32Array(1);
   crypto.getRandomValues(sample);
@@ -151,7 +166,20 @@ export async function generateGeminiReply(comment, apiKey, fetchImpl = fetch, on
           : response.status >= 500
             ? "gemini_http_5xx"
             : "gemini_http_error";
-      reportDiagnostic(onDiagnostic, code, { stage: "http", status: response.status, elapsedMs: elapsed() });
+      let providerDetails = {};
+      try {
+        providerDetails = providerErrorSummary(await response.text());
+      } catch { /* response body is optional diagnostic data */ }
+      reportDiagnostic(onDiagnostic, code, {
+        stage: "http",
+        status: response.status,
+        model: GEMINI_MODEL,
+        googleSearchToolEnabled: true,
+        retryAfter: response.headers.get("retry-after"),
+        contentType: response.headers.get("content-type"),
+        ...providerDetails,
+        elapsedMs: elapsed(),
+      });
       return null;
     }
     let result;
