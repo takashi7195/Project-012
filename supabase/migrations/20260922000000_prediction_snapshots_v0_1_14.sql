@@ -1,7 +1,12 @@
 -- v0.1.14: immutable roulette prediction snapshots.
 -- The browser never writes this table directly; the prediction Edge Function
 -- uses the service-role wrapper after calculating a result.
-create table if not exists race_data.prediction_snapshots (
+create schema if not exists race_prediction;
+comment on schema race_prediction is 'Prediction snapshots and Gemini narrative attempts; source data remains in race_data.';
+revoke all on schema race_prediction from public, anon, authenticated;
+grant usage on schema race_prediction to service_role;
+
+create table if not exists race_prediction.prediction_snapshots (
   id uuid primary key default gen_random_uuid(),
   race_id uuid not null references race_data.races(id),
   generated_at timestamptz not null default now(),
@@ -17,20 +22,22 @@ create table if not exists race_data.prediction_snapshots (
   created_at timestamptz not null default now()
 );
 create index if not exists prediction_snapshots_race_time_idx
-  on race_data.prediction_snapshots (race_id, generated_at desc);
+  on race_prediction.prediction_snapshots (race_id, generated_at desc);
+revoke all on race_prediction.prediction_snapshots from public, anon, authenticated;
+grant select, insert on race_prediction.prediction_snapshots to service_role;
 
-create or replace function race_data.create_prediction_snapshot(
+create or replace function race_prediction.create_prediction_snapshot(
   p_race_id uuid, p_generated_at timestamptz, p_score_as_of timestamptz,
   p_status text, p_config_version text, p_logic_version text,
   p_input_data_hash text, p_main smallint[], p_counter smallint[],
   p_hole smallint[], p_payload jsonb
 ) returns uuid
 language plpgsql security definer
-set search_path = race_data, extensions, pg_catalog
+set search_path = race_prediction, race_data, extensions, pg_catalog
 as $$
 declare v_id uuid;
 begin
-  insert into race_data.prediction_snapshots(
+  insert into race_prediction.prediction_snapshots(
     race_id, generated_at, score_as_of, status, config_version, logic_version,
     input_data_hash, main, counter, hole, payload
   ) values (
@@ -41,8 +48,8 @@ begin
   return v_id;
 end;
 $$;
-revoke all on function race_data.create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) from public,anon,authenticated;
-grant execute on function race_data.create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) to service_role;
+revoke all on function race_prediction.create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) from public,anon,authenticated;
+grant execute on function race_prediction.create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) to service_role;
 
 create or replace function public.race_data_create_prediction_snapshot(
   p_race_id uuid, p_generated_at timestamptz, p_score_as_of timestamptz,
@@ -50,7 +57,7 @@ create or replace function public.race_data_create_prediction_snapshot(
   p_input_data_hash text, p_main smallint[], p_counter smallint[],
   p_hole smallint[], p_payload jsonb
 ) returns uuid language sql security definer
-set search_path = public, race_data, extensions, pg_catalog
-as $$ select race_data.create_prediction_snapshot($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11); $$;
+set search_path = public, race_prediction, race_data, extensions, pg_catalog
+as $$ select race_prediction.create_prediction_snapshot($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11); $$;
 revoke all on function public.race_data_create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) from public,anon,authenticated;
 grant execute on function public.race_data_create_prediction_snapshot(uuid,timestamptz,timestamptz,text,text,text,text,smallint[],smallint[],smallint[],jsonb) to service_role;
