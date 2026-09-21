@@ -45,7 +45,7 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.url, new RegExp(GEMINI_MODEL));
   assert.equal(request.init.headers["x-goog-api-key"], "test-key");
   assert.equal(request.body.contents.length, 1);
-  assert.deepEqual(request.body.tools, [{ google_search: {} }]);
+  assert.equal(request.body.tools, undefined);
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
@@ -168,10 +168,10 @@ test("diagnostics distinguish provider JSON, response shape, and schema failures
   assert.equal(diagnostics[2].details.stage, "schema_validation");
 });
 
-test("search-enabled responses still use the existing JSON contract", async () => {
+test("search-disabled responses still use the existing JSON contract", async () => {
   const result = await generateGeminiReply("今日の多摩川8Rの結果は？", "test-key", async (_url, init) => {
     const request = JSON.parse(init.body);
-    assert.deepEqual(request.tools, [{ google_search: {} }]);
+    assert.equal(request.tools, undefined);
     return new Response(JSON.stringify({
       candidates: [{
         content: { parts: [{ text: JSON.stringify({
