@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIタカシの3連単予想</title>
     <link rel="stylesheet" href="style.css?ui=bg-v2-fixed">
-    <link rel="stylesheet" href="ui-reference.css?ui=reference04">
+    <link rel="stylesheet" href="ui-reference.css?ui=reference05">
 </head>
 <body class="reference-ui">
     <main class="site-stack" id="site-content">
@@ -55,6 +55,7 @@
         </div>
 
         <div class="container game-panel">
+        <div class="favorite-label">◎ 本命</div>
         <div id="results" aria-label="予想結果">
             <div class="slot" id="slot-1"><div class="reel"></div></div>
             <div class="slot" id="slot-2"><div class="reel"></div></div>
@@ -62,8 +63,26 @@
         </div>
 
         <button id="start-btn">START</button>
-        <div class="version">v0.1.11</div>
+        <div class="version">v0.1.12</div>
     </div>
+    <div class="secondary-predictions" aria-label="対抗と穴の予想">
+        <div class="prediction-row">
+            <span class="prediction-label">○ 対抗</span>
+            <span class="prediction-combination" data-prediction="counter" aria-label="対抗予想">
+                <span class="prediction-boat bg-1">1</span><span class="prediction-separator">-</span><span class="prediction-boat bg-3">3</span><span class="prediction-separator">-</span><span class="prediction-boat bg-2">2</span>
+            </span>
+        </div>
+        <div class="prediction-row">
+            <span class="prediction-label">▲ 穴</span>
+            <span class="prediction-combination" data-prediction="longshot" aria-label="穴予想">
+                <span class="prediction-boat bg-4">4</span><span class="prediction-separator">-</span><span class="prediction-boat bg-1">1</span><span class="prediction-separator">-</span><span class="prediction-boat bg-2">2</span>
+            </span>
+        </div>
+    </div>
+    <section class="race-development" aria-labelledby="race-development-title">
+        <h2 id="race-development-title">レース展開</h2>
+        <p>1号艇が先手を取り、2号艇が差して続く展開を想定。<br>4号艇はスタート次第でまくり差し。</p>
+    </section>
     </section>
     <section class="comments-section" aria-labelledby="comments-title">
         <div class="comment-heading">

@@ -42,6 +42,21 @@
   background: linear-gradient(118deg, #edfaffed 0%, #dff3ffd9 55%, #ffffffd9 100%);
   box-shadow: inset 0 1px 2px #fff, 0 4px 14px #1e609224;
 }
+.reference-ui .favorite-label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 31px;
+  margin: -2px 0 12px;
+  padding: 4px 11px;
+  border: 1px solid #ffffffd9;
+  border-radius: 999px;
+  background: #ffffffed;
+  color: #102a56;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 2px 5px #1c609022;
+}
 .reference-ui #results { gap: clamp(10px, 2.8vw, 18px); margin-bottom: 17px; }
 .reference-ui .slot {
   --slot-size: clamp(72px, 22.5vw, 108px);
@@ -73,6 +88,79 @@
 .reference-ui #start-btn:active, .reference-ui .post-button:active { filter: brightness(.96); transform: translateY(1px); }
 .reference-ui #start-btn:disabled, .reference-ui .post-button:disabled { opacity: .65; cursor: wait; }
 .reference-ui .game-panel .version { position: absolute; right: 9px; bottom: 3px; font-size: 8px; margin: 0; color: #607991; }
+.reference-ui .secondary-predictions {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  margin-top: 10px;
+}
+.reference-ui .prediction-row {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 5px 12px;
+  border: 1px solid #ffffffcc;
+  border-radius: 13px;
+  background: linear-gradient(110deg, #f7fcfff0, #e9f7ffe0);
+  box-shadow: 0 3px 10px #1c618f1a;
+}
+.reference-ui .prediction-label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 82px;
+  min-height: 30px;
+  padding: 4px 10px;
+  border: 1px solid #ffffffd9;
+  border-radius: 999px;
+  background: #ffffffed;
+  color: #102a56;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.reference-ui .prediction-combination {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 12px;
+}
+.reference-ui .prediction-boat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  font: 800 20px/1 Arial, Helvetica, sans-serif;
+  box-shadow: inset 0 1px 1px #ffffff80, 0 1px 3px #10263a22;
+}
+.reference-ui .prediction-separator {
+  color: #102a56;
+  font-size: 18px;
+  font-weight: 800;
+}
+.reference-ui .race-development {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px 16px 16px;
+  border: 1px solid #ffffffcc;
+  border-radius: 15px;
+  background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
+  box-shadow: 0 4px 18px #1c618f22;
+  color: #102a56;
+}
+.reference-ui .race-development h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.reference-ui .race-development p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.6;
+}
 .reference-ui .comments-section {
   background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
   border: 1px solid #ffffffcc; border-radius: 15px; overflow: hidden;
@@ -154,5 +242,9 @@
   .reference-ui .reply { gap: 5px 7px; grid-template-columns: 40px minmax(0, 1fr); }
   .reference-ui .reply-avatar-button, .reference-ui .reply-avatar { width: 40px; height: 40px; }
   .reference-ui .composer-sheet { padding-inline: 16px; }
+  .reference-ui .prediction-row { padding-inline: 8px; }
+  .reference-ui .prediction-label { min-width: 74px; padding-inline: 8px; font-size: 14px; }
+  .reference-ui .prediction-combination { margin-left: 8px; gap: 3px; }
+  .reference-ui .prediction-boat { width: 27px; height: 27px; font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
