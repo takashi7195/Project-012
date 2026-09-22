@@ -258,6 +258,30 @@ race_data、race_predictionへのanon/authenticated直接アクセスを禁止�
 | UI | 320/360/390/430px、別レース遅延応答、連打、締切、stale、文章失敗数字維持、コメント既存機能 |
 | 復元 | v0.1.12画面復元、新Function停止、comments維持、ingest維持、snapshot保持、旧タグ不変 |
 
+## v0.1.14 追記 — 確定実装契約
+
+### generation leaseの状態遷移
+
+`acquire_prediction_generation(reuse_key, 45)`は、最初の要求に`acquired`とlease tokenを返す。期限内に同じキーを受けた要求は`busy`を返し、Edge FunctionはHTTP 202・`generating`・`retryAfter`を返す。snapshotが既に存在する場合は`existing`を返し、保存済み予想と直近成功文章を再利用する。leaseの失敗解除は明示DELETEではなく45秒の自然失効と次回取得による回収で行う。
+
+snapshot作成には`reuse_key`のunique indexを使い、lease競合を通過した同時INSERTも既存IDへ収束させる。文章試行は同じ`prediction_id`へ追加保存し、採番時にtransaction advisory lockを取得する。
+
+### migration適用順
+
+`20260922000000_prediction_snapshots_v0_1_14.sql`でスキーマ、snapshot、lease、snapshot作成RPC、lease取得RPCを作成する。その後`20260922000001_narrative_attempts_v0_1_14.sql`で文章試行、snapshot読取RPC、文章保存RPCを作成する。後続migrationでsnapshot読取RPCを再定義し、直近成功文章を含める。各migrationは`if not exists`または`create or replace`を用い、クリーンDBへファイル順に適用できる。
+
+### 権限契約
+
+`race_prediction`スキーマと2つの予想テーブルはブラウザロールへ権限を付与しない。内部関数も`service_role`だけにEXECUTEを付与する。`public.race_data_*`という既存命名のwrapperは互換名であり、EXECUTEはservice_roleだけである。Edge Function以外のクライアントからの直接操作は許可しない。
+
+### Gemini設定と文章試行
+
+初期値は`RACE_NARRATIVE_MODEL=gemini-3.1-flash-lite`、`RACE_NARRATIVE_TIMEOUT_MS=15000`、`RACE_NARRATIVE_MAX_OUTPUT_TOKENS=512`、`RACE_NARRATIVE_MAX_CHARS=240`、`RACE_NARRATIVE_PROMPT_VERSION=v0.1.14-narrative-1`。APIキーは`GEMINI_API_KEY`から読み、コメントAIの設定値を共有しない。D07確定後も環境設定と版を記録し、文章入力ハッシュ・プロンプトハッシュ・引用根拠IDを試行履歴へ保存する。
+
+### 統合試験と切り戻し
+
+合格には、レース取得からWeb表示までの実DB E2Eを1件、同一入力の同時2要求でsnapshotが1件だけになる試験を1件含める。失敗時も予想本体が残り、文章試行だけがerrorになることを確認する。切り戻し時はフロントとEdge Functionをv0.1.13へ戻して予想機能を停止し、`race_prediction`データは保持する。migrationのdownやテーブル削除は初期手順に含めない。
+
 数値オラクル例：有効得点66.75/有効満点89.0→75。motor top2=40%,top3=60%→生合成34（率の順位化前）。総合順位[3,1,5,2,6,4]→本命[3,1,5]、対抗[1,3,2]、穴候補6選出なら[6,3,1]。相対1・2位同値は90/90、全艇同値50。例は配点の正しさや的中率を検証したものではない。
 
 D02/D05追加試験仕様（未実行）：他項目が全て有効なら上限89.0点、展示タイム1艇欠損で82.4点、展示ST1艇欠損又はF/Lで84.2点、両方不成立で77.6点。F/L回数が全艇0でも期間未確認なら2.4点除外を維持する。F.01、L表記、数値−0.01、未解釈文字列を試し、穴・同点比較へ除外値が混入しないことを確認する。

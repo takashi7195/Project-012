@@ -115,3 +115,31 @@ v0.1.10への完全切り戻しでは収集Cronやcommentsも対象となり、G
 ## 9. 完了条件
 
 基本設計レビュー完了と実装着手可能を区別する。詳細設計D01〜D09の必要な判断、実データ型の確認、各段階5件以上の試験設計、旧版復元計画が揃うことを着手条件とする。今回の成果物は設計文書であり予想精度・クラウド動作の検証済み報告ではない。
+
+## v0.1.14 追記 — 実装前の確定事項
+
+### generation lease
+
+- lease有効時間は45秒とする。Geminiの初期タイムアウト15秒とDB処理時間を含めた設定値で、変更可能にする。
+- 正常にsnapshotが保存された場合は、後続要求がsnapshotを検出するため、leaseの自然失効を待つ。保存前の処理失敗も同じく自然失効で回収する。
+- タイムアウトしたleaseは、次回同じ`reuse_key`の要求が期限切れを検出して再取得する。別の回収ジョブは初期実装では作らない。
+- 同じ`reuse_key`で同時要求された後続は待機せず、HTTP 202と`generating`、再試行目安秒数を返す。保存済みなら既存snapshotを返す。
+- `reuse_key`はレース、入力ハッシュ、スコア設定版、予想ロジック版から生成し、snapshot側で一意化する。
+
+### migrationと権限
+
+クリーンDBへの適用順は、(1) `race_prediction`スキーマとsnapshot・lease、(2) snapshot作成・lease取得RPC、(3) `narrative_attempts`、(4) narrative読取・保存RPC、(5) service_role権限とpublic互換RPCの確定、の順とする。現行migrationはこの依存順で作成されている。
+
+予想テーブル、leaseテーブル、内部RPCは`anon`・`authenticated`・`public`から直接利用できない。公開RPC名を維持する互換wrapperもEXECUTEは`service_role`だけに付与し、Edge Functionがservice_roleで呼び出す。
+
+### Gemini初期設定
+
+文章生成用の初期設定は、モデル`gemini-3.1-flash-lite`、タイムアウト15秒、最大出力512 tokens、最大240文字、プロンプト版`v0.1.14-narrative-1`とする。すべて環境設定で変更可能とし、`GEMINI_API_KEY`はEdge FunctionのSecretからのみ読む。実本番値は適用前に確認する。
+
+### E2E合格条件
+
+クリーンDBまたは検証用DBで、レース取得、予想計算、snapshot保存、Gemini文章生成、`narrative_attempts`保存、APIレスポンス、Web表示を1本通す。加えて同一入力の同時2要求でsnapshotが1件だけ作成され、後続が`generating`または既存結果を受け取ることを合格条件とする。
+
+### ロールバック
+
+コードとEdge Functionをv0.1.13へ戻し、予想機能を停止する。`race_prediction`のsnapshot・文章履歴・leaseデータは削除せず残す。既存の`race_data`収集とcommentsは変更しない。予想機能を再開するときはv0.1.14以降のmigration状態とコード版の整合を確認する。

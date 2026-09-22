@@ -595,3 +595,12 @@
 - 既存snapshotがある場合は新規計算・Gemini呼び出しを行わず、既存結果を返す。
 - 文章試行の連番採番にはtransaction内advisory lockを使い、同じprediction_idへの同時再試行の競合を抑止する。
 - 56件の既存テストを再実行して成功。DB統合試験はDocker/Podman未導入のため未実施。
+
+## 2026-09-22 — v0.1.14 統合試験前の設計確定
+
+- generation leaseは45秒、同時要求の後続は待機せず`generating`を返し、期限切れは次回要求が回収する。
+- migrationは`race_prediction`スキーマ、snapshot・lease、文章試行、RPC・権限の依存順でクリーンDBへ適用する。
+- 予想系の直接アクセスはservice_roleだけに限定し、公開wrapper名は互換性のため維持する。
+- Gemini初期設定はモデル`gemini-3.1-flash-lite`、15秒、512 tokens、240文字、プロンプト版`v0.1.14-narrative-1`とし、環境設定で変更可能にする。
+- E2E合格条件に一連の実DB処理と同一入力の同時2要求でsnapshotが1件になることを追加した。
+- 切り戻しはコード・Edge Functionをv0.1.13へ戻し、`race_prediction`データは保持する。
