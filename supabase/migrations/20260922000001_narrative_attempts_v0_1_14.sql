@@ -50,6 +50,7 @@ set search_path = race_prediction, race_data, extensions, pg_catalog
 as $$
 declare v_id uuid; v_sequence integer;
 begin
+  perform pg_advisory_xact_lock(hashtext(p_prediction_id::text));
   select coalesce(max(attempt_sequence), 0) + 1 into v_sequence
     from race_prediction.narrative_attempts where prediction_id = p_prediction_id;
   insert into race_prediction.narrative_attempts(
@@ -67,6 +68,25 @@ end;
 $$;
 revoke all on function race_prediction.create_narrative_attempt(uuid,text,text,text,text,timestamptz,timestamptz,text,text,jsonb,text,text,timestamptz,jsonb,integer) from public,anon,authenticated;
 grant execute on function race_prediction.create_narrative_attempt(uuid,text,text,text,text,timestamptz,timestamptz,text,text,jsonb,text,text,timestamptz,jsonb,integer) to service_role;
+
+-- Replace the base reader after narrative_attempts exists so a reused
+-- prediction can return its latest successful narrative without changing the
+-- immutable prediction payload.
+create or replace function race_prediction.get_prediction_snapshot(p_prediction_id uuid)
+returns jsonb language sql security definer
+set search_path = race_prediction, race_data, extensions, pg_catalog
+as $$
+  select jsonb_build_object(
+    'id', p.id, 'race_id', p.race_id, 'generated_at', p.generated_at,
+    'score_as_of', p.score_as_of, 'status', p.status,
+    'config_version', p.config_version, 'logic_version', p.logic_version,
+    'input_data_hash', p.input_data_hash, 'main', p.main,
+    'counter', p.counter, 'hole', p.hole, 'payload', p.payload,
+    'narrative', coalesce((select jsonb_build_object('status', a.status, 'text', a.text, 'error_code', a.error_code)
+      from race_prediction.narrative_attempts a where a.prediction_id=p.id and a.status='success'
+      order by a.attempt_sequence desc limit 1), '{}'::jsonb)
+  ) from race_prediction.prediction_snapshots p where p.id = p_prediction_id;
+$$;
 
 create or replace function public.race_data_get_prediction_snapshot(p_prediction_id uuid)
 returns jsonb language sql security definer

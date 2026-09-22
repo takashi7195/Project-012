@@ -114,10 +114,27 @@ Deno.serve(async (request) => {
     if (!Number.isFinite(fetchedAt) || now - fetchedAt > freshnessLimit) return json(200, { status: "stale", main: null, counter: null, hole: null, race, lastSuccessAt: race.last_success_at });
     const prediction = calculatePrediction(race, { generatedAt: new Date(now).toISOString(), scoreAsOf: new Date(now).toISOString() });
     const inputDataHash = await hash({ race, configVersion: prediction.configVersion, logicVersion });
+    const reuseKey = await hash({ raceId: race.race_id, inputDataHash, configVersion: prediction.configVersion, logicVersion });
+    const generation = await rpc("race_data_acquire_prediction_generation", { p_reuse_key: reuseKey, p_lease_seconds: 45 });
+    if (generation?.state === "busy") {
+      return json(202, { status: "generating", retryAfter: generation.retry_after ?? 2, reuseKey });
+    }
+    if (generation?.state === "existing" && generation.prediction_id) {
+      const existing = await rpc("race_data_get_prediction_snapshot", { p_prediction_id: generation.prediction_id });
+      const existingPrediction = existing?.payload?.prediction;
+      if (existingPrediction) return json(200, {
+        ...existingPrediction,
+        snapshotId: generation.prediction_id,
+        inputDataHash,
+        reused: true,
+        narrativeStatus: existing.narrative?.status ?? null,
+        narrative: existing.narrative?.text ?? null,
+      });
+    }
     const snapshotId = await rpc("race_data_create_prediction_snapshot", {
       p_race_id: race.race_id, p_generated_at: prediction.generatedAt, p_score_as_of: prediction.scoreAsOf,
       p_status: prediction.status, p_config_version: prediction.configVersion, p_logic_version: logicVersion,
-      p_input_data_hash: inputDataHash, p_main: prediction.main, p_counter: prediction.counter,
+      p_reuse_key: reuseKey, p_input_data_hash: inputDataHash, p_main: prediction.main, p_counter: prediction.counter,
       p_hole: prediction.hole, p_payload: { prediction, race: { raceDate, stadiumCode, raceNumber } },
     });
     const narrative = await generateAndSaveNarrative(snapshotId, race, prediction);

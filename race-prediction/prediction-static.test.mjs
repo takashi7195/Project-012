@@ -16,12 +16,17 @@ test("prediction snapshot migration is immutable and service-role only", () => {
   assert.match(sql, /revoke all on schema race_prediction from public, anon, authenticated/);
   assert.match(sql, /grant select, insert on race_prediction\.prediction_snapshots to service_role/);
   assert.match(sql, /p_input_data_hash/);
+  assert.match(sql, /prediction_snapshots_reuse_key_uq/);
+  assert.match(sql, /acquire_prediction_generation/);
 });
 
 test("prediction edge function reads current published data and saves a snapshot", () => {
   assert.match(edge, /race_data_search_current_races/);
   assert.match(edge, /calculatePrediction/);
   assert.match(edge, /race_data_create_prediction_snapshot/);
+  assert.match(edge, /race_data_acquire_prediction_generation/);
+  assert.match(edge, /status: "generating"/);
+  assert.match(edge, /reused: true/);
   assert.match(edge, /status: \"stale\"/);
   assert.match(edge, /status: \"closed\"/);
 });
@@ -33,6 +38,7 @@ test("narrative attempts are append-only and retry the same prediction id", () =
   assert.match(narrativeSql, /narrative_input_hash text not null/);
   assert.match(narrativeSql, /create or replace function race_prediction\.create_narrative_attempt/);
   assert.match(narrativeSql, /grant select, insert on race_prediction\.narrative_attempts to service_role/);
+  assert.match(narrativeSql, /pg_advisory_xact_lock/);
   assert.match(edge, /body\.action === "narrative-retry"/);
   assert.match(edge, /race_data_get_prediction_snapshot/);
   assert.match(edge, /generateAndSaveNarrative\(predictionId/);

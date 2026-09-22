@@ -587,3 +587,11 @@
 - `race_prediction`のスキーマ、テーブル、RPCをservice_role限定にし、ブラウザロールからの直接アクセスを禁止した。
 - 公開RPC名とEdge Functionの契約は維持した。
 - ローカルSupabaseはDocker/Podmanが利用できないため統合DB試験を実行できず、56件のコード・単体試験のみ再確認した。
+
+## 2026-09-22 — v0.1.14 予想生成の重複防止（ローカル）
+
+- `(race_id, input_data_hash, config_version, logic_version)`相当の再利用キーを保存し、同一入力のsnapshotを一意化した。
+- 短期generation leaseを追加し、同時生成中は`generating`を返して二重計算を防ぐ。
+- 既存snapshotがある場合は新規計算・Gemini呼び出しを行わず、既存結果を返す。
+- 文章試行の連番採番にはtransaction内advisory lockを使い、同じprediction_idへの同時再試行の競合を抑止する。
+- 56件の既存テストを再実行して成功。DB統合試験はDocker/Podman未導入のため未実施。
