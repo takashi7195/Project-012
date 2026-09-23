@@ -161,6 +161,7 @@
   margin: 0;
   font-size: 15px;
   line-height: 1.6;
+  white-space: pre-line;
 }
 .reference-ui .comments-section {
   background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);

@@ -1,9 +1,10 @@
 export const NARRATIVE_CONFIG = Object.freeze({
   model: "gemini-3.1-flash-lite",
-  promptVersion: "v0.1.14-narrative-1",
+  promptVersion: "v0.1.15-narrative-2",
   timeoutMs: 15_000,
-  maxOutputTokens: 512,
-  maxChars: 240,
+  maxOutputTokens: 1024,
+  maxChars: 650,
+  minChars: 450,
 });
 
 const report = (onDiagnostic, code, details = {}) => {
@@ -72,12 +73,13 @@ function providerErrorSummary(text) {
   } catch { return { providerStatus: null, providerMessage: raw.slice(0, 800) }; }
 }
 
-export function validateNarrative(value, allowedFactorIds, maxChars = NARRATIVE_CONFIG.maxChars) {
+export function validateNarrative(value, allowedFactorIds, maxChars = NARRATIVE_CONFIG.maxChars, minChars = NARRATIVE_CONFIG.minChars) {
   if (!value || typeof value !== "object") return { ok: false, reason: "shape" };
   const text = typeof value.text === "string" ? value.text.trim() : "";
   const cited = Array.isArray(value.citedFactorIds) ? value.citedFactorIds : null;
-  if (!text || text.length > maxChars || !cited || cited.some((id) => typeof id !== "string" || !allowedFactorIds.has(id))) return { ok: false, reason: "validation" };
-  if (/https?:\/\//i.test(text) || /\n/.test(text)) return { ok: false, reason: "unsafe_text" };
+  const paragraphs = text.split("\n");
+  if (!text || text.length < minChars || text.length > maxChars || paragraphs.length !== 3 || paragraphs.some((paragraph) => !paragraph.trim()) || !cited || cited.some((id) => typeof id !== "string" || !allowedFactorIds.has(id))) return { ok: false, reason: "validation" };
+  if (/https?:\/\//i.test(text) || /\r|\n{2,}/.test(text)) return { ok: false, reason: "unsafe_text" };
   return { ok: true, text, citedFactorIds: cited };
 }
 
@@ -86,10 +88,13 @@ export async function generateNarrative(input, apiKey, fetchImpl = fetch, option
   if (!apiKey) { report(onDiagnostic, "config_missing", { stage: "config" }); return { result: null, errorCode: "config_missing", config }; }
   const allowedFactorIds = new Set((input.boats ?? []).flatMap((boat) => (boat.keyFactors ?? []).map((factor) => factor.id)));
   const task = [
-    "次の構造化JSONだけを根拠に、競艇レースの展開を日本語1行で作成してください。",
+    "次の構造化JSONだけを根拠に、競艇専門紙のような展開ストーリーを日本語で作成してください。原則3段落、各段落は時間の流れに沿ってください。",
+    "第1段落はスタートから1マーク、第2段落は1マーク後からバックと2・3着争い、第3段落は本線展開と波乱条件を説明してください。",
+    "目標は500〜550文字、450〜650文字以内です。文字数合わせの冗長な水増しはしないでください。",
+    "選手に言及するときは必ず「号艇＋半角スペース＋入力されたracerNameのフルネーム」で表記し、敬称や苗字への省略をしないでください。選手名を推測・創作しないでください。",
     "本命・対抗・穴、順位、総合点は変更・再計算せず、文章に自然に反映するだけにしてください。",
     "JSONにない選手の特徴、得意戦法、天候、展開、数値を推測・断定しないでください。除外項目は根拠に使わないでください。",
-    `textは${config.maxChars}文字以内の1行、citedFactorIdsは入力にあるfactor idだけを配列で返してください。`,
+    `textは450〜${config.maxChars}文字の3段落（改行は段落間の2つだけ）、citedFactorIdsは入力にあるfactor idだけを配列で返してください。`,
     "JSON以外の文字を返さないでください。",
     `入力JSON: ${JSON.stringify(input)}`,
   ].join("\n");
@@ -129,7 +134,7 @@ export async function generateNarrative(input, apiKey, fetchImpl = fetch, option
     const generated = candidate?.content?.parts?.map((part) => part?.text ?? "").join("") ?? "";
     let parsed;
     try { parsed = JSON.parse(generated.trim()); } catch { report(onDiagnostic, "gemini_invalid_json", { stage: "response_json", elapsedMs: Date.now() - startedAt }); return { result: null, errorCode: "gemini_invalid_json", config }; }
-    const validated = validateNarrative(parsed, allowedFactorIds, Number(config.maxChars));
+    const validated = validateNarrative(parsed, allowedFactorIds, Number(config.maxChars), Number(config.minChars));
     if (!validated.ok) { report(onDiagnostic, `gemini_narrative_${validated.reason}`, { stage: "validation", elapsedMs: Date.now() - startedAt }); return { result: null, errorCode: `gemini_narrative_${validated.reason}`, config }; }
     report(onDiagnostic, "gemini_narrative_succeeded", { stage: "validated", model: config.model, elapsedMs: Date.now() - startedAt });
     return { result: validated, errorCode: null, config };
