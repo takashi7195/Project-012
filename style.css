@@ -111,6 +111,10 @@ select:focus-visible {
   outline: 2px solid #1769aa;
   outline-offset: 2px;
 }
+select option:disabled {
+  color: #8b949e;
+  background: #e5e7eb;
+}
 #results { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
 .slot { 
   --slot-size: clamp(64px, 21vw, 100px);

@@ -35,6 +35,7 @@
   padding: 0 28px 0 15px; background-position: right 9px center;
 }
 .reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
+.reference-ui .selectors select option:disabled { color: #8b949e; background: #e5e7eb; }
 .reference-ui .game-panel {
   position: relative; width: 100%; max-width: none;
   border-radius: 16px; padding: 22px 18px 16px;

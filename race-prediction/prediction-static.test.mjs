@@ -58,7 +58,7 @@ test("narrative attempts are append-only and retry the same prediction id", () =
 });
 
 test("frontend requests v0.1.14 prediction and renders counter/hole", () => {
-  assert.match(html, /v0\.1\.14/);
+  assert.match(html, /v0\.1\.15/);
   assert.match(script, /functions\/v1\/predictions/);
   assert.match(script, /setPredictionRow\('counter'/);
   assert.match(script, /setPredictionRow\('longshot'/);
@@ -67,6 +67,10 @@ test("frontend requests v0.1.14 prediction and renders counter/hole", () => {
   assert.doesNotMatch(script, /const result = selectCombination\(dist\)/);
   assert.match(script, /apikey: SUPABASE_PUBLISHABLE_KEY/);
   assert.match(script, /formatJstDate\(\)/);
+  assert.match(script, /action=races/);
+  assert.match(script, /option\.disabled = !available/);
+  assert.match(script, /締切予定/);
+  assert.match(script, /closedAt/);
   assert.doesNotMatch(script, /SUPABASE_SERVICE_ROLE_KEY|SUPABASE-SERVICE-ROLE-KEY/);
 });
 

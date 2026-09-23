@@ -8,7 +8,7 @@ import { isAuthorizedPublicClient, resolvePublicClientKey } from "./public-auth.
 const cors = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
 const projectUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -41,6 +41,13 @@ async function hash(value: unknown) {
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
+}
+
+async function currentRacesFor(raceDate: string, stadiumCode: number) {
+  return rpc("race_data_search_current_races", {
+    p_from: raceDate, p_to: raceDate, p_stadium_code: stadiumCode,
+    p_race_number: null, p_entry_number: null, p_racer_name: null, p_limit: 100,
+  });
 }
 
 async function saveNarrativeAttempt(predictionId: string, input: any, result: any, startedAt: string, finishedAt: string, durationMs: number, inputHash: string, promptHash: string) {
@@ -82,11 +89,31 @@ async function generateAndSaveNarrative(predictionId: string, race: any, predict
 
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors });
-  if (request.method !== "POST") return json(405, { error: "method_not_allowed" });
   if (!isAuthorizedPublicClient(request, { publishableKey: publicClientKey })) {
     return json(401, { error: "invalid_public_client" });
   }
   try {
+    if (request.method === "GET") {
+      const url = new URL(request.url);
+      if (url.searchParams.get("action") !== "races") return json(400, { error: "invalid_action" });
+      const raceDate = url.searchParams.get("raceDate") || new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(raceDate)) return json(400, { error: "invalid_race_date" });
+      const stadiums = await Promise.all(Array.from({ length: 24 }, (_, index) => index + 1).map(async (stadiumCode) => {
+        const result = await currentRacesFor(raceDate, stadiumCode);
+        const races = Array.isArray(result?.data) ? result.data : [];
+        return {
+          stadiumCode,
+          hasRaces: races.length > 0,
+          races: races.map((race: any) => ({
+            raceNumber: race.race_number,
+            closedAt: race.program?.closed_at ?? null,
+            lastSuccessAt: race.last_success_at ?? null,
+          })),
+        };
+      }));
+      return json(200, { raceDate, stadiums });
+    }
+    if (request.method !== "POST") return json(405, { error: "method_not_allowed" });
     const body = await request.json();
     if (body.action === "narrative-retry") {
       if (!narrativeRetryToken || request.headers.get("x-narrative-retry-token") !== narrativeRetryToken) {

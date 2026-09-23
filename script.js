@@ -46,6 +46,8 @@ const raceDevelopmentText = document.getElementById('race-development-text');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
 // Publishable keys are public client identifiers, never service-role secrets.
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64';
+let stadiumAvailability = new Map();
+let stadiumAvailabilityReady = false;
 function formatJstDate(value = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
   const fields = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
@@ -151,7 +153,104 @@ document.addEventListener('DOMContentLoaded', () => {
     const offset = 2 - index; // 3->2, 2->1, 1->0
     reel.style.transform = `translateY(calc(var(--item-height) * -${12 + offset}))`;
   });
+  loadStadiumAvailability();
 });
+
+function stadiumCodeForOption(option) {
+  const code = Number(option?.dataset?.stadiumCode);
+  return Number.isInteger(code) && code > 0 ? code : Array.from(stadiumSelect.options).indexOf(option) + 1;
+}
+
+function applyStadiumAvailability(stadiums) {
+  stadiumAvailability = new Map((Array.isArray(stadiums) ? stadiums : []).map((stadium) => [Number(stadium.stadiumCode), stadium]));
+  for (const option of stadiumSelect.options) {
+    const stadium = stadiumAvailability.get(stadiumCodeForOption(option));
+    const available = Boolean(stadium?.hasRaces);
+    option.disabled = !available;
+    option.dataset.available = available ? 'true' : 'false';
+    const baseName = option.dataset.stadiumName || option.value;
+    option.textContent = available ? baseName : `${baseName} | 非開催`;
+    option.setAttribute('aria-label', option.textContent);
+  }
+  const selected = stadiumSelect.options[stadiumSelect.selectedIndex];
+  if (selected?.disabled) {
+    const firstAvailable = Array.from(stadiumSelect.options).find((option) => !option.disabled);
+    if (firstAvailable) stadiumSelect.value = firstAvailable.value;
+  }
+  applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+  return Array.from(stadiumSelect.options).some((option) => !option.disabled);
+}
+
+function formatJstTime(value) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return null;
+  return new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
+}
+
+function applyRaceAvailability(stadiumCode, now = new Date()) {
+  const stadium = stadiumAvailability.get(Number(stadiumCode));
+  const previousValue = raceSelect.value;
+  let hasSelectableRace = false;
+  for (const option of raceSelect.options) {
+    const raceNumber = Number.parseInt(option.value, 10);
+    const race = stadium?.races?.find((item) => Number(item.raceNumber) === raceNumber);
+    const deadline = race?.closedAt ? new Date(race.closedAt) : null;
+    const validDeadline = deadline && Number.isFinite(deadline.getTime());
+    const open = Boolean(validDeadline && now.getTime() < deadline.getTime());
+    option.disabled = !open;
+    option.dataset.available = open ? 'true' : 'false';
+    const raceLabel = `${raceNumber}R`;
+    option.textContent = open ? `${raceLabel} | ${formatJstTime(deadline)} 締切予定` : `${raceLabel} | 締切`;
+    option.setAttribute('aria-label', option.textContent);
+    if (open) hasSelectableRace = true;
+  }
+  const selected = raceSelect.options[raceSelect.selectedIndex];
+  if (selected?.disabled) {
+    const firstAvailable = Array.from(raceSelect.options).find((option) => !option.disabled);
+    if (firstAvailable) raceSelect.value = firstAvailable.value;
+  }
+  if (raceSelect.value !== previousValue) {
+    activePrediction?.abort();
+    clearPredictionDisplay();
+  }
+  updateStartAvailability(hasSelectableRace);
+  return hasSelectableRace;
+}
+
+function updateStartAvailability(hasSelectableRace = null) {
+  if (!startBtn) return;
+  if (!stadiumSelect.options || !raceSelect.options) {
+    startBtn.disabled = false;
+    return;
+  }
+  const stadiumOption = stadiumSelect.options?.[stadiumSelect.selectedIndex];
+  const raceOption = raceSelect.options?.[raceSelect.selectedIndex];
+  const stadiumReady = stadiumAvailabilityReady && stadiumOption && !stadiumOption.disabled;
+  const raceReady = raceOption && !raceOption.disabled;
+  startBtn.disabled = hasSelectableRace === false || !stadiumReady || !raceReady;
+}
+
+async function loadStadiumAvailability() {
+  stadiumSelect.disabled = true;
+  startBtn.disabled = true;
+  for (const option of stadiumSelect.options) option.disabled = true;
+  try {
+    const response = await fetch(`${PREDICTION_ENDPOINT}?action=races&raceDate=${encodeURIComponent(formatJstDate())}`, {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+    });
+    if (!response.ok) throw new Error(`stadium_availability_${response.status}`);
+    const body = await response.json();
+    stadiumAvailabilityReady = applyStadiumAvailability(body.stadiums);
+  } catch (error) {
+    // Availability is fail-closed: without current race data, no venue is selectable.
+    stadiumAvailabilityReady = false;
+    applyStadiumAvailability([]);
+    console.warn('会場開催情報を取得できませんでした', error);
+  } finally {
+    stadiumSelect.disabled = false;
+    updateStartAvailability();
+  }
+}
 
 let activePrediction = null;
 function clearPredictionDisplay(message = '') {
@@ -170,11 +269,22 @@ function clearPredictionDisplay(message = '') {
   if (raceDevelopmentText) raceDevelopmentText.textContent = message;
 }
 for (const select of [stadiumSelect, raceSelect]) select.addEventListener('change', () => {
+  if (select === stadiumSelect && stadiumSelect.options?.[stadiumSelect.selectedIndex]?.disabled) return;
+  if (select === stadiumSelect && stadiumSelect.options) applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+  else if (select === raceSelect && raceSelect.options?.[raceSelect.selectedIndex]?.disabled) return;
   activePrediction?.abort();
   clearPredictionDisplay();
 });
+if (typeof setInterval === 'function') setInterval(() => {
+  if (stadiumAvailabilityReady) applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+}, 30_000);
 async function requestPrediction(signal) {
-  const stadiumCode = Array.from(stadiumSelect.options).findIndex(option => option.value === stadiumSelect.value) + 1;
+  if (!stadiumAvailabilityReady && stadiumSelect.options.length) throw new Error('開催情報を取得できません');
+  const selectedOption = stadiumSelect.options[stadiumSelect.selectedIndex];
+  if (!selectedOption || selectedOption.disabled) throw new Error('この会場は本日開催されていません');
+  const selectedRace = raceSelect.options[raceSelect.selectedIndex];
+  if (!selectedRace || selectedRace.disabled) throw new Error('このレースは締切済みです');
+  const stadiumCode = stadiumCodeForOption(selectedOption);
   const selector = { raceDate: formatJstDate(), stadiumCode, raceNumber: Number.parseInt(raceSelect.value, 10) };
   const { pollPrediction } = await import('./race-prediction/client.mjs');
   return pollPrediction(async signal => {
@@ -235,8 +345,8 @@ startBtn.addEventListener('click', async () => {
   } finally {
     if (controller.signal.aborted) clearPredictionDisplay();
     activePrediction = null;
-    startBtn.disabled = false;
     stadiumSelect.disabled = raceSelect.disabled = false;
+    updateStartAvailability();
     startBtn.textContent = 'START';
     startBtn.removeAttribute('aria-label');
     startBtn.removeAttribute('title');
