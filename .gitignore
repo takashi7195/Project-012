@@ -10,5 +10,24 @@ tools/deploy-comments.ps1
 tools/ai-reply-test-server.mjs
 tools/start-ai-reply-test.ps1
 supabase/.temp/
+supabase/.branches/
+
+# Local audit and deployment evidence; keep formal fixtures and migrations tracked.
+tools/audit-*
+tools/requeue-*
+tools/verify-*
+tools/prediction-apply-*
+tools/prediction-*-verification.json
+tools/predictions-*-result.json
+tools/functions-after-*.json
+tools/migration-list-*.json
+tools/repair-targets.json
+tools/live-races.json
+tools/find-live-race-output.txt
+tools/*.bak
+
+# Local-only environment files.
+.env
+.env.*
 /ai-reply-test.html
 /ai-reply-test.js

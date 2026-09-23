@@ -26,6 +26,18 @@ test("transient failures use staged backoff and then quarantine", () => {
   assert.equal(classifyRetry({ code: "invalid_json", attemptCount: 0 }).state, "quarantined");
 });
 
+test("a recent 404 is retried with a bounded backoff", () => {
+  const result = classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 0, now: "2026-09-22T00:00:00Z" });
+  assert.equal(result.state, "retry");
+  assert.equal(result.nextAttemptAt, "2026-09-22T00:05:00.000Z");
+  assert.equal(classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 3, now: "2026-09-22T00:00:00Z" }).state, "quarantined");
+});
+
+test("an old 404 is quarantined and is not retried forever", () => {
+  const result = classifyRetry({ code: "fetch_404", raceDate: "2026-09-20", attemptCount: 0, now: "2026-09-22T00:00:00Z" });
+  assert.equal(result.state, "quarantined");
+});
+
 test("due selection honors priority and one-task budget", () => {
   const tasks = [
     { raceDate: "2026-09-18", state: "queued", priority: -1, nextAttemptAt: "2026-09-19T00:00:00Z" },

@@ -12,21 +12,38 @@ const report = (onDiagnostic, code, details = {}) => {
 
 export function buildNarrativeInput(race, prediction) {
   const excludedItems = (prediction.components?.excluded ?? []).map((item) => ({ name: item.name, reason: item.reason }));
+  const included = new Set((prediction.components?.included ?? []).map((item) => item.name));
+  const excluded = new Set(excludedItems.map((item) => item.name));
   const boats = (prediction.boats ?? []).map((boat) => {
-    const factors = [];
-    if (boat.componentScores?.course !== undefined) factors.push({ id: `boat-${boat.entryNumber}-course`, text: "進入コースの採点値を使用" });
-    if (boat.componentScores?.motor !== undefined) factors.push({ id: `boat-${boat.entryNumber}-motor`, text: "モーター成績の艇内比較を使用" });
-    if (boat.componentScores?.exhibitionTime !== undefined) factors.push({ id: `boat-${boat.entryNumber}-exhibition-time`, text: "展示タイムの艇内比較を使用" });
-    if (boat.componentScores?.exhibitionSt !== undefined) factors.push({ id: `boat-${boat.entryNumber}-exhibition-st`, text: "展示STの艇内比較を使用" });
-    if (boat.componentScores?.st !== undefined) factors.push({ id: `boat-${boat.entryNumber}-average-st`, text: "平均STの採点値を使用" });
+    // factorEvidence is produced by scoring and is the canonical, structured
+    // source. Keep a component-score fallback for older snapshots.
+    const fallback = [
+      ["course", "course", "進入コースの採点値を使用"],
+      ["motor", "motor", "モーター成績の艇内比較を使用"],
+      ["exhibitionTime", "exhibition-time", "展示タイムの艇内比較を使用"],
+      ["exhibitionSt", "exhibition-st", "展示STの艇内比較を使用"],
+      ["st", "average-st", "平均STの採点値を使用"],
+    ];
+    const rawFactors = Array.isArray(boat.factorEvidence) && boat.factorEvidence.length
+      ? boat.factorEvidence
+      : fallback
+        .filter(([component]) => boat.componentScores?.[component] !== undefined)
+        .map(([component, suffix, text]) => ({ component, id: `boat-${boat.entryNumber}-${suffix}`, text }));
+    const factors = rawFactors
+      .filter((factor) => factor && typeof factor === "object")
+      .filter((factor) => typeof factor.id === "string" && typeof factor.text === "string")
+      .filter((factor) => !excluded.has(factor.component))
+      .filter((factor) => !included.size || included.has(factor.component))
+      .map(({ id, text }) => ({ id, text }));
+    const adopted = (name) => !excluded.has(name) && included.has(name) && Number.isFinite(boat.componentScores?.[name]);
     return {
       boat: boat.entryNumber,
       racerName: boat.name,
       rank: boat.rank,
       totalScore: boat.totalScore,
       course: boat.course ?? null,
-      exhibitionTime: boat.time ?? null,
-      exhibitionST: boat.start_timing ?? null,
+      exhibitionTime: adopted("exhibitionTime") ? boat.time ?? null : null,
+      exhibitionST: adopted("exhibitionSt") && Number(boat.start_timing) >= 0 ? boat.start_timing ?? null : null,
       averageST: boat.average_st ?? null,
       motorScore: boat.componentScores?.motor ?? null,
       keyFactors: factors,

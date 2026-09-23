@@ -61,6 +61,7 @@ export async function runWorker({
     const code = error?.code || "worker_error";
     const decision = classifyRetry({
       code,
+      raceDate: task.raceDate,
       attemptCount: Math.max(0, (task.attemptCount ?? 1) - 1),
       now,
       retryAfterSeconds: error?.retryAfterSeconds ?? null,

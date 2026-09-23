@@ -47,7 +47,12 @@ function classifyError(error) {
   // DOMException(AbortError) exposes numeric `code = 20` in Node. Do not
   // leak that implementation detail into scheduler error codes.
   if (typeof error?.code === "string" && error.code) return error.code;
-  if (error?.name === "AbortError") return "fetch_timeout";
+  // Node's fetch has used several abort representations across versions:
+  // DOMException(AbortError), numeric DOMException code 20, and ABORT_ERR.
+  // Treat only these AbortSignal-derived forms as timeouts.
+  if (error?.name === "AbortError" || error?.code === 20 || error?.code === "ABORT_ERR" || error?.cause?.name === "AbortError") {
+    return "fetch_timeout";
+  }
   if (error instanceof SyntaxError) return "invalid_json";
   return "fetch_network";
 }
@@ -73,7 +78,9 @@ export async function fetchDailyJson(dateText, {
       response = await fetchImpl(url, { headers, signal: controller.signal });
     } catch (error) {
       const wrapped = new Error(error?.message || "fetch failed");
-      wrapped.code = classifyError(error);
+      // The signal is authoritative: runtimes disagree on the concrete error
+      // object emitted for AbortController cancellation.
+      wrapped.code = controller.signal.aborted ? "fetch_timeout" : classifyError(error);
       throw wrapped;
     }
     const elapsedMs = Date.now() - started;
@@ -99,7 +106,7 @@ export async function fetchDailyJson(dateText, {
     };
   } catch (error) {
     const wrapped = new Error(error?.message || "fetch failed");
-    wrapped.code = classifyError(error);
+    wrapped.code = controller.signal.aborted ? "fetch_timeout" : classifyError(error);
     wrapped.httpStatus = error?.httpStatus;
     wrapped.retryAfter = error?.retryAfter;
     wrapped.date = dateText;

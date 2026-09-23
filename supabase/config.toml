@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.race-ingest]
 verify_jwt = false
+
+[functions.predictions]
+verify_jwt = false

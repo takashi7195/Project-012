@@ -69,6 +69,29 @@ test("transient API failure schedules retry and permanent parse failure quaranti
   assert.equal(outcomes[1].state, "quarantined");
 });
 
+test("recent 404 can recover on the next attempt and publish normally", async () => {
+  let calls = 0;
+  const finished = [];
+  const run = (attemptCount) => runWorker({
+    workerId: "worker-404-recovery",
+    claimTask: async () => ({ taskId: "task-404", raceDate: "2026-09-22", attemptCount }),
+    fetchDaily: async () => {
+      calls += 1;
+      if (calls === 1) throw Object.assign(new Error("not published yet"), { code: "fetch_404" });
+      return { status: "fetched", json: { ok: true } };
+    },
+    normalize: async () => ({ accepted: true, records: [] }),
+    buildPayload: async () => payload(1),
+    writeSnapshotChunk: async () => ({ published: true }),
+    finishTask: async (_task, state) => { finished.push(state); return true; },
+    now: "2026-09-22T00:00:00Z",
+  });
+  assert.equal((await run(0)).status, "retry");
+  assert.equal((await run(1)).status, "succeeded");
+  assert.equal(finished[0].errorCode, "fetch_404");
+  assert.equal(finished[1].state, "succeeded");
+});
+
 test("worker passes Retry-After from a 429 failure to the retry scheduler", async () => {
   const finished = [];
   const now = new Date("2026-09-20T00:00:00.000Z");

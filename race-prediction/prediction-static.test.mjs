@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 
 const sql = await readFile(new URL("../supabase/migrations/20260922000000_prediction_snapshots_v0_1_14.sql", import.meta.url), "utf8");
+const leaseFixSql = await readFile(new URL("../supabase/migrations/20260923000000_prediction_generation_lease_atomic_v0_1_14.sql", import.meta.url), "utf8");
 const narrativeSql = await readFile(new URL("../supabase/migrations/20260922000001_narrative_attempts_v0_1_14.sql", import.meta.url), "utf8");
 const edge = await readFile(new URL("../supabase/functions/predictions/index.ts", import.meta.url), "utf8");
+const auth = await readFile(new URL("../supabase/functions/predictions/public-auth.mjs", import.meta.url), "utf8");
 const html = await readFile(new URL("../index.html", import.meta.url), "utf8");
 const script = await readFile(new URL("../script.js", import.meta.url), "utf8");
 
@@ -20,6 +22,15 @@ test("prediction snapshot migration is immutable and service-role only", () => {
   assert.match(sql, /acquire_prediction_generation/);
 });
 
+test("generation lease acquisition arbitrates concurrent reuse keys atomically", () => {
+  assert.match(leaseFixSql, /insert into race_prediction\.prediction_generation_leases[\s\S]*on conflict \(reuse_key\) do nothing/);
+  assert.match(leaseFixSql, /if found then[\s\S]*state','acquired'/);
+  assert.match(leaseFixSql, /for update/);
+  assert.match(leaseFixSql, /lease_until <= now\(\)/);
+  assert.match(leaseFixSql, /grant execute on function race_prediction\.acquire_prediction_generation.*to service_role/s);
+  assert.match(leaseFixSql, /grant execute on function public\.race_data_acquire_prediction_generation.*to service_role/s);
+});
+
 test("prediction edge function reads current published data and saves a snapshot", () => {
   assert.match(edge, /race_data_search_current_races/);
   assert.match(edge, /calculatePrediction/);
@@ -27,6 +38,8 @@ test("prediction edge function reads current published data and saves a snapshot
   assert.match(edge, /race_data_acquire_prediction_generation/);
   assert.match(edge, /status: "generating"/);
   assert.match(edge, /reused: true/);
+  assert.match(edge, /await predictionKeys\(race, prediction.configVersion, logicVersion\)/);
+  assert.match(edge, /deadline_unavailable/);
   assert.match(edge, /status: \"stale\"/);
   assert.match(edge, /status: \"closed\"/);
 });
@@ -49,7 +62,16 @@ test("frontend requests v0.1.14 prediction and renders counter/hole", () => {
   assert.match(script, /functions\/v1\/predictions/);
   assert.match(script, /setPredictionRow\('counter'/);
   assert.match(script, /setPredictionRow\('longshot'/);
-  assert.match(script, /prediction\.narrativeStatus === 'success'/);
-  assert.match(script, /prediction\.narrativeStatus === 'gemini_error'/);
+  assert.match(script, /pollPrediction/);
+  assert.match(script, /raceDevelopmentText.textContent = prediction.narrative/);
   assert.doesNotMatch(script, /const result = selectCombination\(dist\)/);
+  assert.match(script, /apikey: SUPABASE_PUBLISHABLE_KEY/);
+  assert.match(script, /formatJstDate\(\)/);
+  assert.doesNotMatch(script, /SUPABASE_SERVICE_ROLE_KEY|SUPABASE-SERVICE-ROLE-KEY/);
+});
+
+test("prediction handler uses explicit public-client auth and protects narrative retry", () => {
+  assert.match(edge, /isAuthorizedPublicClient/);
+  assert.match(auth, /SUPABASE_PUBLISHABLE_KEYS/);
+  assert.match(edge, /narrative_retry_not_public/);
 });

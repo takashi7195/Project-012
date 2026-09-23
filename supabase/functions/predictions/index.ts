@@ -1,7 +1,9 @@
+import { predictionKeys, deadlineState } from "../../../race-prediction/input-contract.mjs";
 // v0.1.14 roulette prediction endpoint. It reads the published race snapshot,
 // runs deterministic scoring, and stores an immutable prediction snapshot.
 import { calculatePrediction } from "../../../race-prediction/scoring.mjs";
 import { buildNarrativeInput, generateNarrative, NARRATIVE_CONFIG } from "../../../race-prediction/narrative.mjs";
+import { isAuthorizedPublicClient, resolvePublicClientKey } from "./public-auth.mjs";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -10,6 +12,8 @@ const cors = {
 };
 const projectUrl = Deno.env.get("SUPABASE_URL") ?? "";
 const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+const publicClientKey = resolvePublicClientKey(Deno.env.toObject());
+const narrativeRetryToken = Deno.env.get("NARRATIVE_RETRY_TOKEN") ?? "";
 const logicVersion = "v0.1.14-roulette-1";
 const narrativeOptions = {
   model: Deno.env.get("RACE_NARRATIVE_MODEL") || NARRATIVE_CONFIG.model,
@@ -79,9 +83,15 @@ async function generateAndSaveNarrative(predictionId: string, race: any, predict
 Deno.serve(async (request) => {
   if (request.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (request.method !== "POST") return json(405, { error: "method_not_allowed" });
+  if (!isAuthorizedPublicClient(request, { publishableKey: publicClientKey })) {
+    return json(401, { error: "invalid_public_client" });
+  }
   try {
     const body = await request.json();
     if (body.action === "narrative-retry") {
+      if (!narrativeRetryToken || request.headers.get("x-narrative-retry-token") !== narrativeRetryToken) {
+        return json(403, { error: "narrative_retry_not_public" });
+      }
       const predictionId = String(body.predictionId ?? "");
       if (!/^[0-9a-f-]{36}$/i.test(predictionId)) return json(400, { error: "invalid_prediction_id" });
       const stored = await rpc("race_data_get_prediction_snapshot", { p_prediction_id: predictionId });
@@ -93,7 +103,7 @@ Deno.serve(async (request) => {
       };
       return json(200, { predictionId, ...stored.payload.prediction, ...(await generateAndSaveNarrative(predictionId, storedRace, stored.payload.prediction)) });
     }
-    const raceDate = String(body.raceDate ?? new Date().toISOString().slice(0, 10));
+    const raceDate = String(body.raceDate ?? new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()));
     const stadiumCode = Number(body.stadiumCode);
     const raceNumber = Number(body.raceNumber);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(raceDate) || !Number.isInteger(stadiumCode) || !Number.isInteger(raceNumber)) {
@@ -106,15 +116,15 @@ Deno.serve(async (request) => {
     const race = result?.data?.[0];
     if (!race) return json(404, { status: "api_error", errorCode: "race_not_found" });
     const now = Date.now();
-    const closedAt = race.program?.closed_at ? Date.parse(race.program.closed_at) : NaN;
-    if (Number.isFinite(closedAt) && closedAt <= now) return json(200, { status: "closed", main: null, counter: null, hole: null, race });
+    const deadline = deadlineState(race.program?.closed_at, now);
+    if (deadline === "invalid") return json(422, { status: "api_error", errorCode: "deadline_unavailable" });
+    if (deadline === "closed") return json(200, { status: "closed", main: null, counter: null, hole: null, race });
     const fetchedAt = Date.parse(race.last_success_at ?? "");
     const previewPresent = race.presence?.preview === "value";
     const freshnessLimit = previewPresent ? 10 * 60_000 : 30 * 60_000;
     if (!Number.isFinite(fetchedAt) || now - fetchedAt > freshnessLimit) return json(200, { status: "stale", main: null, counter: null, hole: null, race, lastSuccessAt: race.last_success_at });
     const prediction = calculatePrediction(race, { generatedAt: new Date(now).toISOString(), scoreAsOf: new Date(now).toISOString() });
-    const inputDataHash = await hash({ race, configVersion: prediction.configVersion, logicVersion });
-    const reuseKey = await hash({ raceId: race.race_id, inputDataHash, configVersion: prediction.configVersion, logicVersion });
+    const { inputDataHash, reuseKey } = await predictionKeys(race, prediction.configVersion, logicVersion);
     const generation = await rpc("race_data_acquire_prediction_generation", { p_reuse_key: reuseKey, p_lease_seconds: 45 });
     if (generation?.state === "busy") {
       return json(202, { status: "generating", retryAfter: generation.retry_after ?? 2, reuseKey });

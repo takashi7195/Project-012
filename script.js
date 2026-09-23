@@ -44,6 +44,13 @@ const stadiumSelect = document.getElementById('stadium-select');
 const raceSelect = document.getElementById('race-select');
 const raceDevelopmentText = document.getElementById('race-development-text');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
+// Publishable keys are public client identifiers, never service-role secrets.
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64';
+function formatJstDate(value = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
+  const fields = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
+  return `${fields.year}-${fields.month}-${fields.day}`;
+}
 const slots = [
   document.getElementById('slot-3'),
   document.getElementById('slot-2'),
@@ -146,25 +153,44 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-async function requestPrediction() {
-  const stadiumCode = Array.from(stadiumSelect.options).findIndex((option) => option.value === stadiumSelect.value) + 1;
-  const raceNumber = Number.parseInt(raceSelect.value, 10);
-  const response = await fetch(PREDICTION_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ raceDate: new Date().toISOString().slice(0, 10), stadiumCode, raceNumber })
+let activePrediction = null;
+function clearPredictionDisplay(message = '') {
+  for (const kind of ['counter', 'longshot']) setPredictionRow(kind, null);
+  slots.forEach(slot => {
+    slot.className = 'slot';
+    slot.classList.remove('spinning');
+    const reel = slot.querySelector('.reel');
+    reel.style.transform = '';
+    reel.replaceChildren();
+    const placeholder = document.createElement('div');
+    placeholder.className = 'item';
+    placeholder.textContent = '—';
+    reel.appendChild(placeholder);
   });
-  const data = await response.json();
-  if (!response.ok || data.status === 'api_error' || data.status === 'stale' || data.status === 'closed') {
-    const reason = data.status === 'stale' ? 'データ更新待ち' : data.status === 'closed' ? '締切済み' : '予想データを取得できません';
-    throw new Error(reason);
-  }
-  return data;
+  if (raceDevelopmentText) raceDevelopmentText.textContent = message;
+}
+for (const select of [stadiumSelect, raceSelect]) select.addEventListener('change', () => {
+  activePrediction?.abort();
+  clearPredictionDisplay();
+});
+async function requestPrediction(signal) {
+  const stadiumCode = Array.from(stadiumSelect.options).findIndex(option => option.value === stadiumSelect.value) + 1;
+  const selector = { raceDate: formatJstDate(), stadiumCode, raceNumber: Number.parseInt(raceSelect.value, 10) };
+  const { pollPrediction } = await import('./race-prediction/client.mjs');
+  return pollPrediction(async signal => {
+    const response = await fetch(PREDICTION_ENDPOINT, { method: 'POST', signal,
+      headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY }, body: JSON.stringify(selector) });
+    return { status: response.status, body: await response.json() };
+  }, { signal, onGenerating: () => {
+    startBtn.textContent = '生成中…';
+    if (raceDevelopmentText) raceDevelopmentText.textContent = '予想を生成中です…';
+  } });
 }
 
 function setPredictionRow(kind, combination) {
   const target = document.querySelector(`[data-prediction="${kind}"]`);
-  if (!target || !Array.isArray(combination)) return;
+  if (!target) return;
+  if (!Array.isArray(combination)) { target.textContent = '—'; return; }
   target.replaceChildren(...combination.map((boat, index) => {
     const fragment = document.createDocumentFragment();
     const number = document.createElement('span');
@@ -182,45 +208,39 @@ function setPredictionRow(kind, combination) {
 }
 
 startBtn.addEventListener('click', async () => {
+  if (activePrediction) return;
+  const controller = new AbortController();
+  activePrediction = controller;
   startBtn.disabled = true;
-  const stadium = stadiumSelect.value;
-  let prediction;
+  stadiumSelect.disabled = raceSelect.disabled = true;
+  startBtn.textContent = '取得中…';
+  clearPredictionDisplay('予想データを取得しています…');
   try {
-    prediction = await requestPrediction();
+    const prediction = await requestPrediction(controller.signal);
+    if (controller.signal.aborted) return;
+    const result = prediction.main;
+    setPredictionRow('counter', prediction.counter);
+    setPredictionRow('longshot', prediction.hole);
+    if (raceDevelopmentText) raceDevelopmentText.textContent = prediction.narrative;
+    slots.forEach((slot, index) => {
+      populateReel(slot.querySelector('.reel'));
+      slot.querySelector('.reel').style.animationDelay = `${index * 150}ms`;
+      slot.classList.add('spinning');
+    });
+    await stopRoulette(slots[0], result[2], 3000);
+    await stopRoulette(slots[1], result[1], 6000);
+    await stopRoulette(slots[2], result[0], 9000);
   } catch (error) {
+    clearPredictionDisplay(error.message);
+  } finally {
+    if (controller.signal.aborted) clearPredictionDisplay();
+    activePrediction = null;
     startBtn.disabled = false;
-    startBtn.setAttribute('aria-label', error.message);
-    startBtn.title = error.message;
-    return;
+    stadiumSelect.disabled = raceSelect.disabled = false;
+    startBtn.textContent = 'START';
+    startBtn.removeAttribute('aria-label');
+    startBtn.removeAttribute('title');
   }
-  const result = prediction.main;
-  setPredictionRow('counter', prediction.counter);
-  setPredictionRow('longshot', prediction.hole);
-  if (raceDevelopmentText && prediction.narrativeStatus === 'success' && prediction.narrative) {
-    raceDevelopmentText.textContent = prediction.narrative;
-  } else if (raceDevelopmentText && prediction.narrativeStatus === 'gemini_error') {
-    raceDevelopmentText.textContent = 'レース展開文を生成できませんでした。予想数字は表示しています。';
-  }
-
-  // result[0]=1着(slot-1), result[1]=2着(slot-2), result[2]=3着(slot-3)
-  // 演出順: 3着(slot-3) -> 2着(slot-2) -> 1着(slot-1)
-
-  // 全て回転開始
-  slots.forEach((slot, index) => {
-    const reel = slot.querySelector('.reel');
-    populateReel(reel);
-    // 回転開始時の位相をずらす (0ms, 150ms, 300ms)
-    reel.style.animationDelay = `${index * 150}ms`;
-    slot.classList.add('spinning');
-  });
-
-  // 順番に停止：右(3着) -> 中央(2着) -> 左(1着)
-  // 待ち時間は3秒・6秒・9秒。各リールの減速時間も加わる。
-  await stopRoulette(slots[0], result[2], 3000);  // 3秒待って右を減速
-  await stopRoulette(slots[1], result[1], 6000);  // 右の停止完了から6秒待って中央を減速
-  await stopRoulette(slots[2], result[0], 9000);  // 中央の停止完了から9秒待って左を減速
-  
-  startBtn.disabled = false;
 });
 
 function calculateStopMotion(position, finalBoat) {
