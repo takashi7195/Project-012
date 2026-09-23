@@ -56,19 +56,19 @@ test('venue order remains north-to-south and uses stable stadium codes', () => {
   assert.deepEqual(codes, Array.from({ length: 24 }, (_, index) => index + 1));
 });
 
-test('non開催 venues remain visible but are disabled and labelled', () => {
+test('venues without future races remain visible, disabled, and name-only', () => {
   const options = [option('桐生', 1), option('戸田', 2), option('江戸川', 3)];
   const { stadium, context } = loadUi(options);
   context.applyStadiumAvailability([
-    { stadiumCode: 1, hasRaces: true },
-    { stadiumCode: 2, hasRaces: false },
-  ]);
+    { stadiumCode: 1, hasRaces: true, races: [{ raceNumber: 1, closedAt: '2099-12-31T00:00:00Z' }] },
+    { stadiumCode: 2, hasRaces: false, races: [] },
+  ], new Date('2026-09-23T00:00:00Z'));
   assert.equal(options[0].disabled, false);
   assert.equal(options[0].textContent, '桐生');
   assert.equal(options[1].disabled, true);
-  assert.equal(options[1].textContent, '戸田 | 非開催');
+  assert.equal(options[1].textContent, '戸田');
   assert.equal(options[2].disabled, true);
-  assert.equal(options[2].textContent, '江戸川 | 非開催');
+  assert.equal(options[2].textContent, '江戸川');
   assert.equal(stadium.value, '桐生');
 });
 
@@ -111,4 +111,19 @@ test('missing or malformed deadlines fail closed and do not remain selected', ()
   assert.equal(race.options[1].disabled, true);
   assert.equal(race.options[2].disabled, false);
   assert.equal(race.value, '3R');
+});
+
+test('venue availability requires at least one future deadline', () => {
+  const options = [option('桐生', 1), option('戸田', 2), option('江戸川', 3)];
+  const { context } = loadUi(options);
+  const now = new Date('2026-09-23T00:30:00Z');
+  context.applyStadiumAvailability([
+    { stadiumCode: 1, races: [{ raceNumber: 1, closedAt: '2026-09-23T00:00:00Z' }] },
+    { stadiumCode: 2, races: [{ raceNumber: 1, closedAt: '2026-09-23T01:00:00Z' }] },
+    { stadiumCode: 3, races: [] },
+  ], now);
+  assert.equal(options[0].disabled, true);
+  assert.equal(options[1].disabled, false);
+  assert.equal(options[2].disabled, true);
+  assert.deepEqual(options.map((item) => item.textContent), ['桐生', '戸田', '江戸川']);
 });
