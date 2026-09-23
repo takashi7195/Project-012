@@ -16,6 +16,9 @@ function option(value, code) {
     setAttribute(name, value) { this[name] = value; },
   };
 }
+function placeholder(label) {
+  return { value: '', dataset: {}, disabled: false, textContent: label, setAttribute(name, value) { this[name] = value; } };
+}
 
 function loadUi(options) {
   const make = () => ({
@@ -28,10 +31,10 @@ function loadUi(options) {
   const elements = new Map();
   for (const id of ['start-btn', 'race-development-text']) elements.set(id, make());
   const race = make();
-  race.options = Array.from({ length: 12 }, (_, index) => ({ value: `${index + 1}R`, dataset: {}, disabled: false, textContent: '', setAttribute(name, value) { this[name] = value; } }));
-  race.selectedIndex = 0; race.value = '1R';
+  race.options = [placeholder('レース'), ...Array.from({ length: 12 }, (_, index) => ({ value: `${index + 1}R`, dataset: {}, disabled: false, textContent: '', setAttribute(name, value) { this[name] = value; } }))];
+  race.selectedIndex = 0; race.value = '';
   elements.set('race-select', race);
-  const stadium = make(); stadium.options = options; stadium.selectedIndex = 0; stadium.value = options[0].value;
+  const stadium = make(); stadium.options = [placeholder('会場'), ...options]; stadium.selectedIndex = 0; stadium.value = '';
   elements.set('stadium-select', stadium);
   for (const id of ['slot-1', 'slot-2', 'slot-3']) elements.set(id, make());
   const context = vm.createContext({
@@ -52,8 +55,17 @@ function loadUi(options) {
 
 test('venue order remains north-to-south and uses stable stadium codes', () => {
   const html = readFileSync(join(root, 'index.html'), 'utf8');
+  assert.match(html, /<option value="" selected>会場<\/option>/);
+  assert.match(html, /<option value="" selected>レース<\/option>/);
   const codes = [...html.matchAll(/data-stadium-code="(\d+)"/g)].map(match => Number(match[1]));
   assert.deepEqual(codes, Array.from({ length: 24 }, (_, index) => index + 1));
+});
+
+test('start remains disabled until both venue and race are explicitly selected', () => {
+  const options = [option('桐生', 1)];
+  const { context } = loadUi(options);
+  context.applyStadiumAvailability([{ stadiumCode: 1, races: [{ raceNumber: 1, closedAt: '2099-12-31T00:00:00Z' }] }]);
+  assert.equal(context.document.getElementById('start-btn').disabled, true);
 });
 
 test('venues without future races remain visible, disabled, and name-only', () => {
@@ -69,7 +81,7 @@ test('venues without future races remain visible, disabled, and name-only', () =
   assert.equal(options[1].textContent, '戸田');
   assert.equal(options[2].disabled, true);
   assert.equal(options[2].textContent, '江戸川');
-  assert.equal(stadium.value, '桐生');
+  assert.equal(stadium.value, '');
 });
 
 test('availability is derived from the existing race search RPC', () => {
@@ -88,14 +100,14 @@ test('race deadlines are formatted in JST and closed races are disabled in place
     { raceNumber: 2, closedAt: '2026-09-23T01:00:00.000Z' },
   ] }]);
   context.applyRaceAvailability(1, new Date('2026-09-22T23:00:00.000Z'));
-  assert.equal(race.options[0].disabled, false);
-  assert.match(race.options[0].textContent, /^1R \| 09:00 締切予定$/);
   assert.equal(race.options[1].disabled, false);
+  assert.match(race.options[1].textContent, /^1R \| 09:00 締切予定$/);
+  assert.equal(race.options[2].disabled, false);
   context.applyRaceAvailability(1, new Date('2026-09-23T00:30:00.000Z'));
-  assert.equal(race.options[0].disabled, true);
-  assert.equal(race.options[0].textContent, '1R | 締切');
-  assert.equal(race.options[1].disabled, false);
-  assert.match(race.options[1].textContent, /^2R \| 10:00 締切予定$/);
+  assert.equal(race.options[1].disabled, true);
+  assert.equal(race.options[1].textContent, '1R | 締切');
+  assert.equal(race.options[2].disabled, false);
+  assert.match(race.options[2].textContent, /^2R \| 10:00 締切予定$/);
 });
 
 test('missing or malformed deadlines fail closed and do not remain selected', () => {
@@ -107,10 +119,22 @@ test('missing or malformed deadlines fail closed and do not remain selected', ()
     { raceNumber: 3, closedAt: '2099-12-31T00:00:00.000Z' },
   ] }]);
   context.applyRaceAvailability(1, new Date('2026-09-23T00:00:00.000Z'));
-  assert.equal(race.options[0].disabled, true);
   assert.equal(race.options[1].disabled, true);
-  assert.equal(race.options[2].disabled, false);
-  assert.equal(race.value, '3R');
+  assert.equal(race.options[2].disabled, true);
+  assert.equal(race.options[3].disabled, false);
+  assert.equal(race.value, '');
+});
+
+test('venue selection does not auto-select a race and closed selection resets to placeholder', () => {
+  const options = [option('桐生', 1)];
+  const { stadium, race, context } = loadUi(options);
+  context.applyStadiumAvailability([{ stadiumCode: 1, races: [{ raceNumber: 1, closedAt: '2099-12-31T00:00:00Z' }] }]);
+  stadium.value = '桐生'; stadium.selectedIndex = 1;
+  context.applyRaceAvailability(1, new Date('2026-09-23T00:00:00Z'));
+  assert.equal(race.value, '');
+  race.value = '1R'; race.selectedIndex = 1;
+  context.applyRaceAvailability(1, new Date('2100-01-01T00:00:00Z'));
+  assert.equal(race.value, '');
 });
 
 test('venue availability requires at least one future deadline', () => {

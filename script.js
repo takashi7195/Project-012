@@ -158,6 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function stadiumCodeForOption(option) {
+  if (!option || option.value === '') return null;
   const code = Number(option?.dataset?.stadiumCode);
   return Number.isInteger(code) && code > 0 ? code : Array.from(stadiumSelect.options).indexOf(option) + 1;
 }
@@ -172,6 +173,13 @@ function venueHasOpenRaces(stadium, now = new Date()) {
 function applyStadiumAvailability(stadiums, now = new Date()) {
   stadiumAvailability = new Map((Array.isArray(stadiums) ? stadiums : []).map((stadium) => [Number(stadium.stadiumCode), stadium]));
   for (const option of stadiumSelect.options) {
+    if (option.value === '') {
+      option.disabled = false;
+      option.dataset.available = 'false';
+      option.textContent = '会場';
+      option.setAttribute('aria-label', '会場');
+      continue;
+    }
     const stadium = stadiumAvailability.get(stadiumCodeForOption(option));
     const available = venueHasOpenRaces(stadium, now);
     option.disabled = !available;
@@ -182,11 +190,13 @@ function applyStadiumAvailability(stadiums, now = new Date()) {
   }
   const selected = stadiumSelect.options[stadiumSelect.selectedIndex];
   if (selected?.disabled) {
-    const firstAvailable = Array.from(stadiumSelect.options).find((option) => !option.disabled);
-    if (firstAvailable) stadiumSelect.value = firstAvailable.value;
+    stadiumSelect.value = '';
+    raceSelect.value = '';
+    activePrediction?.abort();
+    clearPredictionDisplay();
   }
   applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
-  return Array.from(stadiumSelect.options).some((option) => !option.disabled);
+  return Array.from(stadiumSelect.options).some((option) => option.value !== '' && !option.disabled);
 }
 
 function formatJstTime(value) {
@@ -200,6 +210,13 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
   const previousValue = raceSelect.value;
   let hasSelectableRace = false;
   for (const option of raceSelect.options) {
+    if (option.value === '') {
+      option.disabled = false;
+      option.dataset.available = 'false';
+      option.textContent = 'レース';
+      option.setAttribute('aria-label', 'レース');
+      continue;
+    }
     const raceNumber = Number.parseInt(option.value, 10);
     const race = stadium?.races?.find((item) => Number(item.raceNumber) === raceNumber);
     const deadline = race?.closedAt ? new Date(race.closedAt) : null;
@@ -214,8 +231,7 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
   }
   const selected = raceSelect.options[raceSelect.selectedIndex];
   if (selected?.disabled) {
-    const firstAvailable = Array.from(raceSelect.options).find((option) => !option.disabled);
-    if (firstAvailable) raceSelect.value = firstAvailable.value;
+    raceSelect.value = '';
   }
   if (raceSelect.value !== previousValue) {
     activePrediction?.abort();
@@ -233,8 +249,8 @@ function updateStartAvailability(hasSelectableRace = null) {
   }
   const stadiumOption = stadiumSelect.options?.[stadiumSelect.selectedIndex];
   const raceOption = raceSelect.options?.[raceSelect.selectedIndex];
-  const stadiumReady = stadiumAvailabilityReady && stadiumOption && !stadiumOption.disabled;
-  const raceReady = raceOption && !raceOption.disabled;
+  const stadiumReady = stadiumAvailabilityReady && stadiumOption && stadiumOption.value !== '' && !stadiumOption.disabled;
+  const raceReady = raceOption && raceOption.value !== '' && !raceOption.disabled;
   startBtn.disabled = hasSelectableRace === false || !stadiumReady || !raceReady;
 }
 
@@ -279,7 +295,10 @@ function clearPredictionDisplay(message = '') {
 }
 for (const select of [stadiumSelect, raceSelect]) select.addEventListener('change', () => {
   if (select === stadiumSelect && stadiumSelect.options?.[stadiumSelect.selectedIndex]?.disabled) return;
-  if (select === stadiumSelect && stadiumSelect.options) applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+  if (select === stadiumSelect && stadiumSelect.options) {
+    raceSelect.value = '';
+    applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+  }
   else if (select === raceSelect && raceSelect.options?.[raceSelect.selectedIndex]?.disabled) return;
   activePrediction?.abort();
   clearPredictionDisplay();
@@ -296,9 +315,11 @@ if (typeof setInterval === 'function') setInterval(() => {
 async function requestPrediction(signal) {
   if (!stadiumAvailabilityReady && stadiumSelect.options.length) throw new Error('開催情報を取得できません');
   const selectedOption = stadiumSelect.options[stadiumSelect.selectedIndex];
-  if (!selectedOption || selectedOption.disabled) throw new Error('この会場は本日開催されていません');
+  if (!selectedOption || selectedOption.value === '') throw new Error('会場を選択してください');
+  if (selectedOption.disabled) throw new Error('この会場は現在選択できません');
   const selectedRace = raceSelect.options[raceSelect.selectedIndex];
-  if (!selectedRace || selectedRace.disabled) throw new Error('このレースは締切済みです');
+  if (!selectedRace || selectedRace.value === '') throw new Error('レースを選択してください');
+  if (selectedRace.disabled) throw new Error('このレースは締切済みです');
   const stadiumCode = stadiumCodeForOption(selectedOption);
   const selector = { raceDate: formatJstDate(), stadiumCode, raceNumber: Number.parseInt(raceSelect.value, 10) };
   const { pollPrediction } = await import('./race-prediction/client.mjs');
