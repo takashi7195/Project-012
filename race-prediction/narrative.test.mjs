@@ -32,6 +32,7 @@ test("excluded factors are not forwarded to Gemini and IDs are stable", () => {
 test("valid narrative accepts only cited factor ids", () => {
   const valid = validateNarrative({ text: paragraphText, citedFactorIds: ["boat-1-course"] }, new Set(["boat-1-course"]));
   assert.equal(valid.ok, true);
+  assert.equal(valid.text, paragraphText);
   assert.equal(validateNarrative({ text: paragraphText.slice(0, 200), citedFactorIds: ["boat-1-course"] }, new Set(["boat-1-course"])).ok, false);
   assert.equal(validateNarrative({ text: paragraphText, citedFactorIds: ["unknown"] }, new Set(["known"])).ok, false);
   assert.equal(validateNarrative({ text: paragraphText, citedFactorIds: ["boat-1-course", "unknown"] }, new Set(["boat-1-course"])).ok, false);
@@ -40,12 +41,26 @@ test("valid narrative accepts only cited factor ids", () => {
 test("narrative validation accepts three paragraphs from 450 to 650 chars only", () => {
   assert.equal(paragraphText.length >= 450 && paragraphText.length <= 650, true);
   assert.equal(validateNarrative({ text: paragraphText, citedFactorIds: [] }, new Set()).ok, true);
-  assert.equal(validateNarrative({ text: paragraphText.replace(/\n/, "\n\n"), citedFactorIds: [] }, new Set()).ok, false);
+  const blankLine = validateNarrative({ text: paragraphText.replace(/\n/g, "\n\n"), citedFactorIds: [] }, new Set());
+  assert.equal(blankLine.ok, true);
+  assert.equal(blankLine.text, paragraphText);
   assert.equal(validateNarrative({ text: `${paragraphText}${'あ'.repeat(250)}`, citedFactorIds: [] }, new Set()).ok, false);
 });
 
+test("narrative line endings normalize to three stable paragraphs", () => {
+  const crlf = validateNarrative({ text: `\r\n${paragraphText.replace(/\n/g, "\r\n")}\r\n`, citedFactorIds: [] }, new Set());
+  assert.equal(crlf.ok, true);
+  assert.equal(crlf.text, paragraphText);
+  assert.equal(validateNarrative({ text: paragraphText.split("\n").slice(0, 2).join("\n"), citedFactorIds: [] }, new Set()).reason, "paragraph_count");
+  assert.equal(validateNarrative({ text: `${paragraphText}\n第4段落`, citedFactorIds: [] }, new Set()).reason, "paragraph_count");
+  assert.equal(validateNarrative({ text: "x\n\ny", citedFactorIds: [] }, new Set(), 650, 1).reason, "paragraph_count");
+  assert.equal(validateNarrative({ text: "a\nb\nc", citedFactorIds: [] }, new Set()).reason, "too_short");
+  assert.equal(validateNarrative({ text: `${paragraphText}${"あ".repeat(250)}`, citedFactorIds: [] }).reason, "too_long");
+  assert.equal(validateNarrative({ text: paragraphText.replace("スタートでは", "https://example.com では"), citedFactorIds: [] }).reason, "unsafe_url");
+});
+
 test("narrative config and prompt require the long three-paragraph grounded format", async () => {
-  assert.equal(NARRATIVE_CONFIG.promptVersion, "v0.1.15-narrative-2");
+  assert.equal(NARRATIVE_CONFIG.promptVersion, "v0.1.16-narrative-3");
   assert.equal(NARRATIVE_CONFIG.maxChars, 650);
   assert.equal(NARRATIVE_CONFIG.maxOutputTokens, 1024);
   let requestBody;
@@ -57,6 +72,15 @@ test("narrative config and prompt require the long three-paragraph grounded form
   assert.match(prompt, /3段落/);
   assert.match(prompt, /450〜650文字/);
   assert.match(prompt, /号艇.*フルネーム/);
+  assert.match(prompt, /具体的な買い目/);
+  assert.match(prompt, /1号艇/);
+});
+
+test("narrative rejects trifecta listings and bare racer labels", () => {
+  const mentions = [{ boat: 1, name: "山田太郎" }];
+  assert.equal(validateNarrative({ text: paragraphText.replace("1号艇 山田太郎", "1-2-3"), citedFactorIds: [] }, new Set(), 650, 450, mentions).reason, "bet_combination");
+  assert.equal(validateNarrative({ text: paragraphText.replace("1号艇 山田太郎", "1 山田太郎"), citedFactorIds: [] }, new Set(), 650, 450, mentions).reason, "invalid_racer_format");
+  assert.equal(validateNarrative({ text: paragraphText, citedFactorIds: [] }, new Set(), 650, 450, mentions).ok, true);
 });
 
 function response(body, status = 200) { return new Response(JSON.stringify(body), { status }); }
@@ -74,7 +98,21 @@ test("quota, timeout, MAX_TOKENS and invalid citation fail without a narrative",
   assert.equal((await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => response({}, 429))).errorCode, "gemini_http_429");
   assert.equal((await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => { throw Object.assign(new Error("timeout"), { name: "AbortError" }); })).errorCode, "gemini_timeout");
   assert.equal((await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => response({ candidates: [{ finishReason: "MAX_TOKENS" }] }))).errorCode, "gemini_max_tokens");
-  assert.equal((await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => response({ candidates: [{ content: { parts: [{ text: '{"text":"x","citedFactorIds":["nope"]}' }] } }] }))).errorCode, "gemini_narrative_validation");
+  const invalid = await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => response({ candidates: [{ content: { parts: [{ text: JSON.stringify({ text: paragraphText, citedFactorIds: ["nope"] }) }] } }] }));
+  assert.equal(invalid.errorCode, "gemini_narrative_invalid_factor_id");
+});
+
+test("validation diagnostics classify the failure without storing generated text", async () => {
+  const diagnostics = [];
+  const shortText = "短い本文";
+  const result = await generateNarrative(buildNarrativeInput(race, prediction), "key", async () => response({ candidates: [{ content: { parts: [{ text: JSON.stringify({ text: shortText, citedFactorIds: ["boat-1-course"] }) }] } }] }), {}, (code, details) => diagnostics.push({ code, details }));
+  assert.equal(result.errorCode, "gemini_narrative_paragraph_count");
+  assert.deepEqual(result.diagnostics, { charCount: shortText.length, paragraphCount: 1, invalidFactorIdCount: 0, validationReason: "paragraph_count" });
+  assert.equal(diagnostics[0].code, "gemini_narrative_paragraph_count");
+  assert.equal(diagnostics[0].details.charCount, shortText.length);
+  assert.equal(diagnostics[0].details.paragraphCount, 1);
+  assert.equal(diagnostics[0].details.invalidFactorIdCount, 0);
+  assert.equal(diagnostics[0].details.validationReason, "paragraph_count");
 });
 
 test("missing API key is configurable failure", async () => {

@@ -92,6 +92,13 @@ test('availability is derived from the existing race search RPC', () => {
   assert.match(edge, /Access-Control-Allow-Methods.*GET, POST, OPTIONS/);
 });
 
+test('availability refreshes every five minutes even when the cached map is empty', () => {
+  const script = readFileSync(join(root, 'script.js'), 'utf8');
+  assert.match(script, /loadStadiumAvailability\(raceDate, \{ preserveOnError: true \}\)/);
+  assert.match(script, /5 \* 60_000/);
+  assert.match(script, /if \(preserveOnError && stadiumAvailability\.size\)/);
+});
+
 test('race deadlines are formatted in JST and closed races are disabled in place', () => {
   const options = [option('桐生', 1)];
   const { race, context } = loadUi(options);

@@ -51,6 +51,9 @@ async function currentRacesFor(raceDate: string, stadiumCode: number) {
 }
 
 async function saveNarrativeAttempt(predictionId: string, input: any, result: any, startedAt: string, finishedAt: string, durationMs: number, inputHash: string, promptHash: string) {
+  const sanitizedError = result.diagnostics
+    ? JSON.stringify({ code: result.errorCode, ...result.diagnostics })
+    : result.errorCode;
   await rpc("race_data_create_narrative_attempt", {
     p_prediction_id: predictionId,
     p_model: result.config.model,
@@ -63,7 +66,7 @@ async function saveNarrativeAttempt(predictionId: string, input: any, result: an
     p_text: result.result?.text ?? null,
     p_validated_facts: result.result?.citedFactorIds ?? [],
     p_error_code: result.errorCode,
-    p_sanitized_error: result.errorCode,
+    p_sanitized_error: sanitizedError,
     p_error_at: result.result ? null : finishedAt,
     p_token_usage: null,
     p_duration_ms: durationMs,

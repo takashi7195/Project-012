@@ -57,8 +57,8 @@ test("narrative attempts are append-only and retry the same prediction id", () =
   assert.match(edge, /generateAndSaveNarrative\(predictionId/);
 });
 
-test("frontend requests v0.1.14 prediction and renders counter/hole", () => {
-  assert.match(html, /v0\.1\.15/);
+test("frontend requests current prediction UI and renders counter/hole", () => {
+  assert.match(html, /v0\.1\.16/);
   assert.match(script, /functions\/v1\/predictions/);
   assert.match(script, /setPredictionRow\('counter'/);
   assert.match(script, /setPredictionRow\('longshot'/);

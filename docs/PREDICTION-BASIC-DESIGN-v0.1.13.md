@@ -152,7 +152,7 @@ v0.1.10への完全切り戻しでは収集Cronやcommentsも対象となり、G
 
 ### Gemini初期設定
 
-文章生成用の初期設定は、モデル`gemini-3.1-flash-lite`、タイムアウト15秒、最大出力1024 tokens、450〜650文字の3段落、プロンプト版`v0.1.15-narrative-2`とする。すべて環境設定で変更可能とし、`GEMINI_API_KEY`はEdge FunctionのSecretからのみ読む。実本番値は適用前に確認する。
+文章生成用の初期設定は、モデル`gemini-3.1-flash-lite`、タイムアウト15秒、最大出力1024 tokens、450〜650文字の3段落、プロンプト版`v0.1.16-narrative-3`とする。すべて環境設定で変更可能とし、`GEMINI_API_KEY`はEdge FunctionのSecretからのみ読む。実本番値は適用前に確認する。
 
 ### E2E合格条件
 

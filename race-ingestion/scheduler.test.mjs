@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { buildBackfillTasks, classifyRetry, enumerateDates, selectDueTask } from "./scheduler.mjs";
+import { buildBackfillTasks, classifyRetry, enumerateDates, isJstToday, selectDueTask } from "./scheduler.mjs";
 
 test("enumerates an inclusive date range without timezone drift", () => {
   assert.deepEqual(enumerateDates("2026-09-18", "2026-09-20"), ["2026-09-18", "2026-09-19", "2026-09-20"]);
@@ -27,10 +27,16 @@ test("transient failures use staged backoff and then quarantine", () => {
 });
 
 test("a recent 404 is retried with a bounded backoff", () => {
-  const result = classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 0, now: "2026-09-22T00:00:00Z" });
+  const result = classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 0, now: "2026-09-23T00:00:00Z" });
   assert.equal(result.state, "retry");
-  assert.equal(result.nextAttemptAt, "2026-09-22T00:05:00.000Z");
-  assert.equal(classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 3, now: "2026-09-22T00:00:00Z" }).state, "quarantined");
+  assert.equal(result.nextAttemptAt, "2026-09-23T00:05:00.000Z");
+  assert.equal(classifyRetry({ code: "fetch_404", raceDate: "2026-09-22", attemptCount: 3, now: "2026-09-23T00:00:00Z" }).state, "quarantined");
+});
+
+test("JST today's 404 keeps retrying every five minutes regardless of attempt count", () => {
+  assert.equal(isJstToday("2026-09-24", new Date("2026-09-23T15:00:00Z")), true);
+  const result = classifyRetry({ code: "fetch_404", raceDate: "2026-09-24", attemptCount: 20, now: "2026-09-23T15:00:00Z" });
+  assert.deepEqual(result, { state: "retry", nextAttemptAt: "2026-09-23T15:05:00.000Z", errorCode: "fetch_404" });
 });
 
 test("an old 404 is quarantined and is not retried forever", () => {

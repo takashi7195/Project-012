@@ -49,6 +49,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64
 let stadiumAvailability = new Map();
 let stadiumAvailabilityReady = false;
 let loadedAvailabilityDate = null;
+let availabilityLoading = false;
 function formatJstDate(value = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
   const fields = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
@@ -254,7 +255,9 @@ function updateStartAvailability(hasSelectableRace = null) {
   startBtn.disabled = hasSelectableRace === false || !stadiumReady || !raceReady;
 }
 
-async function loadStadiumAvailability(raceDate = formatJstDate()) {
+async function loadStadiumAvailability(raceDate = formatJstDate(), { preserveOnError = false } = {}) {
+  if (availabilityLoading) return;
+  availabilityLoading = true;
   stadiumSelect.disabled = true;
   startBtn.disabled = true;
   for (const option of stadiumSelect.options) option.disabled = true;
@@ -267,12 +270,18 @@ async function loadStadiumAvailability(raceDate = formatJstDate()) {
     stadiumAvailabilityReady = applyStadiumAvailability(body.stadiums, new Date());
     loadedAvailabilityDate = body.raceDate || raceDate;
   } catch (error) {
-    // Availability is fail-closed: without current race data, no venue is selectable.
-    stadiumAvailabilityReady = false;
-    applyStadiumAvailability([]);
+    // Keep a previously valid snapshot during a transient refresh failure, but
+    // still reapply current deadlines so closed races cannot remain selectable.
+    if (preserveOnError && stadiumAvailability.size) {
+      applyStadiumAvailability(Array.from(stadiumAvailability.values()), new Date());
+    } else {
+      stadiumAvailabilityReady = false;
+      applyStadiumAvailability([]);
+    }
     console.warn('会場開催情報を取得できませんでした', error);
   } finally {
     stadiumSelect.disabled = false;
+    availabilityLoading = false;
     updateStartAvailability();
   }
 }
@@ -312,6 +321,10 @@ if (typeof setInterval === 'function') setInterval(() => {
   }
   applyStadiumAvailability(Array.from(stadiumAvailability.values()), new Date());
 }, 60_000);
+if (typeof setInterval === 'function') setInterval(() => {
+  const raceDate = formatJstDate();
+  loadStadiumAvailability(raceDate, { preserveOnError: true });
+}, 5 * 60_000);
 async function requestPrediction(signal) {
   if (!stadiumAvailabilityReady && stadiumSelect.options.length) throw new Error('開催情報を取得できません');
   const selectedOption = stadiumSelect.options[stadiumSelect.selectedIndex];

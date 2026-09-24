@@ -6,6 +6,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 export const RETRY_POLICY = Object.freeze({
   recent404Days: 1,
   recent404MaxAttempts: 3,
+  today404DelaySeconds: 5 * 60,
   recent404DelaysSeconds: [5 * 60, 15 * 60, 30 * 60],
 });
 
@@ -50,6 +51,10 @@ export function isRecentRaceDate(raceDate, { now = new Date(), recentDays = RETR
   return target >= today - (recentDays * DAY_MS) && target <= today;
 }
 
+export function isJstToday(raceDate, now = new Date()) {
+  return formatDate(raceDate) === jstDateText(now);
+}
+
 export function buildBackfillTasks({ from, through, now = new Date(), reason = "backfill", priority = 0 } = {}) {
   const nowDate = now instanceof Date ? now : new Date(now);
   if (Number.isNaN(nowDate.getTime())) throw new Error("now must be a valid date");
@@ -69,6 +74,9 @@ export function classifyRetry({ code, raceDate = null, attemptCount = 0, now = n
   if (Number.isNaN(nowDate.getTime())) throw new Error("now must be a valid date");
   if (code === "fetch_429" && Number.isFinite(Number(retryAfterSeconds)) && Number(retryAfterSeconds) >= 0) {
     return { state: "retry", nextAttemptAt: new Date(nowDate.getTime() + Number(retryAfterSeconds) * 1000).toISOString(), errorCode: code };
+  }
+  if (code === "fetch_404" && raceDate && isJstToday(raceDate, nowDate)) {
+    return { state: "retry", nextAttemptAt: new Date(nowDate.getTime() + RETRY_POLICY.today404DelaySeconds * 1000).toISOString(), errorCode: code };
   }
   if (code === "fetch_404" && raceDate && isRecentRaceDate(raceDate, { now: nowDate, recentDays: recent404Days }) && boundedAttempt < recent404MaxAttempts) {
     const delaySeconds = RETRY_POLICY.recent404DelaysSeconds[Math.min(boundedAttempt, RETRY_POLICY.recent404DelaysSeconds.length - 1)];

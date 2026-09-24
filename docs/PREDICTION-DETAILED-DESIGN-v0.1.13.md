@@ -282,7 +282,7 @@ snapshot作成には`reuse_key`のunique indexを使い、lease競合を通過�
 
 ### Gemini設定と文章試行
 
-初期値は`RACE_NARRATIVE_MODEL=gemini-3.1-flash-lite`、`RACE_NARRATIVE_TIMEOUT_MS=15000`、`RACE_NARRATIVE_MAX_OUTPUT_TOKENS=1024`、`RACE_NARRATIVE_MAX_CHARS=650`、`RACE_NARRATIVE_PROMPT_VERSION=v0.1.15-narrative-2`。文章は450〜650文字・原則3段落とし、選手名は入力された号艇とフルネームを使用する。APIキーは`GEMINI_API_KEY`から読み、コメントAIの設定値を共有しない。D07確定後も環境設定と版を記録し、文章入力ハッシュ・プロンプトハッシュ・引用根拠IDを試行履歴へ保存する。
+初期値は`RACE_NARRATIVE_MODEL=gemini-3.1-flash-lite`、`RACE_NARRATIVE_TIMEOUT_MS=15000`、`RACE_NARRATIVE_MAX_OUTPUT_TOKENS=1024`、`RACE_NARRATIVE_MAX_CHARS=650`、`RACE_NARRATIVE_PROMPT_VERSION=v0.1.16-narrative-3`。文章は450〜650文字・原則3段落とし、選手名は入力された号艇とフルネームを使用する。APIキーは`GEMINI_API_KEY`から読み、コメントAIの設定値を共有しない。D07確定後も環境設定と版を記録し、文章入力ハッシュ・プロンプトハッシュ・引用根拠IDを試行履歴へ保存する。
 
 ### 統合試験と切り戻し
 
