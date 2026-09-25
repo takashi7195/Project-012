@@ -665,3 +665,4 @@
 - filtered→detail、no-match、basic検索、結果情報保持、内部ID除去の回帰テストを追加。後続確認ではcomments関連テスト50件、全Node回帰190件が成功し、Deno結果はその時点では未確認だった（後続の最終確認結果を参照）。
 - filtered検索後のbasic detail結果がcontext変換で失われる不具合を修正し、race/result情報の保持を本番v63で確認した。さらに選手名フィールドのUnicode空白正規化と、結果の自己訂正を避けるfinal promptを追加。comments本番はv65 / ACTIVE。
 - **v0.1.17最終確認:** 全Node回帰192/192、Deno integration 9/9、`git diff --check`成功。v65本番E2EはHTTP 201で桐生1Rの結果を回答し、姓名間スペース・自己訂正・「号車」表記・技術情報漏洩なし、「号艇」表記を確認した。router/template fallback問題の修正・確認も完了。
+- **v0.1.17公開記録（2026-09-25）:** 公開version表示を`index.html`でv0.1.17へ更新し、GitHub Pagesの`main`へ反映。annotated tag `v0.1.17`（`Release v0.1.17`）は公開コードcommit `4abe61b3036eca2e640faba15c1e0f9904c5a09d`を指す。公開記録のみの後続commitでは、このタグを移動・変更しない。
