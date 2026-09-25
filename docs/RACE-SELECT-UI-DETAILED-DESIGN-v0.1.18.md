@@ -18,9 +18,9 @@
 |---|---|---|
 | `script.js` | レースoptionの表示文字列 | `|`を除き、レース番号と締切表示の間に全角スペース1文字を入れる。`aria-label`は読み上げやすい文言にする。 |
 | `ui-reference.css` | 会場・レース選択欄の幅と文字サイズ | セレクタ全体を親幅内で広げ、レース欄へ会場欄より多くの幅を割り当てる。狭い画面では文字サイズを縮めて収める。 |
-| `index.html` | セレクタの構造と公開版 | ネイティブselectと既存IDを維持する。公開versionをv0.1.18へ上げ、CSS cache-busterを更新する。 |
+| `index.html` | セレクタの構造と公開版 | ネイティブselectと既存IDを維持する。公開versionをv0.1.18へ上げ、JS/CSSのcache-busterを更新する。 |
 
-DB、API、Edge Function、締切の判定ロジックは変更しない。`index.html`では選択UIのDOM構造を変えず、公開versionとCSS cache-busterのみを更新する。
+DB、API、Edge Function、締切の判定ロジックは変更しない。`index.html`では選択UIのDOM構造を変えず、公開versionとJS/CSSのcache-busterのみを更新する。
 
 ## 3. option表示生成
 

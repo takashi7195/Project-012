@@ -60,6 +60,7 @@ test("narrative attempts are append-only and retry the same prediction id", () =
 test("frontend requests current prediction UI and renders counter/hole", () => {
   assert.match(html, /v0\.1\.18/);
   assert.match(html, /ui-reference\.css\?ui=reference06/);
+  assert.match(html, /script\.js\?ui=reference06/);
   assert.match(script, /functions\/v1\/predictions/);
   assert.match(script, /setPredictionRow\('counter'/);
   assert.match(script, /setPredictionRow\('longshot'/);
