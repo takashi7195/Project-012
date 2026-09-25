@@ -22,6 +22,39 @@ const QUERY_TYPES = new Set(["race_search", "race_search_filtered"]);
 const RANK = /^[A-Z0-9Ａ-Ｚ０-９]{1,12}$/u;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
+// Keep this schema aligned with normalizeQuery/validateReplyPlan. It constrains
+// the model output without replacing the defensive runtime validation below.
+const ROUTER_RESPONSE_SCHEMA = Object.freeze({
+  type: "object",
+  properties: {
+    action: { type: "string", enum: ["direct", "race_db", "fallback"] },
+    queries: {
+      type: "array",
+      maxItems: MAX_QUERIES,
+      items: {
+        type: "object",
+        properties: {
+          type: { type: "string", enum: ["race_search", "race_search_filtered"] },
+          from: { type: "string", nullable: true }, to: { type: "string", nullable: true },
+          stadium: { type: "string", nullable: true }, raceNumber: { type: "integer", nullable: true },
+          entryNumber: { type: "integer", nullable: true }, racerName: { type: "string", nullable: true },
+          racerRegistration: { type: "integer", nullable: true }, rankCode: { type: "string", nullable: true },
+          minAge: { type: "integer", nullable: true }, maxAge: { type: "integer", nullable: true },
+          betType: { type: "string", nullable: true }, minAmountYen: { type: "integer", nullable: true },
+          maxAmountYen: { type: "integer", nullable: true }, limit: { type: "integer", nullable: true },
+        },
+        required: ["type"],
+      },
+    },
+    prediction_requested: { type: "boolean" },
+    sentiment: { type: "string", enum: ["positive", "negative", "neutral", "mixed", "uncertain"], nullable: true },
+    serious_distress_or_financial_hardship: { type: "boolean" },
+    regular_reply: { type: "string", nullable: true },
+    tip_reply: { type: "string", nullable: true },
+  },
+  required: ["action", "queries", "prediction_requested", "sentiment", "serious_distress_or_financial_hardship", "regular_reply", "tip_reply"],
+});
+
 export const FALLBACK_REPLIES = Object.freeze([
   "ZZZzzz・・・", "むにゃむにゃ……", "うぇ〜、もうよっぱらっちゃった……",
   "ん〜……なんの話だっけ……", "もうだめだ、ねむい……🍺",
@@ -121,6 +154,7 @@ export function validateReplyPlan(raw, { today = jstDate() } = {}) {
     plan.prediction_requested = false;
     plan.reply_source = "template";
   }
+  if (plan.action === "direct" && !plan.regular_reply) return { valid: false, reason: "regular_reply", plan: null };
   if (plan.action === "race_db" && plan.queries.length === 0) plan.information_insufficient = true;
   return { valid: true, reason: null, plan };
 }
@@ -136,6 +170,8 @@ function plannerPrompt(comment, today) {
     "雑談や一般的な競艇知識はdirect。現在・過去の具体的なレース、選手、展示、結果、払戻し、予想はrace_db。意味を取れない文字列だけfallback。対象不足（例: 3号艇どう？）はfallbackにせずrace_dbでqueries=[]とし、回答で不足を説明する。",
     `相対日付はAsia/Tokyoの今日 ${today} を基準にYYYY-MM-DDへ変換する。検索計画は最大3件。`,
     "prediction_requestedは予想・本命・穴・来そう等だけtrue。結果・展示・出走確認はfalse。",
+    "必ず次のJSONオブジェクトだけを返す: action, queries, prediction_requested, sentiment, serious_distress_or_financial_hardship, regular_reply, tip_reply。actionはdirect/race_db/fallbackのみ。queriesの各query.typeはrace_search/race_search_filteredのみで、項目はtype/from/to/stadium/raceNumber/entryNumber/racerName/racerRegistration/rankCode/minAge/maxAge/betType/minAmountYen/maxAmountYen/limitだけ。",
+    "action=directの場合、regular_replyは空でない文字列を必ず入れる。action=race_dbの場合はqueriesを最大3件、対象不足なら空配列。",
     `伏字済みコメント: ${JSON.stringify(comment)}`,
   ].join("\n");
 }
@@ -149,7 +185,7 @@ export async function generateReplyPlan(comment, apiKey, fetchImpl = fetch, { no
   try {
     const response = await fetchImpl(`https://generativelanguage.googleapis.com/v1beta/models/${ROUTER_MODEL}:generateContent`, {
       method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
-      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: plannerPrompt(safeComment, today) }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 768, responseMimeType: "application/json" } }), signal: controller.signal,
+      body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: plannerPrompt(safeComment, today) }] }], generationConfig: { temperature: 0.2, maxOutputTokens: 768, responseMimeType: "application/json", responseJsonSchema: ROUTER_RESPONSE_SCHEMA } }), signal: controller.signal,
     });
     if (!response.ok) { onDiagnostic("router_provider_error", { status: response.status }); return null; }
     const payload = await response.json();

@@ -157,6 +157,16 @@ test("diagnostics classify Gemini quota, token, and timeout failures", async () 
   assert.equal(code, "gemini_timeout");
 });
 
+test("grounded Gemini diagnostics retain safe HTTP status and stage", async () => {
+  for (const status of [400, 401, 403, 429, 500, 503]) {
+    const diagnostics = [];
+    const result = await generateGroundedReply("結果を教えて", { action: "race_db", queries: [] }, { races: [] }, "test-key", async () => new Response("{}", { status }), (_code, details) => diagnostics.push(details));
+    assert.equal(result, null);
+    assert.equal(diagnostics.at(-1).stage, "grounded_http");
+    assert.equal(diagnostics.at(-1).status, status);
+  }
+});
+
 test("diagnostics distinguish provider JSON, response shape, and schema failures", async () => {
   const diagnostics = [];
   const run = async (response) => generateGeminiReply("確認", "test-key", async () => response, (code, details) => diagnostics.push({ code, details }));

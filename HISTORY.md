@@ -650,3 +650,13 @@
 - ブラウザは60秒ごとの締切判定を維持し、別途5分ごとに当日開催情報を再取得する。再取得が一時失敗した場合は既存データを保持し、現在時刻で締切を再判定する。JST日付変更時は新しい日付を取得する。
 - 2026-09-24の復旧は新migration適用後に当日APIがHTTP 200であることを確認して実施する。
 - narrative validationを改修し、LF/CRLF、1改行・空行区切りを3段落へ正規化するようにした。文字数、段落数、URL、factor IDの失敗理由と件数を安全な診断情報として保存し、予想数値は変更しない。
+
+## 2026-09-25 — v0.1.17 comments Routerとfallback診断
+
+- Router promptとGemini structured output schemaを、既存のruntime validationが許可するJSON項目・query typeに合わせた。query typeは`race_search`と`race_search_filtered`に限定し、検索仕様は追加していない。
+- `direct` planではtrim後に空でない`regular_reply`を必須にし、欠落・null・空文字・空白だけの返信を拒否する。
+- direct返信を選択できずtemplateへfallbackした場合、安全な分類情報だけを`direct_reply_unavailable` diagnosticへ記録する。
+- final Geminiの失敗diagnosticに、取得可能な数値HTTP statusとstageを保持する。コメント本文、Secret、provider response bodyは記録しない。
+- Router契約、direct返信検証、HTTP status/stage診断の回帰テストを追加。全Nodeテスト189件が成功し、`git diff --check`も成功した。Deno統合テストと本番再確認は未実施。本番deploy・DB・Secrets変更は行っていない。
+- race DB/RPC失敗時は既存の`race_db_failed`だけを記録し、final Geminiを呼んでいない経路で`final_reply_failed`を誤記録しないよう修正した。final Geminiを実際に呼び出して失敗した場合だけ`final_reply_failed`を記録し、status/stageを保持する。
+- Deno HTTP handler統合テストでRPC失敗時に`race_db_failed`が残り、`final_reply_failed`が出ないこと、またfinal Gemini HTTP失敗ではstatus/stageが残ることを確認した（9件成功）。comments Nodeテスト49件成功。全体Node回帰は188/189で、既存race-ingestion timeout分類テストが1件失敗したため未解決として記録する。

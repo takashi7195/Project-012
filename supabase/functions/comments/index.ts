@@ -141,11 +141,13 @@ async function submitComment(request: Request, origin: string, deps: {
   rateKeyImpl?: typeof rateKey;
   fetchImpl?: typeof fetch;
   geminiKey?: string;
+  diagnosticImpl?: typeof diagnostic;
 } = {}) {
   const restImpl = deps.restImpl ?? rest;
   const rateKeyImpl = deps.rateKeyImpl ?? rateKey;
   const fetchImpl = deps.fetchImpl ?? fetch;
   const geminiKey = deps.geminiKey ?? geminiApiKey;
+  const emitDiagnostic = deps.diagnosticImpl ?? diagnostic;
   const requestId = crypto.randomUUID();
   const declaredLength = Number(request.headers.get("content-length") || "0");
   if (declaredLength > 8_192) {
@@ -213,6 +215,7 @@ async function submitComment(request: Request, origin: string, deps: {
 
   let aiDiagnostic = "unknown_error";
   let aiDiagnosticDetails: Record<string, unknown> = {};
+  let finalGeminiAttempted = false;
   const plan = await generateReplyPlan(body, geminiKey || "", fetchImpl, {
     onDiagnostic: (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; },
   });
@@ -226,28 +229,30 @@ async function submitComment(request: Request, origin: string, deps: {
     };
   } else if (plan?.action === "race_db") {
     const startedAt = Date.now();
-    diagnostic(requestId, "race_db_started", { queryCount: plan.queries.length });
+    emitDiagnostic(requestId, "race_db_started", { queryCount: plan.queries.length });
     const client = createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl });
     const search = await client.search(plan.queries);
     if (search.status === "error") {
-      diagnostic(requestId, "race_db_failed", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, elapsedMs: Date.now() - startedAt });
+      emitDiagnostic(requestId, "race_db_failed", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, elapsedMs: Date.now() - startedAt });
     } else {
-      diagnostic(requestId, search.status === "no_match" ? "race_db_no_match" : search.status === "truncated" ? "race_db_truncated" : "race_db_succeeded", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, matchedRaceCount: search.context?.races?.length ?? 0, truncated: search.status === "truncated", elapsedMs: Date.now() - startedAt });
+      emitDiagnostic(requestId, search.status === "no_match" ? "race_db_no_match" : search.status === "truncated" ? "race_db_truncated" : "race_db_succeeded", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, matchedRaceCount: search.context?.races?.length ?? 0, truncated: search.status === "truncated", elapsedMs: Date.now() - startedAt });
       let predictionContext: unknown = { status: "not_requested" };
       if (plan.prediction_requested) {
         const scoringRaces = (search.predictionRaces ?? []).slice(0, MAX_SCORING_RACES);
         const scored = scoringRaces.map((race) => scoreRaceForComment(race));
         if (scored.some((item) => item.error)) {
-          diagnostic(requestId, "prediction_context_failed", { raceCount: scoringRaces.length, elapsedMs: Date.now() - startedAt });
+          emitDiagnostic(requestId, "prediction_context_failed", { raceCount: scoringRaces.length, elapsedMs: Date.now() - startedAt });
           generatedReplies = null;
         } else {
           const available = scored.filter((item) => item.readiness.status === "available");
           const statuses = scored.map((item) => item.prediction);
           predictionContext = statuses.length === 1 ? statuses[0] : { status: available.length ? "available" : statuses[0]?.status ?? "no_match", predictions: statuses, scoringTruncated: (search.predictionRaces ?? []).length > MAX_SCORING_RACES };
-          diagnostic(requestId, available.length ? "prediction_context_succeeded" : "prediction_context_not_available", { raceCount: scoringRaces.length, availableCount: available.length, closedCount: statuses.filter((item) => item.status === "closed").length, staleCount: statuses.filter((item) => item.status === "stale").length, elapsedMs: Date.now() - startedAt });
+          emitDiagnostic(requestId, available.length ? "prediction_context_succeeded" : "prediction_context_not_available", { raceCount: scoringRaces.length, availableCount: available.length, closedCount: statuses.filter((item) => item.status === "closed").length, staleCount: statuses.filter((item) => item.status === "stale").length, elapsedMs: Date.now() - startedAt });
+          finalGeminiAttempted = true;
           generatedReplies = await generateGroundedReply(body, plan, search.context, geminiKey || "", fetchImpl, (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; }, predictionContext);
         }
       } else {
+        finalGeminiAttempted = true;
         generatedReplies = await generateGroundedReply(body, plan, search.context, geminiKey || "", fetchImpl, (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; }, predictionContext);
       }
     }
@@ -255,8 +260,17 @@ async function submitComment(request: Request, origin: string, deps: {
     diagnostic(requestId, aiDiagnostic, aiDiagnosticDetails);
   }
   const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
-  if (!selectedReply && (plan?.action === "race_db" || !plan || plan?.action === "fallback")) {
-    diagnostic(requestId, plan?.action === "race_db" ? "final_reply_failed" : "drunk_fallback_used", { reason: aiDiagnostic });
+  if (!selectedReply && plan?.action === "race_db" && finalGeminiAttempted) {
+    const safeDetails = {
+      reason: aiDiagnostic,
+      ...(typeof aiDiagnosticDetails?.status === "number" ? { status: aiDiagnosticDetails.status } : {}),
+      ...(typeof aiDiagnosticDetails?.stage === "string" ? { stage: aiDiagnosticDetails.stage } : {}),
+    };
+    emitDiagnostic(requestId, "final_reply_failed", safeDetails);
+  } else if (!selectedReply && (!plan || plan?.action === "fallback")) {
+    emitDiagnostic(requestId, "drunk_fallback_used", { reason: aiDiagnostic });
+  } else if (plan?.action === "direct" && !selectedReply) {
+    emitDiagnostic(requestId, "direct_reply_unavailable", { reason: "regular_reply_missing" });
   }
   const replySource = selectedReply ? "gemini" : "template";
   const replyText = selectedReply?.reply ?? templateReply();
@@ -299,6 +313,7 @@ export function createCommentsHandler(deps: {
   fetchImpl?: typeof fetch;
   geminiKey?: string;
   configured?: boolean;
+  diagnosticImpl?: typeof diagnostic;
 } = {}) {
   const configured = deps.configured ?? Boolean(projectUrl && serviceRoleKey && hmacSecret);
   const restImpl = deps.restImpl ?? rest;

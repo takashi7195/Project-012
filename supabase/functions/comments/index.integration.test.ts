@@ -27,7 +27,7 @@ const race = (overrides: Record<string, unknown> = {}) => {
  function makeHarness(options: HarnessOptions = {}) {
    const calls = {
      plannerGeminiCalls: 0, finalGeminiCalls: 0, rateLimitRpcCalls: 0, raceDataRpcCalls: 0,
-    commentSaveRpcCalls: 0, saved: [] as Record<string, unknown>[], prompts: [] as string[], racePayloads: [] as unknown[], raceRpcPaths: [] as string[],
+    commentSaveRpcCalls: 0, saved: [] as Record<string, unknown>[], prompts: [] as string[], racePayloads: [] as unknown[], raceRpcPaths: [] as string[], diagnostics: [] as Array<{ requestId: string; code: string; details: Record<string, unknown> }>,
    };
    const geminiQueue = [{ kind: "planner", body: options.plannerResponse ?? directPlan }, ...(options.finalResponses ?? []).map((body) => ({ kind: "final", body }))];
    const raceQueue = [...(options.raceResponses ?? [{ payload: rpcPayload([race()]) }])];
@@ -50,9 +50,10 @@ const race = (overrides: Record<string, unknown> = {}) => {
     if (next.kind === "planner") calls.plannerGeminiCalls += 1; else calls.finalGeminiCalls += 1;
     const prompt = JSON.parse(String(init?.body ?? "{}")).contents?.[0]?.parts?.[0]?.text ?? "";
     calls.prompts.push(prompt);
-     return typeof next.body === "string" ? json({ candidates: [{ content: { parts: [{ text: next.body }] } }] }) : json({ candidates: [{ content: { parts: [{ text: JSON.stringify(next.body) }] } }] });
+    if (next.body && typeof next.body === "object" && "__httpStatus" in next.body) return json({}, Number((next.body as { __httpStatus: number }).__httpStatus));
+    return typeof next.body === "string" ? json({ candidates: [{ content: { parts: [{ text: next.body }] } }] }) : json({ candidates: [{ content: { parts: [{ text: JSON.stringify(next.body) }] } }] });
    };
-   const handler = createCommentsHandler({ configured: true, geminiKey: "stub", restImpl, fetchImpl, rateKeyImpl: async () => "rate-key" });
+   const handler = createCommentsHandler({ configured: true, geminiKey: "stub", restImpl, fetchImpl, rateKeyImpl: async () => "rate-key", diagnosticImpl: (requestId, code, details = {}) => calls.diagnostics.push({ requestId, code, details }) });
    const post = async (body: unknown, nickname = "テスト") => handler(new Request("https://example.test/comments", { method: "POST", headers: { origin: "http://localhost:8012", "content-type": "application/json" }, body: JSON.stringify({ body, nickname }) }));
    const raw = (body: string) => handler(new Request("https://example.test/comments", { method: "POST", headers: { origin: "http://localhost:8012", "content-type": "application/json" }, body }));
    return { calls, post, raw };
@@ -88,6 +89,23 @@ const race = (overrides: Record<string, unknown> = {}) => {
  Deno.test("race DB failure uses template without final Gemini", async () => {
    const h = makeHarness({ plannerResponse: racePlan(), raceResponses: [{ status: 500 }], finalResponses: [] }); const response = await h.post("事実質問");
    assert(response.status === 201, `race fallback status=${response.status}`); assert(h.calls.plannerGeminiCalls === 1, `race fallback plannerGeminiCalls=${h.calls.plannerGeminiCalls}`); assert(h.calls.rateLimitRpcCalls === 1, `race fallback rateLimitRpcCalls=${h.calls.rateLimitRpcCalls}`); assert(h.calls.raceDataRpcCalls === 1, `race fallback raceDataRpcCalls=${h.calls.raceDataRpcCalls}`); assert(h.calls.finalGeminiCalls === 0, `race fallback finalGeminiCalls=${h.calls.finalGeminiCalls}`); assert(h.calls.commentSaveRpcCalls === 1, `race fallback commentSaveRpcCalls=${h.calls.commentSaveRpcCalls}`); assert(h.calls.saved[0].p_reply_source === "template", `race fallback source=${h.calls.saved[0]?.p_reply_source}`); assert(h.calls.saved[0].p_tip_requested === false, `race fallback tip_requested=${h.calls.saved[0]?.p_tip_requested}`);
+   assert(h.calls.diagnostics.some((item) => item.code === "race_db_failed"), "race DB failure diagnostic missing");
+   assert(!h.calls.diagnostics.some((item) => item.code === "final_reply_failed"), "final reply failure logged without calling final Gemini");
+   assert(!h.calls.diagnostics.some((item) => item.code === "final_reply_failed" && item.details.reason === "router_succeeded"), "router success misreported as final reply failure");
+ });
+
+ Deno.test("final Gemini HTTP errors retain status and stage in failure diagnostic", async () => {
+   for (const status of [400, 401, 403, 429, 500, 503]) {
+     const h = makeHarness({ plannerResponse: racePlan(), finalResponses: [{ __httpStatus: status }] });
+     const response = await h.post("事実質問");
+     assert(response.status === 201, `final ${status} fallback status=${response.status}`);
+     assert(h.calls.finalGeminiCalls === 1, `final ${status} finalGeminiCalls=${h.calls.finalGeminiCalls}`);
+     assert(h.calls.saved[0].p_reply_source === "template", `final ${status} source=${h.calls.saved[0]?.p_reply_source}`);
+     const failure = h.calls.diagnostics.find((item) => item.code === "final_reply_failed");
+     assert(failure?.details.reason === (status === 429 ? "gemini_http_429" : "gemini_http_error"), `final ${status} reason=${failure?.details.reason}`);
+     assert(failure?.details.status === status, `final ${status} diagnostic status=${failure?.details.status}`);
+     assert(failure?.details.stage === "grounded_http", `final ${status} diagnostic stage=${failure?.details.stage}`);
+   }
  });
 
  Deno.test("planner, final, moderation, rate limit, and validation failures preserve contracts", async () => {
