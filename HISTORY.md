@@ -660,3 +660,5 @@
 - Router契約、direct返信検証、HTTP status/stage診断の回帰テストを追加。全Nodeテスト189件が成功し、`git diff --check`も成功した。Deno統合テストと本番再確認は未実施。本番deploy・DB・Secrets変更は行っていない。
 - race DB/RPC失敗時は既存の`race_db_failed`だけを記録し、final Geminiを呼んでいない経路で`final_reply_failed`を誤記録しないよう修正した。final Geminiを実際に呼び出して失敗した場合だけ`final_reply_failed`を記録し、status/stageを保持する。
 - Deno HTTP handler統合テストでRPC失敗時に`race_db_failed`が残り、`final_reply_failed`が出ないこと、またfinal Gemini HTTP失敗ではstatus/stageが残ることを確認した（9件成功）。comments Nodeテスト49件成功。全体Node回帰は188/189で、既存race-ingestion timeout分類テストが1件失敗したため未解決として記録する。
+- filtered検索後のbasic detail取得結果を`toRaceContext()`へ正しい`data`形状で渡し、race/result情報がcontext変換で失われないよう修正した。安全な正規化検索条件とfiltered候補・detail取得数をdiagnosticへ追加し、race経路のfinal Gemini成功を`final_reply_succeeded`で記録する。
+- filtered→detail、no-match、basic検索、結果情報保持、内部ID除去の回帰テストを追加。comments関連50件、全Node回帰190件成功。Deno統合テストは今回の確認待ち。production変更なし。

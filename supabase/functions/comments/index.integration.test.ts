@@ -65,9 +65,16 @@ const race = (overrides: Record<string, unknown> = {}) => {
  });
 
  Deno.test("HTTP race_db fact path uses queued planner then final", async () => {
-   const h = makeHarness({ plannerResponse: racePlan(), finalResponses: [finalResponse("展示事実を説明するよ〜。")] }); const response = await h.post("今日の住之江12Rの展示は？");
+   const h = makeHarness({ plannerResponse: { ...racePlan(), queries: [{ ...query, racerName: "自由入力は記録しない" }] }, finalResponses: [finalResponse("展示事実を説明するよ〜。")] }); const response = await h.post("今日の住之江12Rの展示は？");
   assert(response.status === 201, `race status=${response.status}`); assert(h.calls.plannerGeminiCalls === 1, `race plannerGeminiCalls=${h.calls.plannerGeminiCalls}`); assert(h.calls.finalGeminiCalls === 1, `race finalGeminiCalls=${h.calls.finalGeminiCalls}`); assert(h.calls.raceDataRpcCalls === 1, `race raceDataRpcCalls=${h.calls.raceDataRpcCalls}`); assert(h.calls.raceRpcPaths[0] === "race_data_search_current_races", `race RPC=${h.calls.raceRpcPaths[0]}`); assert(h.calls.commentSaveRpcCalls === 1, `race commentSaveRpcCalls=${h.calls.commentSaveRpcCalls}`); assert(h.calls.saved[0].p_reply_source === "gemini", `race source=${h.calls.saved[0]?.p_reply_source}`); assert(h.calls.saved[0].p_ai_reply === "展示事実を説明するよ〜。", `race reply=${h.calls.saved[0]?.p_ai_reply}`);
   const payload = h.calls.racePayloads[0] as { data?: unknown[]; aggregates?: { matched_races?: number } }; assert(payload.data?.length === 1, `race fixture data=${payload.data?.length ?? 0}`); assert(payload.aggregates?.matched_races === 1, `race fixture matched_races=${payload.aggregates?.matched_races}`);
+  const startedDiagnostic = h.calls.diagnostics.find((item) => item.code === "race_db_started");
+  assert(startedDiagnostic?.details.queryCount === 1, "race diagnostic query count missing");
+  const safeQuery = (startedDiagnostic?.details.queries as Array<Record<string, unknown>> | undefined)?.[0];
+  assert(safeQuery?.queryType === "race_search", "race diagnostic query type missing");
+  assert(safeQuery?.stadiumCode === 12 && safeQuery?.raceNo === 12, "race diagnostic selectors missing");
+  assert(!("racerName" in (safeQuery ?? {})), "free-text racer name leaked into query diagnostic");
+  assert(h.calls.diagnostics.some((item) => item.code === "final_reply_succeeded"), "final reply success diagnostic missing");
 });
 
  Deno.test("HTTP prediction path uses queued final and no prediction persistence", async () => {

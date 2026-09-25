@@ -66,6 +66,8 @@ export function createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl 
     const normalized = normalizeQueries(queries);
     if (!normalized.valid) return { status: "error", reason: normalized.reason, context: null, rpcCallCount: rpcCalls };
     let combined = { races: [], aggregates: {}, coverage: { matched: 0, returned: 0, truncated: false }, warnings: [] };
+    let filteredCandidateCount = 0;
+    let detailFetchCount = 0;
     let finalStatus = "success";
     for (const query of normalized.queries) {
       const filtered = query.type === "race_search_filtered";
@@ -75,7 +77,9 @@ export function createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl 
       if (result.status === "truncated") finalStatus = "truncated";
       if (filtered) {
         const candidates = result.payload.data.slice(0, CONTEXT_LIMITS.races);
+        filteredCandidateCount += candidates.length;
         for (const candidate of candidates) {
+          detailFetchCount += 1;
           const detail = await call("race_data_search_current_races", { p_from: candidate.race_date, p_to: candidate.race_date, p_stadium_code: candidate.stadium_code, p_race_number: candidate.race_number, p_entry_number: null, p_racer_name: null, p_limit: 1 });
           if (detail.status === "error") return { status: "error", reason: detail.reason, context: null, rpcCallCount: rpcCalls };
           if (detail.payload?.data?.length) combined.races.push(...detail.payload.data.slice(0, 1));
@@ -87,7 +91,11 @@ export function createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl 
       combined.warnings.push(...(result.payload.warnings ?? []));
     }
     if (!combined.races.length && finalStatus === "success") finalStatus = "no_match";
-    return { status: finalStatus, reason: null, context: toRaceContext(combined, now), predictionRaces: combined.races, rpcCallCount: rpcCalls };
+    // toRaceContext consumes the RPC envelope's `data` field. The search
+    // accumulator stores detail rows in `races`, so adapt it back to that
+    // envelope here before projecting the safe AI context.
+    const contextPayload = { data: combined.races, aggregates: combined.aggregates, coverage: combined.coverage, warnings: combined.warnings };
+    return { status: finalStatus, reason: null, context: toRaceContext(contextPayload, now), predictionRaces: combined.races, rpcCallCount: rpcCalls, filteredCandidateCount, detailFetchCount };
   };
   return { search, get rpcCallCount() { return rpcCalls; } };
 }

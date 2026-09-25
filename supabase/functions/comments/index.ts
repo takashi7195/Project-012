@@ -229,13 +229,20 @@ async function submitComment(request: Request, origin: string, deps: {
     };
   } else if (plan?.action === "race_db") {
     const startedAt = Date.now();
-    emitDiagnostic(requestId, "race_db_started", { queryCount: plan.queries.length });
+    const safeQueries = plan.queries.map((query) => ({
+      queryType: query.type,
+      from: query.from,
+      to: query.to,
+      stadiumCode: query.stadiumCode,
+      raceNo: query.raceNumber,
+    }));
+    emitDiagnostic(requestId, "race_db_started", { queryCount: plan.queries.length, queries: safeQueries });
     const client = createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl });
     const search = await client.search(plan.queries);
     if (search.status === "error") {
       emitDiagnostic(requestId, "race_db_failed", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, elapsedMs: Date.now() - startedAt });
     } else {
-      emitDiagnostic(requestId, search.status === "no_match" ? "race_db_no_match" : search.status === "truncated" ? "race_db_truncated" : "race_db_succeeded", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, matchedRaceCount: search.context?.races?.length ?? 0, truncated: search.status === "truncated", elapsedMs: Date.now() - startedAt });
+      emitDiagnostic(requestId, search.status === "no_match" ? "race_db_no_match" : search.status === "truncated" ? "race_db_truncated" : "race_db_succeeded", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, filteredCandidateCount: search.filteredCandidateCount ?? 0, detailFetchCount: search.detailFetchCount ?? 0, matchedRaceCount: search.context?.races?.length ?? 0, truncated: search.status === "truncated", elapsedMs: Date.now() - startedAt });
       let predictionContext: unknown = { status: "not_requested" };
       if (plan.prediction_requested) {
         const scoringRaces = (search.predictionRaces ?? []).slice(0, MAX_SCORING_RACES);
@@ -267,6 +274,10 @@ async function submitComment(request: Request, origin: string, deps: {
       ...(typeof aiDiagnosticDetails?.stage === "string" ? { stage: aiDiagnosticDetails.stage } : {}),
     };
     emitDiagnostic(requestId, "final_reply_failed", safeDetails);
+  } else if (selectedReply && plan?.action === "race_db" && finalGeminiAttempted && aiDiagnostic === "final_reply_succeeded") {
+    emitDiagnostic(requestId, "final_reply_succeeded", {
+      ...(typeof aiDiagnosticDetails?.stage === "string" ? { stage: aiDiagnosticDetails.stage } : {}),
+    });
   } else if (!selectedReply && (!plan || plan?.action === "fallback")) {
     emitDiagnostic(requestId, "drunk_fallback_used", { reason: aiDiagnostic });
   } else if (plan?.action === "direct" && !selectedReply) {
