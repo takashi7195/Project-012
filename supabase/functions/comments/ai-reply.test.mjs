@@ -50,7 +50,10 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
-  assert.equal(request.body.system_instruction.parts[0].text, "酔っ払いでぼんやりした、少し呂律のゆるいアホっぽい口調で、ため口でなれなれしく返答してください。競艇に関する内容には、専門的かつ正確に回答してください。不確かな情報は断定しないでください。疑問形や質問で終わらず、返信の中で内容を完結させてください。");
+  assert.match(request.body.system_instruction.parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
+  assert.match(request.body.system_instruction.parts[0].text, /「1号車」〜「6号車」とは書きません/u);
+  assert.match(request.body.system_instruction.parts[0].text, /「1号艇 山田太郎」/u);
+  assert.match(request.body.contents[0].parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
@@ -207,8 +210,23 @@ test("grounded reply uses facts without exposing database internals", async () =
   }, "test-key", async (_url, init) => { prompt = JSON.parse(init.body).contents[0].parts[0].text; return geminiResponse({ sentiment: "neutral", serious_distress_or_financial_hardship: false, regular_reply: "1号艇の平均STは0.14だよ〜。", tip_reply: tipReply }); }, () => {}, { status: "available", main: [1, 2, 3], counter: [2, 1, 4], hole: [5, 1, 2] });
   assert.equal(result.regularReply, "1号艇の平均STは0.14だよ〜。");
   assert.match(prompt, /raceContext/u);
+  assert.match(prompt, /「1号艇」〜「6号艇」/u);
+  assert.match(prompt, /「1号車」〜「6号車」とは書きません/u);
   assert.match(prompt, /DB、RPC、SQL/u);
   assert.match(prompt, /predictionContext/u);
+});
+
+test("boat number terminology is normalized narrowly in generated replies", async () => {
+  const generated = "1号車と6号車、１号車と６号車。7号車はそのまま、1号艇もそのまま。通常の文章も変えない。";
+  const result = await generateGroundedReply("結果を教えて", { action: "race_db" }, { races: [] }, "test-key", async () => geminiResponse({
+    sentiment: "neutral",
+    serious_distress_or_financial_hardship: false,
+    regular_reply: generated,
+    tip_reply: "6号車でも乾杯！",
+  }));
+
+  assert.equal(result.regularReply, "1号艇と6号艇、1号艇と6号艇。7号車はそのまま、1号艇もそのまま。通常の文章も変えない。");
+  assert.equal(result.tipReply, "6号艇でも乾杯！");
 });
 
 test("grounded no-match response remains a normal reply", async () => {
