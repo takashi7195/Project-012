@@ -8,6 +8,7 @@ import {
   TEMPLATE_REPLIES,
   templateReply,
   GEMINI_TIMEOUT_MS,
+  generateGroundedReply,
 } from "./ai-reply.mjs";
 
 const regularReply = "ごめん！予想が水しぶきで見えなくなった！";
@@ -186,4 +187,21 @@ test("search-disabled responses still use the existing JSON contract", async () 
   });
   assert.equal(result.sentiment, "neutral");
   assert.equal(result.regularReply, "検索してみたけど、結果はまだ確認できないみたいだよ。");
+});
+
+test("grounded reply uses facts without exposing database internals", async () => {
+  let prompt = "";
+  const result = await generateGroundedReply("今日の住之江12Rの展示は？", { action: "race_db", prediction_requested: false }, {
+    races: [{ race_date: "2026-09-24", stadium_name: "住之江", race_number: 12, entries: [{ entry_number: 1, name: "選手", average_st: 0.14 }] }],
+    coverage: { truncated: false }, warnings: [],
+  }, "test-key", async (_url, init) => { prompt = JSON.parse(init.body).contents[0].parts[0].text; return geminiResponse({ sentiment: "neutral", serious_distress_or_financial_hardship: false, regular_reply: "1号艇の平均STは0.14だよ〜。", tip_reply: tipReply }); }, () => {}, { status: "available", main: [1, 2, 3], counter: [2, 1, 4], hole: [5, 1, 2] });
+  assert.equal(result.regularReply, "1号艇の平均STは0.14だよ〜。");
+  assert.match(prompt, /raceContext/u);
+  assert.match(prompt, /DB、RPC、SQL/u);
+  assert.match(prompt, /predictionContext/u);
+});
+
+test("grounded no-match response remains a normal reply", async () => {
+  const result = await generateGroundedReply("明日の住之江12Rどう？", { action: "race_db" }, { races: [], coverage: { truncated: false }, warnings: ["no_match"] }, "test-key", async () => geminiResponse({ sentiment: "neutral", serious_distress_or_financial_hardship: false, regular_reply: "まだ確認できる材料がないわ〜。", tip_reply: null }));
+  assert.equal(result.regularReply, "まだ確認できる材料がないわ〜。");
 });

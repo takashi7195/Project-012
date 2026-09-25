@@ -1,5 +1,8 @@
 import { moderationDecision, normalizeComment, normalizeNickname } from "./moderation.mjs";
-import { chooseReply, generateGeminiReply, templateReply } from "./ai-reply.mjs";
+import { chooseReply, generateGroundedReply, templateReply } from "./ai-reply.mjs";
+import { createRaceContextClient } from "./race-context.mjs";
+import { generateReplyPlan } from "./reply-router.mjs";
+import { MAX_SCORING_RACES, scoreRaceForComment } from "./prediction-context.mjs";
 
 const projectUrl = Deno.env.get("SUPABASE_URL");
 const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -99,7 +102,7 @@ async function readBodyWithinLimit(request: Request, maxBytes: number) {
   return text + decoder.decode();
 }
 
-async function listComments(url: URL, origin: string) {
+async function listComments(url: URL, origin: string, restImpl = rest) {
   const cursorText = url.searchParams.get("cursor");
   const cursor = safeCursor(cursorText);
   if (cursorText && !cursor) return jsonResponse({ error: "コメントを読み込めませんでした" }, 400, origin);
@@ -114,7 +117,7 @@ async function listComments(url: URL, origin: string) {
     params.set("or", `(created_at.lt.${cursor.created_at},and(created_at.eq.${cursor.created_at},id.lt.${cursor.id}))`);
   }
 
-  const response = await rest(`comments?${params.toString()}`);
+  const response = await restImpl(`comments?${params.toString()}`);
   if (!response.ok) return jsonResponse({ error: "コメントを読み込めませんでした" }, 503, origin);
   const rows = await response.json();
   const hasMore = rows.length > PAGE_SIZE;
@@ -133,7 +136,16 @@ async function listComments(url: URL, origin: string) {
   }, 200, origin);
 }
 
-async function submitComment(request: Request, origin: string) {
+async function submitComment(request: Request, origin: string, deps: {
+  restImpl?: typeof rest;
+  rateKeyImpl?: typeof rateKey;
+  fetchImpl?: typeof fetch;
+  geminiKey?: string;
+} = {}) {
+  const restImpl = deps.restImpl ?? rest;
+  const rateKeyImpl = deps.rateKeyImpl ?? rateKey;
+  const fetchImpl = deps.fetchImpl ?? fetch;
+  const geminiKey = deps.geminiKey ?? geminiApiKey;
   const requestId = crypto.randomUUID();
   const declaredLength = Number(request.headers.get("content-length") || "0");
   if (declaredLength > 8_192) {
@@ -180,13 +192,13 @@ async function submitComment(request: Request, origin: string) {
 
   let key: string;
   try {
-    key = await rateKey(request);
+    key = await rateKeyImpl(request);
   } catch {
     diagnostic(requestId, "config_missing");
     return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
   }
 
-  const rateResponse = await rest("rpc/claim_comment_rate_limit", {
+  const rateResponse = await restImpl("rpc/claim_comment_rate_limit", {
     method: "POST",
     body: JSON.stringify({ p_rate_key: key }),
   });
@@ -201,17 +213,55 @@ async function submitComment(request: Request, origin: string) {
 
   let aiDiagnostic = "unknown_error";
   let aiDiagnosticDetails: Record<string, unknown> = {};
-  const generatedReplies = await generateGeminiReply(body, geminiApiKey || "", fetch, (code, details) => {
-    aiDiagnostic = code;
-    aiDiagnosticDetails = details ?? {};
+  const plan = await generateReplyPlan(body, geminiKey || "", fetchImpl, {
+    onDiagnostic: (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; },
   });
-  if (!generatedReplies) diagnostic(requestId, aiDiagnostic, aiDiagnosticDetails);
+  let generatedReplies = null;
+  if (plan?.action === "direct") {
+    generatedReplies = {
+      sentiment: plan.sentiment,
+      seriousDistressOrFinancialHardship: plan.serious_distress_or_financial_hardship,
+      regularReply: plan.regular_reply,
+      tipReply: plan.tip_reply,
+    };
+  } else if (plan?.action === "race_db") {
+    const startedAt = Date.now();
+    diagnostic(requestId, "race_db_started", { queryCount: plan.queries.length });
+    const client = createRaceContextClient({ projectUrl, serviceRoleKey, fetchImpl });
+    const search = await client.search(plan.queries);
+    if (search.status === "error") {
+      diagnostic(requestId, "race_db_failed", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, elapsedMs: Date.now() - startedAt });
+    } else {
+      diagnostic(requestId, search.status === "no_match" ? "race_db_no_match" : search.status === "truncated" ? "race_db_truncated" : "race_db_succeeded", { queryCount: plan.queries.length, rpcCallCount: search.rpcCallCount, matchedRaceCount: search.context?.races?.length ?? 0, truncated: search.status === "truncated", elapsedMs: Date.now() - startedAt });
+      let predictionContext: unknown = { status: "not_requested" };
+      if (plan.prediction_requested) {
+        const scoringRaces = (search.predictionRaces ?? []).slice(0, MAX_SCORING_RACES);
+        const scored = scoringRaces.map((race) => scoreRaceForComment(race));
+        if (scored.some((item) => item.error)) {
+          diagnostic(requestId, "prediction_context_failed", { raceCount: scoringRaces.length, elapsedMs: Date.now() - startedAt });
+          generatedReplies = null;
+        } else {
+          const available = scored.filter((item) => item.readiness.status === "available");
+          const statuses = scored.map((item) => item.prediction);
+          predictionContext = statuses.length === 1 ? statuses[0] : { status: available.length ? "available" : statuses[0]?.status ?? "no_match", predictions: statuses, scoringTruncated: (search.predictionRaces ?? []).length > MAX_SCORING_RACES };
+          diagnostic(requestId, available.length ? "prediction_context_succeeded" : "prediction_context_not_available", { raceCount: scoringRaces.length, availableCount: available.length, closedCount: statuses.filter((item) => item.status === "closed").length, staleCount: statuses.filter((item) => item.status === "stale").length, elapsedMs: Date.now() - startedAt });
+          generatedReplies = await generateGroundedReply(body, plan, search.context, geminiKey || "", fetchImpl, (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; }, predictionContext);
+        }
+      } else {
+        generatedReplies = await generateGroundedReply(body, plan, search.context, geminiKey || "", fetchImpl, (code, details) => { aiDiagnostic = code; aiDiagnosticDetails = details ?? {}; }, predictionContext);
+      }
+    }
+  } else if (!plan) {
+    diagnostic(requestId, aiDiagnostic, aiDiagnosticDetails);
+  }
   const selectedReply = generatedReplies ? chooseReply(generatedReplies) : null;
-  if (generatedReplies && !selectedReply) diagnostic(requestId, "reply_rejected");
+  if (!selectedReply && (plan?.action === "race_db" || !plan || plan?.action === "fallback")) {
+    diagnostic(requestId, plan?.action === "race_db" ? "final_reply_failed" : "drunk_fallback_used", { reason: aiDiagnostic });
+  }
   const replySource = selectedReply ? "gemini" : "template";
   const replyText = selectedReply?.reply ?? templateReply();
   const tipRequested = selectedReply?.tipRequested ?? false;
-  const createResponse = await rest("rpc/create_comment_with_reply", {
+  const createResponse = await restImpl("rpc/create_comment_with_reply", {
     method: "POST",
     body: JSON.stringify({
       p_nickname: nickname,
@@ -243,22 +293,33 @@ async function submitComment(request: Request, origin: string) {
   }, 201, origin);
 }
 
-Deno.serve(async (request: Request) => {
-  const origin = request.headers.get("origin") || "";
-  if (!ALLOWED_ORIGINS.has(origin)) return new Response("Forbidden", { status: 403 });
-  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: headersFor(origin) });
-  if (!projectUrl || !serviceRoleKey || !hmacSecret) {
-    console.warn(JSON.stringify({ event: "comment_diagnostic", code: "config_missing" }));
-    return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
-  }
+export function createCommentsHandler(deps: {
+  restImpl?: typeof rest;
+  rateKeyImpl?: typeof rateKey;
+  fetchImpl?: typeof fetch;
+  geminiKey?: string;
+  configured?: boolean;
+} = {}) {
+  const configured = deps.configured ?? Boolean(projectUrl && serviceRoleKey && hmacSecret);
+  const restImpl = deps.restImpl ?? rest;
+  return async (request: Request) => {
+    const origin = request.headers.get("origin") || "";
+    if (!ALLOWED_ORIGINS.has(origin)) return new Response("Forbidden", { status: 403 });
+    if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: headersFor(origin) });
+    if (!configured) {
+      console.warn(JSON.stringify({ event: "comment_diagnostic", code: "config_missing" }));
+      return jsonResponse({ error: "コメントを投稿できませんでした" }, 503, origin);
+    }
+    try {
+      const url = new URL(request.url);
+      if (request.method === "GET") return await listComments(url, origin, restImpl);
+      if (request.method === "POST") return await submitComment(request, origin, deps);
+      return jsonResponse({ error: "コメントを投稿できませんでした" }, 405, origin);
+    } catch {
+      console.warn(JSON.stringify({ event: "comment_diagnostic", code: "unknown_error" }));
+      return jsonResponse({ error: "コメントを投稿できませんでした" }, 500, origin);
+    }
+  };
+}
 
-  try {
-    const url = new URL(request.url);
-    if (request.method === "GET") return await listComments(url, origin);
-    if (request.method === "POST") return await submitComment(request, origin);
-    return jsonResponse({ error: "コメントを投稿できませんでした" }, 405, origin);
-  } catch {
-    console.warn(JSON.stringify({ event: "comment_diagnostic", code: "unknown_error" }));
-    return jsonResponse({ error: "コメントを投稿できませんでした" }, 500, origin);
-  }
-});
+if (Deno.env.get("DENO_TESTING") !== "1") Deno.serve(createCommentsHandler());
