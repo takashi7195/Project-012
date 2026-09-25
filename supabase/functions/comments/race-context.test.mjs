@@ -8,6 +8,20 @@ const response = (body, status = 200) => new Response(JSON.stringify(body), { st
 const q = (overrides = {}) => ({ type: "race_search", from: "2026-09-24", to: "2026-09-24", stadium: "住之江", stadiumCode: 12, raceNumber: 12, entryNumber: null, racerName: null, limit: 20, ...overrides });
 
 test("context removes internal ids and preserves approved fields", () => { const c = toRaceContext(payload([race()])); assert.equal(c.races[0].race_id, undefined); assert.equal(c.races[0].batch_id, undefined); assert.equal(c.races[0].program.raw, undefined); assert.equal(c.races[0].stadium_name, "住之江"); });
+test("context removes Unicode whitespace only from racer name fields", () => {
+  const c = toRaceContext(payload([race({
+    program: { closed_at: "2026-09-24T06:00:00Z", title: "第1レース 出走表" },
+    entries: [
+      { entry_number: 1, name: "山田 太郎" },
+      { entry_number: 2, name: "山田　太郎" },
+      { entry_number: 3, name: "山田太郎" },
+    ],
+    result_entries: [{ entry_number: 1, name: "山田\u00a0太郎", finish_position: 1 }],
+  })]));
+  assert.deepEqual(c.races[0].entries.map((entry) => entry.name), ["山田太郎", "山田太郎", "山田太郎"]);
+  assert.equal(c.races[0].result_entries[0].name, "山田太郎");
+  assert.equal(c.races[0].program.title, "第1レース 出走表");
+});
 test("rpc success, no_match, truncated and error are classified", async () => { const success = createRaceContextClient({ projectUrl: "https://x", serviceRoleKey: "secret", fetchImpl: async () => response(payload([race()])) }); assert.equal((await success.search([q()])).status, "success"); const none = createRaceContextClient({ projectUrl: "https://x", serviceRoleKey: "secret", fetchImpl: async () => response(payload([])) }); assert.equal((await none.search([q()])).status, "no_match"); const trunc = createRaceContextClient({ projectUrl: "https://x", serviceRoleKey: "secret", fetchImpl: async () => response(payload([race()], { coverage: { truncated: true } })) }); assert.equal((await trunc.search([q()])).status, "truncated"); const err = createRaceContextClient({ projectUrl: "https://x", serviceRoleKey: "secret", fetchImpl: async () => response({}, 500) }); assert.equal((await err.search([q()])).status, "error"); });
 test("basic search maps typed RPC arguments and keeps its race context", async () => { let request; const client = createRaceContextClient({ projectUrl: "https://x", serviceRoleKey: "secret", fetchImpl: async (url, init) => { request = { url, body: JSON.parse(init.body) }; return response(payload([race()])); } }); const result = await client.search([q()]); assert.match(request.url, /race_data_search_current_races$/); assert.equal(request.body.p_stadium_code, 12); assert.equal(request.body.p_entry_number, null); assert.equal(result.context.races.length, 1); assert.equal(result.context.races[0].race_id, undefined); });
 test("filtered search detail keeps result context after two RPC calls", async () => {

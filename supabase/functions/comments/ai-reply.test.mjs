@@ -53,6 +53,7 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.system_instruction.parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
   assert.match(request.body.system_instruction.parts[0].text, /「1号車」〜「6号車」とは書きません/u);
   assert.match(request.body.system_instruction.parts[0].text, /「1号艇 山田太郎」/u);
+  assert.match(request.body.system_instruction.parts[0].text, /姓名間には空白を入れず/u);
   assert.match(request.body.contents[0].parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
@@ -212,6 +213,10 @@ test("grounded reply uses facts without exposing database internals", async () =
   assert.match(prompt, /raceContext/u);
   assert.match(prompt, /「1号艇」〜「6号艇」/u);
   assert.match(prompt, /「1号車」〜「6号車」とは書きません/u);
+  assert.match(prompt, /姓名間には空白を入れず/u);
+  assert.match(prompt, /取得済みの順位・結果はcontextにある確定形で一度だけ/u);
+  assert.match(prompt, /「〜じゃなくて〜」「訂正すると〜」/u);
+  assert.match(prompt, /同じ順位について複数候補を列挙しない/u);
   assert.match(prompt, /DB、RPC、SQL/u);
   assert.match(prompt, /predictionContext/u);
 });

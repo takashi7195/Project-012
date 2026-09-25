@@ -11,6 +11,12 @@ const STADIUM_NAMES = new Map([
 ]);
 
 const pick = (value, keys) => Object.fromEntries(keys.filter((key) => value && value[key] !== undefined).map((key) => [key, value[key]]));
+const normalizeRacerName = (value) => typeof value === "string" ? value.replace(/\p{White_Space}/gu, "") : value;
+const pickRacer = (value, keys) => {
+  const selected = pick(value, keys);
+  if (typeof selected.name === "string") selected.name = normalizeRacerName(selected.name);
+  return selected;
+};
 const RACE_KEYS = ["race_date","stadium_code","race_number","last_success_at","presence"];
 const PROGRAM_KEYS = ["closed_at","title","subtitle","grade_code","distance_m","day_number"];
 const ENTRY_KEYS = ["entry_number","racer_registration_number","name","rank_code","age_at_race","average_st","national_win_rate","national_top2_percent","national_top3_percent","local_win_rate","local_top2_percent","local_top3_percent","motor_number","motor_top2_percent","motor_top3_percent","hull_number","hull_top2_percent","hull_top3_percent"];
@@ -34,9 +40,9 @@ export function toRaceContext(payload, now = Date.now()) {
     program: { ...pick(row.program, PROGRAM_KEYS), deadline_state: deadlineState(row.program?.closed_at, now) },
     preview: pick(row.preview, PREVIEW_KEYS),
     result: pick(row.result, RESULT_KEYS),
-    entries: (row.entries ?? []).slice(0, CONTEXT_LIMITS.entries).map((entry) => pick(entry, ENTRY_KEYS)),
+    entries: (row.entries ?? []).slice(0, CONTEXT_LIMITS.entries).map((entry) => pickRacer(entry, ENTRY_KEYS)),
     preview_entries: (row.preview_entries ?? []).slice(0, CONTEXT_LIMITS.previewEntries).map((entry) => pick(entry, PREVIEW_ENTRY_KEYS)),
-    result_entries: (row.result_entries ?? []).slice(0, CONTEXT_LIMITS.resultEntries).map((entry) => pick(entry, RESULT_ENTRY_KEYS)),
+    result_entries: (row.result_entries ?? []).slice(0, CONTEXT_LIMITS.resultEntries).map((entry) => pickRacer(entry, RESULT_ENTRY_KEYS)),
     payouts: (row.payouts ?? []).slice(0, CONTEXT_LIMITS.payouts).map((entry) => pick(entry, PAYOUT_KEYS)),
   }));
   return { races, aggregates: payload?.aggregates ?? {}, coverage: payload?.coverage ?? {}, warnings: payload?.warnings ?? [] };
