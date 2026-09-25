@@ -657,8 +657,11 @@
 - `direct` planではtrim後に空でない`regular_reply`を必須にし、欠落・null・空文字・空白だけの返信を拒否する。
 - direct返信を選択できずtemplateへfallbackした場合、安全な分類情報だけを`direct_reply_unavailable` diagnosticへ記録する。
 - final Geminiの失敗diagnosticに、取得可能な数値HTTP statusとstageを保持する。コメント本文、Secret、provider response bodyは記録しない。
-- Router契約、direct返信検証、HTTP status/stage診断の回帰テストを追加。全Nodeテスト189件が成功し、`git diff --check`も成功した。Deno統合テストと本番再確認は未実施。本番deploy・DB・Secrets変更は行っていない。
+- Router契約、direct返信検証、HTTP status/stage診断の回帰テストを追加。初回確認時点では全Node 189件が成功し、Deno統合テストと本番再確認は未実施だった（後続の最終確認結果を参照）。
 - race DB/RPC失敗時は既存の`race_db_failed`だけを記録し、final Geminiを呼んでいない経路で`final_reply_failed`を誤記録しないよう修正した。final Geminiを実際に呼び出して失敗した場合だけ`final_reply_failed`を記録し、status/stageを保持する。
-- Deno HTTP handler統合テストでRPC失敗時に`race_db_failed`が残り、`final_reply_failed`が出ないこと、またfinal Gemini HTTP失敗ではstatus/stageが残ることを確認した（9件成功）。comments Nodeテスト49件成功。全体Node回帰は188/189で、既存race-ingestion timeout分類テストが1件失敗したため未解決として記録する。
+- 初回の全体Node回帰では188/189となり、既存race-ingestion timeout分類テストが一時的に失敗した。その後の再実行で解消し、最終回帰では全件成功した。
+- Deno HTTP handler統合テストでRPC失敗時に`race_db_failed`が残り、`final_reply_failed`が出ないこと、またfinal Gemini HTTP失敗ではstatus/stageが残ることを確認した。後続のDeno統合再実行も9/9成功した。
 - filtered検索後のbasic detail取得結果を`toRaceContext()`へ正しい`data`形状で渡し、race/result情報がcontext変換で失われないよう修正した。安全な正規化検索条件とfiltered候補・detail取得数をdiagnosticへ追加し、race経路のfinal Gemini成功を`final_reply_succeeded`で記録する。
-- filtered→detail、no-match、basic検索、結果情報保持、内部ID除去の回帰テストを追加。comments関連50件、全Node回帰190件成功。Deno統合テストは今回の確認待ち。production変更なし。
+- filtered→detail、no-match、basic検索、結果情報保持、内部ID除去の回帰テストを追加。後続確認ではcomments関連テスト50件、全Node回帰190件が成功し、Deno結果はその時点では未確認だった（後続の最終確認結果を参照）。
+- filtered検索後のbasic detail結果がcontext変換で失われる不具合を修正し、race/result情報の保持を本番v63で確認した。さらに選手名フィールドのUnicode空白正規化と、結果の自己訂正を避けるfinal promptを追加。comments本番はv65 / ACTIVE。
+- **v0.1.17最終確認:** 全Node回帰192/192、Deno integration 9/9、`git diff --check`成功。v65本番E2EはHTTP 201で桐生1Rの結果を回答し、姓名間スペース・自己訂正・「号車」表記・技術情報漏洩なし、「号艇」表記を確認した。router/template fallback問題の修正・確認も完了。
