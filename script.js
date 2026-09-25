@@ -226,8 +226,9 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     option.disabled = !open;
     option.dataset.available = open ? 'true' : 'false';
     const raceLabel = `${raceNumber}R`;
-    option.textContent = open ? `${raceLabel} | ${formatJstTime(deadline)} 締切予定` : `${raceLabel} | 締切`;
-    option.setAttribute('aria-label', option.textContent);
+    const deadlineLabel = open ? `${formatJstTime(deadline)} 締切予定` : '締切';
+    option.textContent = `${raceLabel}　${deadlineLabel}`;
+    option.setAttribute('aria-label', open ? `${raceLabel}、${deadlineLabel}` : `${raceLabel}、締切`);
     if (open) hasSelectableRace = true;
   }
   const selected = raceSelect.options[raceSelect.selectedIndex];

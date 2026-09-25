@@ -13,7 +13,7 @@ function option(value, code) {
     dataset: { stadiumCode: String(code), stadiumName: value },
     disabled: false,
     textContent: value,
-    setAttribute(name, value) { this[name] = value; },
+    setAttribute(name, value) { this[name] = value; }, getAttribute(name) { return this[name] ?? null; },
   };
 }
 function placeholder(label) {
@@ -31,7 +31,7 @@ function loadUi(options) {
   const elements = new Map();
   for (const id of ['start-btn', 'race-development-text']) elements.set(id, make());
   const race = make();
-  race.options = [placeholder('レース'), ...Array.from({ length: 12 }, (_, index) => ({ value: `${index + 1}R`, dataset: {}, disabled: false, textContent: '', setAttribute(name, value) { this[name] = value; } }))];
+  race.options = [placeholder('レース'), ...Array.from({ length: 12 }, (_, index) => ({ value: `${index + 1}R`, dataset: {}, disabled: false, textContent: '', setAttribute(name, value) { this[name] = value; }, getAttribute(name) { return this[name] ?? null; } }))];
   race.selectedIndex = 0; race.value = '';
   elements.set('race-select', race);
   const stadium = make(); stadium.options = [placeholder('会場'), ...options]; stadium.selectedIndex = 0; stadium.value = '';
@@ -108,13 +108,24 @@ test('race deadlines are formatted in JST and closed races are disabled in place
   ] }]);
   context.applyRaceAvailability(1, new Date('2026-09-22T23:00:00.000Z'));
   assert.equal(race.options[1].disabled, false);
-  assert.match(race.options[1].textContent, /^1R \| 09:00 締切予定$/);
+  assert.equal(race.options[1].textContent, '1R　09:00 締切予定');
+  assert.equal(race.options[1].getAttribute('aria-label'), '1R、09:00 締切予定');
+  assert.equal(race.options[1].textContent.includes('|'), false);
   assert.equal(race.options[2].disabled, false);
   context.applyRaceAvailability(1, new Date('2026-09-23T00:30:00.000Z'));
   assert.equal(race.options[1].disabled, true);
-  assert.equal(race.options[1].textContent, '1R | 締切');
+  assert.equal(race.options[1].textContent, '1R　締切');
+  assert.equal(race.options[1].getAttribute('aria-label'), '1R、締切');
+  assert.equal(race.options[1].textContent.includes('|'), false);
   assert.equal(race.options[2].disabled, false);
-  assert.match(race.options[2].textContent, /^2R \| 10:00 締切予定$/);
+  assert.equal(race.options[2].textContent, '2R　10:00 締切予定');
+});
+
+test('race selector allocates a wider responsive field without changing venue layout behavior', () => {
+  const css = readFileSync(join(root, 'ui-reference.css'), 'utf8');
+  assert.match(css, /\.reference-ui \.selectors\s*\{[^}]*width:\s*min\(100%,\s*420px\)/s);
+  assert.match(css, /\.reference-ui #race-select\s*\{\s*flex:\s*1 1 65%/);
+  assert.match(css, /font-size:\s*clamp\(14px,\s*4vw,\s*18px\)/);
 });
 
 test('missing or malformed deadlines fail closed and do not remain selected', () => {
