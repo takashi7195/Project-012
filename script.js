@@ -43,6 +43,7 @@ const startBtn = document.getElementById('start-btn');
 const stadiumSelect = document.getElementById('stadium-select');
 const raceSelect = document.getElementById('race-select');
 const raceDevelopmentText = document.getElementById('race-development-text');
+const predictionStatus = document.getElementById('prediction-status');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
 // Publishable keys are public client identifiers, never service-role secrets.
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64';
@@ -50,6 +51,23 @@ let stadiumAvailability = new Map();
 let stadiumAvailabilityReady = false;
 let loadedAvailabilityDate = null;
 let availabilityLoading = false;
+const apiClosedRaces = new Set();
+let preservePredictionDisplay = false;
+let predictionRunId = 0;
+function setPredictionStatus(message = '') {
+  if (predictionStatus) predictionStatus.textContent = message;
+}
+function raceAvailabilityKey(raceDate, stadiumCode, raceNumber) {
+  return `${raceDate}:${stadiumCode}:${raceNumber}`;
+}
+function raceIsConfirmedClosed(stadiumCode, raceNumber, now = new Date()) {
+  const raceDate = formatJstDate(now);
+  if (loadedAvailabilityDate && loadedAvailabilityDate !== raceDate) return false;
+  if (apiClosedRaces.has(raceAvailabilityKey(raceDate, stadiumCode, raceNumber))) return true;
+  const race = stadiumAvailability.get(Number(stadiumCode))?.races?.find(item => Number(item.raceNumber) === Number(raceNumber));
+  const deadline = race?.closedAt ? new Date(race.closedAt) : null;
+  return Boolean(deadline && Number.isFinite(deadline.getTime()) && deadline.getTime() <= now.getTime());
+}
 function formatJstDate(value = new Date()) {
   const parts = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(value);
   const fields = Object.fromEntries(parts.filter((part) => part.type !== 'literal').map((part) => [part.type, part.value]));
@@ -144,10 +162,11 @@ function populateReel(reel) {
   }
 }
 
-// 初期表示処理
-document.addEventListener('DOMContentLoaded', () => {
+function showIdleRoulette() {
   slots.forEach((slot, index) => {
     const reel = slot.querySelector('.reel');
+    slot.className = 'slot';
+    slot.classList.remove('spinning');
     populateReel(reel);
     // 初期表示: slot-1->1, slot-2->2, slot-3->3
     // slots = [slot-3, slot-2, slot-1]
@@ -155,6 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const offset = 2 - index; // 3->2, 2->1, 1->0
     reel.style.transform = `translateY(calc(var(--item-height) * -${12 + offset}))`;
   });
+}
+
+// 初期表示処理
+document.addEventListener('DOMContentLoaded', () => {
+  showIdleRoulette();
   loadStadiumAvailability();
 });
 
@@ -167,7 +191,8 @@ function stadiumCodeForOption(option) {
 function venueHasOpenRaces(stadium, now = new Date()) {
   return Boolean(stadium?.races?.some((race) => {
     const deadline = new Date(race?.closedAt ?? '');
-    return Number.isFinite(deadline.getTime()) && now.getTime() < deadline.getTime();
+    const closedByApi = apiClosedRaces.has(raceAvailabilityKey(formatJstDate(now), stadium.stadiumCode, race.raceNumber));
+    return !closedByApi && Number.isFinite(deadline.getTime()) && now.getTime() < deadline.getTime();
   }));
 }
 
@@ -182,7 +207,8 @@ function applyStadiumAvailability(stadiums, now = new Date()) {
       continue;
     }
     const stadium = stadiumAvailability.get(stadiumCodeForOption(option));
-    const available = venueHasOpenRaces(stadium, now);
+    const dataMatchesToday = !loadedAvailabilityDate || loadedAvailabilityDate === formatJstDate(now);
+    const available = dataMatchesToday && venueHasOpenRaces(stadium, now);
     option.disabled = !available;
     option.dataset.available = available ? 'true' : 'false';
     const baseName = option.dataset.stadiumName || option.value;
@@ -190,13 +216,19 @@ function applyStadiumAvailability(stadiums, now = new Date()) {
     option.setAttribute('aria-label', option.textContent);
   }
   const selected = stadiumSelect.options[stadiumSelect.selectedIndex];
-  if (selected?.disabled) {
+  if (selected?.disabled && !activePrediction) {
+    const selectedCode = stadiumCodeForOption(selected);
+    const selectedRaceNumber = Number.parseInt(raceSelect.value, 10);
+    const hadRace = Boolean(raceSelect.value);
+    const selectedStadium = stadiumAvailability.get(Number(selectedCode));
+    const races = selectedStadium?.races ?? [];
+    const venueConfirmedClosed = races.length > 0 && races.every(item => raceIsConfirmedClosed(selectedCode, item.raceNumber, now));
     stadiumSelect.value = '';
     raceSelect.value = '';
-    activePrediction?.abort();
-    clearPredictionDisplay();
+    if (!preservePredictionDisplay) clearPredictionDisplay('', { idleRoulette: true });
+    if ((hadRace && raceIsConfirmedClosed(selectedCode, selectedRaceNumber, now)) || venueConfirmedClosed) setPredictionStatus('このレースは締切です');
   }
-  applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+  applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]), now);
   return Array.from(stadiumSelect.options).some((option) => option.value !== '' && !option.disabled);
 }
 
@@ -222,7 +254,9 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     const race = stadium?.races?.find((item) => Number(item.raceNumber) === raceNumber);
     const deadline = race?.closedAt ? new Date(race.closedAt) : null;
     const validDeadline = deadline && Number.isFinite(deadline.getTime());
-    const open = Boolean(validDeadline && now.getTime() < deadline.getTime());
+    const dataMatchesToday = !loadedAvailabilityDate || loadedAvailabilityDate === formatJstDate(now);
+    const closedByApi = apiClosedRaces.has(raceAvailabilityKey(formatJstDate(now), stadiumCode, raceNumber));
+    const open = Boolean(dataMatchesToday && !closedByApi && validDeadline && now.getTime() < deadline.getTime());
     option.disabled = !open;
     option.dataset.available = open ? 'true' : 'false';
     const raceLabel = `${raceNumber}R`;
@@ -232,12 +266,13 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     if (open) hasSelectableRace = true;
   }
   const selected = raceSelect.options[raceSelect.selectedIndex];
-  if (selected?.disabled) {
+  const selectedRaceNumber = Number.parseInt(raceSelect.value, 10);
+  if (selected?.disabled && !activePrediction) {
     raceSelect.value = '';
   }
-  if (raceSelect.value !== previousValue) {
-    activePrediction?.abort();
-    clearPredictionDisplay();
+  if (raceSelect.value !== previousValue && !activePrediction) {
+    if (!preservePredictionDisplay) clearPredictionDisplay('', { idleRoulette: true });
+    if (previousValue && !raceSelect.value && raceIsConfirmedClosed(stadiumCode, selectedRaceNumber, now)) setPredictionStatus('このレースは締切です');
   }
   updateStartAvailability(hasSelectableRace);
   return hasSelectableRace;
@@ -253,7 +288,10 @@ function updateStartAvailability(hasSelectableRace = null) {
   const raceOption = raceSelect.options?.[raceSelect.selectedIndex];
   const stadiumReady = stadiumAvailabilityReady && stadiumOption && stadiumOption.value !== '' && !stadiumOption.disabled;
   const raceReady = raceOption && raceOption.value !== '' && !raceOption.disabled;
-  startBtn.disabled = hasSelectableRace === false || !stadiumReady || !raceReady;
+  const busy = Boolean(activePrediction);
+  stadiumSelect.disabled = busy || availabilityLoading;
+  raceSelect.disabled = busy || availabilityLoading;
+  startBtn.disabled = busy || availabilityLoading || hasSelectableRace === false || !stadiumReady || !raceReady;
 }
 
 async function loadStadiumAvailability(raceDate = formatJstDate(), { preserveOnError = false } = {}) {
@@ -268,12 +306,12 @@ async function loadStadiumAvailability(raceDate = formatJstDate(), { preserveOnE
     });
     if (!response.ok) throw new Error(`stadium_availability_${response.status}`);
     const body = await response.json();
-    stadiumAvailabilityReady = applyStadiumAvailability(body.stadiums, new Date());
     loadedAvailabilityDate = body.raceDate || raceDate;
+    stadiumAvailabilityReady = applyStadiumAvailability(body.stadiums, new Date());
   } catch (error) {
     // Keep a previously valid snapshot during a transient refresh failure, but
     // still reapply current deadlines so closed races cannot remain selectable.
-    if (preserveOnError && stadiumAvailability.size) {
+    if ((preserveOnError || activePrediction) && stadiumAvailability.size) {
       applyStadiumAvailability(Array.from(stadiumAvailability.values()), new Date());
     } else {
       stadiumAvailabilityReady = false;
@@ -281,14 +319,14 @@ async function loadStadiumAvailability(raceDate = formatJstDate(), { preserveOnE
     }
     console.warn('会場開催情報を取得できませんでした', error);
   } finally {
-    stadiumSelect.disabled = false;
     availabilityLoading = false;
+    stadiumSelect.disabled = Boolean(activePrediction);
     updateStartAvailability();
   }
 }
 
 let activePrediction = null;
-function clearPredictionDisplay(message = '') {
+function clearPredictionDisplay(message = '', { idleRoulette = false } = {}) {
   for (const kind of ['counter', 'longshot']) setPredictionRow(kind, null);
   slots.forEach(slot => {
     slot.className = 'slot';
@@ -296,22 +334,27 @@ function clearPredictionDisplay(message = '') {
     const reel = slot.querySelector('.reel');
     reel.style.transform = '';
     reel.replaceChildren();
+    if (idleRoulette) return;
     const placeholder = document.createElement('div');
     placeholder.className = 'item';
     placeholder.textContent = '—';
     reel.appendChild(placeholder);
   });
+  if (idleRoulette) showIdleRoulette();
   if (raceDevelopmentText) raceDevelopmentText.textContent = message;
 }
 for (const select of [stadiumSelect, raceSelect]) select.addEventListener('change', () => {
+  if (activePrediction) return;
   if (select === stadiumSelect && stadiumSelect.options?.[stadiumSelect.selectedIndex]?.disabled) return;
+  preservePredictionDisplay = false;
+  setPredictionStatus('');
   if (select === stadiumSelect && stadiumSelect.options) {
     raceSelect.value = '';
-    applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]));
+    applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]), new Date());
   }
   else if (select === raceSelect && raceSelect.options?.[raceSelect.selectedIndex]?.disabled) return;
-  activePrediction?.abort();
-  clearPredictionDisplay();
+  clearPredictionDisplay('', { idleRoulette: true });
+  updateStartAvailability();
 });
 if (typeof setInterval === 'function') setInterval(() => {
   if (!stadiumAvailability.size) return;
@@ -326,25 +369,15 @@ if (typeof setInterval === 'function') setInterval(() => {
   const raceDate = formatJstDate();
   loadStadiumAvailability(raceDate, { preserveOnError: true });
 }, 5 * 60_000);
-async function requestPrediction(signal) {
-  if (!stadiumAvailabilityReady && stadiumSelect.options.length) throw new Error('開催情報を取得できません');
-  const selectedOption = stadiumSelect.options[stadiumSelect.selectedIndex];
-  if (!selectedOption || selectedOption.value === '') throw new Error('会場を選択してください');
-  if (selectedOption.disabled) throw new Error('この会場は現在選択できません');
-  const selectedRace = raceSelect.options[raceSelect.selectedIndex];
-  if (!selectedRace || selectedRace.value === '') throw new Error('レースを選択してください');
-  if (selectedRace.disabled) throw new Error('このレースは締切済みです');
-  const stadiumCode = stadiumCodeForOption(selectedOption);
-  const selector = { raceDate: formatJstDate(), stadiumCode, raceNumber: Number.parseInt(raceSelect.value, 10) };
+async function requestPrediction(signal, selector, deadlineAt) {
   const { pollPrediction } = await import('./race-prediction/client.mjs');
   return pollPrediction(async signal => {
     const response = await fetch(PREDICTION_ENDPOINT, { method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY }, body: JSON.stringify(selector) });
     return { status: response.status, body: await response.json() };
   }, { signal, onGenerating: () => {
-    startBtn.textContent = '生成中…';
-    if (raceDevelopmentText) raceDevelopmentText.textContent = '予想を生成中です…';
-  } });
+    setPredictionStatus('レース解析中…');
+  }, timeoutMs: Math.max(0, deadlineAt - Date.now()) });
 }
 
 function setPredictionRow(kind, combination) {
@@ -368,38 +401,89 @@ function setPredictionRow(kind, combination) {
 }
 
 startBtn.addEventListener('click', async () => {
-  if (activePrediction) return;
+  if (activePrediction || !stadiumAvailabilityReady || availabilityLoading) return;
+  const now = new Date();
+  const stadiumOption = stadiumSelect.options[stadiumSelect.selectedIndex];
+  const raceOption = raceSelect.options[raceSelect.selectedIndex];
+  const stadiumCode = stadiumCodeForOption(stadiumOption);
+  const raceNumber = Number.parseInt(raceOption?.value, 10);
+  const race = stadiumAvailability.get(Number(stadiumCode))?.races?.find(item => Number(item.raceNumber) === raceNumber);
+  const deadline = race?.closedAt ? new Date(race.closedAt) : null;
+  const closedByApi = apiClosedRaces.has(raceAvailabilityKey(formatJstDate(now), stadiumCode, raceNumber));
+  if (!stadiumOption || stadiumOption.value === '' || stadiumOption.disabled ||
+      !raceOption || raceOption.value === '' || raceOption.disabled || closedByApi ||
+      !deadline || !Number.isFinite(deadline.getTime()) || deadline.getTime() <= now.getTime()) {
+    applyStadiumAvailability(Array.from(stadiumAvailability.values()), now);
+    setPredictionStatus(raceOption?.value && (closedByApi || (deadline && Number.isFinite(deadline.getTime()) && deadline.getTime() <= now.getTime()))
+      ? 'このレースは締切です' : '');
+    return;
+  }
+  const selector = { raceDate: formatJstDate(now), stadiumCode, raceNumber };
   const controller = new AbortController();
   activePrediction = controller;
+  const runId = ++predictionRunId;
+  preservePredictionDisplay = false;
+  const startedAt = performance.now();
+  const deadlineAt = Date.now() + 60_000;
+  let timedOut = false;
+  const timeoutId = setTimeout(() => { timedOut = true; controller.abort(); }, 60_000);
   startBtn.disabled = true;
   stadiumSelect.disabled = raceSelect.disabled = true;
-  startBtn.textContent = '取得中…';
-  clearPredictionDisplay('予想データを取得しています…');
+  setPredictionStatus('レース解析中…');
+  clearPredictionDisplay();
+  slots.forEach((slot, index) => {
+    populateReel(slot.querySelector('.reel'));
+    slot.querySelector('.reel').style.animationDelay = `${index * 150}ms`;
+    slot.classList.add('spinning');
+  });
+  const wait = (milliseconds) => new Promise((resolve, reject) => {
+    if (controller.signal.aborted) { reject(new Error('aborted')); return; }
+    const timer = setTimeout(() => { controller.signal.removeEventListener('abort', abort); resolve(); }, milliseconds);
+    const abort = () => { clearTimeout(timer); controller.signal.removeEventListener('abort', abort); reject(new Error('aborted')); };
+    controller.signal.addEventListener('abort', abort, { once: true });
+  });
   try {
-    const prediction = await requestPrediction(controller.signal);
-    if (controller.signal.aborted) return;
+    const [prediction] = await Promise.all([
+      requestPrediction(controller.signal, selector, deadlineAt),
+      wait(Math.max(0, 3000 - (performance.now() - startedAt))),
+    ]);
+    clearTimeout(timeoutId);
+    if (controller.signal.aborted || runId !== predictionRunId) return;
     const result = prediction.main;
+    await stopRoulette(slots[0], result[2], 0);
+    await stopRoulette(slots[1], result[1], 6000);
+    await stopRoulette(slots[2], result[0], 9000);
+    await wait(500);
+    if (controller.signal.aborted || runId !== predictionRunId) return;
     setPredictionRow('counter', prediction.counter);
     setPredictionRow('longshot', prediction.hole);
     if (raceDevelopmentText) raceDevelopmentText.textContent = prediction.narrative;
-    slots.forEach((slot, index) => {
-      populateReel(slot.querySelector('.reel'));
-      slot.querySelector('.reel').style.animationDelay = `${index * 150}ms`;
-      slot.classList.add('spinning');
-    });
-    await stopRoulette(slots[0], result[2], 3000);
-    await stopRoulette(slots[1], result[1], 6000);
-    await stopRoulette(slots[2], result[0], 9000);
+    preservePredictionDisplay = true;
+    setPredictionStatus('');
   } catch (error) {
-    clearPredictionDisplay(error.message);
+    controller.abort();
+    slots.forEach(slot => {
+      slot.className = 'slot';
+      slot.classList.remove('spinning');
+    });
+    clearPredictionDisplay('', { idleRoulette: true });
+    const code = timedOut ? 'timeout' : error?.code;
+    if (code === 'closed') {
+      apiClosedRaces.add(raceAvailabilityKey(selector.raceDate, selector.stadiumCode, selector.raceNumber));
+      setPredictionStatus('このレースは締切です');
+    } else {
+      setPredictionStatus('解析できませんでした');
+    }
   } finally {
-    if (controller.signal.aborted) clearPredictionDisplay();
-    activePrediction = null;
-    stadiumSelect.disabled = raceSelect.disabled = false;
-    updateStartAvailability();
-    startBtn.textContent = 'START';
-    startBtn.removeAttribute('aria-label');
-    startBtn.removeAttribute('title');
+    clearTimeout(timeoutId);
+    if (runId === predictionRunId) {
+      activePrediction = null;
+      applyStadiumAvailability(Array.from(stadiumAvailability.values()), new Date());
+      updateStartAvailability();
+      if (preservePredictionDisplay && apiClosedRaces.has(raceAvailabilityKey(selector.raceDate, selector.stadiumCode, selector.raceNumber))) {
+        setPredictionStatus('このレースは締切です');
+      }
+    }
   }
 });
 

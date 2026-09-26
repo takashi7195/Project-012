@@ -21,13 +21,27 @@ function placeholder(label) {
 }
 
 function loadUi(options) {
-  const make = () => ({
-    textContent: '', childNodes: [], style: {}, className: 'slot', disabled: false,
-    classList: { add() {}, remove() {} },
-    addEventListener() {}, replaceChildren(...children) { this.childNodes = children; },
-    appendChild(child) { this.childNodes.push(child); }, querySelector() { return make(); },
-    removeAttribute() {},
-  });
+  const make = () => {
+    const children = new Map();
+    const listeners = new Map();
+    return {
+      textContent: '', childNodes: [], style: {}, className: 'slot', disabled: false,
+      classList: { add() {}, remove() {} },
+      addEventListener(type, listener) {
+        const callbacks = listeners.get(type) ?? [];
+        callbacks.push(listener);
+        listeners.set(type, callbacks);
+      },
+      dispatchEvent(event) { for (const listener of listeners.get(event.type) ?? []) listener(event); },
+      replaceChildren(...nodes) { this.childNodes = nodes; },
+      appendChild(child) { this.childNodes.push(child); },
+      querySelector(selector) {
+        if (!children.has(selector)) children.set(selector, make());
+        return children.get(selector);
+      },
+      removeAttribute() {},
+    };
+  };
   const elements = new Map();
   for (const id of ['start-btn', 'race-development-text']) elements.set(id, make());
   const race = make();
@@ -50,7 +64,25 @@ function loadUi(options) {
     URLSearchParams,
   });
   vm.runInContext(readFileSync(join(root, 'script.js'), 'utf8'), context);
-  return { stadium, race: elements.get('race-select'), context };
+  return {
+    stadium,
+    race: elements.get('race-select'),
+    slots: ['slot-3', 'slot-2', 'slot-1'].map(id => elements.get(id)),
+    context,
+  };
+}
+
+function visibleIdleNumbers(slots) {
+  return slots.map((slot, slotIndex) => {
+    const reel = slot.querySelector('.reel');
+    const centeredIndex = 14 - slotIndex;
+    return {
+      number: reel.childNodes[centeredIndex]?.childNodes?.[0]?.textContent == null
+        ? null
+        : String(reel.childNodes[centeredIndex].childNodes[0].textContent),
+      itemCount: reel.childNodes.length,
+    };
+  });
 }
 
 test('venue order remains north-to-south and uses stable stadium codes', () => {
@@ -96,7 +128,7 @@ test('availability refreshes every five minutes even when the cached map is empt
   const script = readFileSync(join(root, 'script.js'), 'utf8');
   assert.match(script, /loadStadiumAvailability\(raceDate, \{ preserveOnError: true \}\)/);
   assert.match(script, /5 \* 60_000/);
-  assert.match(script, /if \(preserveOnError && stadiumAvailability\.size\)/);
+  assert.match(script, /if \(\(preserveOnError \|\| activePrediction\) && stadiumAvailability\.size\)/);
 });
 
 test('race deadlines are formatted in JST and closed races are disabled in place', () => {
@@ -121,11 +153,44 @@ test('race deadlines are formatted in JST and closed races are disabled in place
   assert.equal(race.options[2].textContent, '2R　10:00 締切予定');
 });
 
-test('race selector allocates a wider responsive field without changing venue layout behavior', () => {
+test('race and venue selectors retain their original width and equal column layout', () => {
   const css = readFileSync(join(root, 'ui-reference.css'), 'utf8');
-  assert.match(css, /\.reference-ui \.selectors\s*\{[^}]*width:\s*min\(100%,\s*420px\)/s);
-  assert.match(css, /\.reference-ui #race-select\s*\{\s*flex:\s*1 1 65%/);
-  assert.match(css, /font-size:\s*clamp\(14px,\s*4vw,\s*18px\)/);
+  assert.match(css, /\.reference-ui \.selectors\s*\{[^}]*width:\s*64%;\s*min-width:\s*220px;\s*max-width:\s*280px/s);
+  assert.doesNotMatch(css, /\.reference-ui #race-select\s*\{/);
+  assert.match(css, /\.reference-ui \.selectors select\s*\{[^}]*font-size:\s*20px/s);
+  assert.match(css, /\.reference-ui \.selectors select\s*\{[^}]*padding:\s*0 28px 0 15px/s);
+});
+
+test('venue availability states differ by text color only', () => {
+  const css = readFileSync(join(root, 'ui-reference.css'), 'utf8');
+  assert.match(css, /\.reference-ui \.selectors select option\[data-available="true"\]\s*\{\s*color:\s*#14263c;\s*\}/);
+  assert.match(css, /\.reference-ui \.selectors select option:disabled\s*\{\s*color:\s*#6b7785;\s*background:\s*#e5e7eb;\s*\}/);
+  assert.doesNotMatch(css, /\.reference-ui \.selectors select option(?::disabled|\[data-available="true"\])\s*\{[^}]*font-weight\s*:/s);
+});
+
+test('initial and changed selector states show idle roulette digits instead of blanks', () => {
+  const { stadium, race, slots, context } = loadUi([option('桐生', 1)]);
+  const idleRaces = [{ raceNumber: 1, closedAt: '2099-12-31T00:00:00Z' }];
+  context.clearPredictionDisplay();
+  context.clearPredictionDisplay('', { idleRoulette: true });
+  assert.deepEqual(visibleIdleNumbers(slots), [
+    { number: '3', itemCount: 18 },
+    { number: '2', itemCount: 18 },
+    { number: '1', itemCount: 18 },
+  ]);
+
+  context.applyStadiumAvailability([{ stadiumCode: 1, races: idleRaces }]);
+  vm.runInContext('stadiumAvailabilityReady = true', context);
+  stadium.selectedIndex = 1;
+  stadium.value = '桐生';
+  stadium.dispatchEvent({ type: 'change' });
+  assert.deepEqual(visibleIdleNumbers(slots).map(item => item.number), ['3', '2', '1']);
+  assert.equal(race.value, '');
+
+  race.selectedIndex = 1;
+  race.value = '1R';
+  race.dispatchEvent({ type: 'change' });
+  assert.deepEqual(visibleIdleNumbers(slots).map(item => item.number), ['3', '2', '1']);
 });
 
 test('missing or malformed deadlines fail closed and do not remain selected', () => {

@@ -1,7 +1,7 @@
 # v0.1.18 レース選択UI 詳細設計書
 
 作成日: 2026-09-25 JST
-状態: 実装前設計
+状態: 実装済み・幅調整反映
 関連基本設計: [レース選択UI基本設計書](RACE-SELECT-UI-BASIC-DESIGN-v0.1.18.md)
 
 ## 1. 現行構成と確認事項
@@ -10,14 +10,14 @@
 - `script.js`の`applyRaceAvailability()`が、選択会場の取得済みレース情報と`closedAt`から締切前後を判定し、optionのdisabled状態と表示文言を更新する。
 - 締切時刻は`formatJstTime()`で`Asia/Tokyo`表示にしている。
 - 現行ラベルは締切前が`${raceLabel} | ${time} 締切予定`、締切済みが`${raceLabel} | 締切`。
-- `ui-reference.css`の`.selectors`は幅64%、最大280pxで、2つのselectを概ね等分している。このため、時刻付きラベルが閉じた欄で切れて見える。
+- `ui-reference.css`の`.selectors`は幅64%、最小220px、最大280pxで、2つのselectを概ね等分している。時刻付きラベルは閉じた欄で切れる場合があるため、ラベルから`|`を除き全角スペースを使う。選択欄幅は従来値を維持する。
 
 ## 2. 変更対象と責務
 
 | ファイル | 責務 | 設計変更 |
 |---|---|---|
 | `script.js` | レースoptionの表示文字列 | `|`を除き、レース番号と締切表示の間に全角スペース1文字を入れる。`aria-label`は読み上げやすい文言にする。 |
-| `ui-reference.css` | 会場・レース選択欄の幅と文字サイズ | セレクタ全体を親幅内で広げ、レース欄へ会場欄より多くの幅を割り当てる。狭い画面では文字サイズを縮めて収める。 |
+| `ui-reference.css` | 会場・レース選択欄の幅と文字サイズ | 幅64%・最小220px・最大280pxと均等配分を維持する。 |
 | `index.html` | セレクタの構造と公開版 | ネイティブselectと既存IDを維持する。公開versionをv0.1.18へ上げ、JS/CSSのcache-busterを更新する。 |
 
 DB、API、Edge Function、締切の判定ロジックは変更しない。`index.html`では選択UIのDOM構造を変えず、公開versionとJS/CSSのcache-busterのみを更新する。
@@ -48,9 +48,9 @@ closed / unavailable:
 
 ## 4. レイアウト
 
-`.selectors`をコンテナ幅の上限まで使用し、現在の最大280pxより広げる。設計上の目安は`width: min(100%, 420px)`とし、親要素の左右paddingとsafe-areaを含めてviewportからはみ出さないことを優先する。
+`.selectors`は元の`width: 64%; min-width: 220px; max-width: 280px`を維持する。会場とレースのselectは従来どおり均等幅とし、欄の幅や配分を変更しない。
 
-会場欄は横幅の約35%、レース欄は約65%を目安にし、flex/gridでレース欄が残余幅を取る。両欄に`min-width: 0`を指定し、レース欄は左padding約8px・右padding約20pxを目安にして矢印用領域を残しながら表示幅を確保する。select文字サイズは`clamp(14px, 4vw, 18px)`相当を目安にレスポンシブ調整する。実際の値は320px、375px、390px、デスクトップ幅で確認して決める。
+selectの文字サイズ20px、従来のpaddingを維持する。選択肢ラベル内の全角スペースでレース番号と締切情報を区切る。
 
 ネイティブselectのoptionはOS・ブラウザごとに描画差があるため、option内に複数列を作ったり、CSS Grid/Flexのoption装飾へ依存したりしない。全角スペースを区切りとして使い、視覚的な間隔を確保する。select閉状態では選択ラベルがellipsisで状態や時刻を隠さないよう、欄幅・文字サイズを調整する。
 
