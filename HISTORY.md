@@ -685,3 +685,13 @@
 - v0.1.18の公開コードcommitは`e6c263456a5999b10181fda4eae32e9f6bdfa578`。GitHub Pagesの`main`へ反映済み。
 - annotated tag `v0.1.18`（`Release v0.1.18`）をこの公開コードcommitへ付け、いつでも同じコード状態へ戻れるようにする。既存の`v0.1.17`タグは変更しない。
 - 利用者による画面確認は別途実施し、結果を後続記録へ追記する。
+
+## 2026-09-29 — v0.1.19 公開AI予想の再有効化
+
+- 利用者依頼により、公開URLでAI予想を試せる状態へ更新した。公開ページは既にv0.1.19であることを確認し、HTMLのv0.1.18表記0件、v0.1.19表記2件を確認した。
+- Supabaseの`predictions` Functionを採用モデル`gemini-3.5-flash-lite`設定で再配信した。確認時はACTIVE version 39、`verify_jwt=false`。
+- Supabase Secret `PREDICTION_MODE`を`ai_bundle`へ設定し、値を出力せずハッシュ照合で有効化を確認した。`GEMINI_API_KEY` Secretの存在も確認した。
+- 既適用の`20260929000000` migrationと2026-09-29分144レースのcomponent参照修復・再取込は、[component reference fix evidence](docs/test-evidence/v0.1.19/20260929-component-reference-fix.json)の記録を確認した。修復証跡では全144レースのprogram/preview component・projection参照、6艇の出走表/展示、AI input可読を確認し、Gemini要求は行っていない。
+- 公開APIの開催一覧GETはHTTP 200、`ai_bundle`、`ai-bundle-v1`を返し、当日144レースを列挙した。確認時点で当日レースはすべて締切済み、翌日の開催データは0件で、公開画面から実STARTできるレースはなかった。実Gemini生成は今回実施していない。
+- モデル設定変更`race-prediction/ai-config.mjs`をcommit `a08421e`（`Use Gemini 3.5 Flash Lite for AI predictions`）としてmainへpush済み。再確認で`origin/main`とHEADが一致し、pushは`Everything up-to-date`。
+- 公開URL: https://takashi7195.github.io/Project-012/ 。次の締切前レースが公開開催一覧に現れた後、利用者が実画面のSTART試験を行う。
