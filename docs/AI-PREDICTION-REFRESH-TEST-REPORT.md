@@ -1112,3 +1112,8 @@ GitHub Pagesの公開HTMLをGETしHTTP 200、9,602 byteを受信。ページ本�
 ## 140. 切り戻し追加確認の終了（2026-09-29 JST）
 
 ユーザー判断により、ここまでの部分確認をもって切り戻し確認を終了する。実Edge Runtime上のv0.1.18再配信、実効設定復元、旧画面からの一連動作は未確認のままとし、M04/M07をpassedへ変更しない。公開判定計画にもこの扱いを反映した。正式合格数57/70は変更しない。
+
+
+## 2026-09-29 公開反映と直後の障害
+
+利用者の明示指示により追加試験を広げず公開へ進んだ。2 migration適用、predictions配信、main a8e4f44のPages配信が成功し、HTML/script/clientの公開内容一致を確認。AIモードへ切替後、実当日レース（15場7R）のSTARTはHTTP 404。jobは作成されずGemini呼出しにも到達しなかった。本番の当日144レースでprogram_component_idとprogram_projection_idの参照先component.kindがresultであり、AI入力読込が拒否した。PREDICTION_MODEをlegacyへ戻し、v0.1.19画面で従来の予想経路を維持した。画面更新は完了、AI方式への公開切替は未完了。既存の試験未完了を合格へ変更しない。証跡: test-evidence/v0.1.19/20260929-publication.json。

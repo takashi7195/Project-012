@@ -1,0 +1,45 @@
+{
+  "release": "v0.1.19",
+  "recordedAt": "2026-09-29T08:48:55.998303+00:00",
+  "releaseCommit": "a8e4f44a77fa4407b32822b59c640e6e0ffa28e7",
+  "publicUrl": "https://takashi7195.github.io/Project-012/",
+  "pagesRun": 36544621391,
+  "pagesDeployment": "success",
+  "assetsVerified": [
+    "index.html",
+    "script.js",
+    "race-prediction/client.mjs"
+  ],
+  "migrationsApplied": [
+    "20260926000000",
+    "20260927000000"
+  ],
+  "predictionFunctionDeployed": true,
+  "postPublishCheck": {
+    "checkedAt": "2026-09-29T08:45:57.478839+00:00",
+    "selector": {
+      "raceDate": "2026-09-29",
+      "stadiumCode": 15,
+      "raceNumber": 7
+    },
+    "jobId": null,
+    "http": 404,
+    "status": "failed",
+    "retryable": false,
+    "elapsedSeconds": 0.3,
+    "mode": "ai_bundle",
+    "narrativePresent": false,
+    "ticketsPresent": false
+  },
+  "sourceIntegrity": {
+    "publishedRacesChecked": 144,
+    "snapshotProgramComponentKind": "result",
+    "programProjectionComponentKind": "result",
+    "aiInputUnavailable": true
+  },
+  "effectiveMode": "legacy",
+  "aiRollout": "paused after HTTP 404 input-source failure; legacy restored",
+  "providerRequestMade": false,
+  "gemini503Resolution": "not verified",
+  "completeAcceptance": false
+}
