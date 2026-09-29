@@ -2,7 +2,7 @@ export const AI_CONTRACT_VERSION = "ai-bundle-v1";
 export const OUTPUT_SCHEMA_VERSION = "ai-bundle-output-v1";
 export const DEFAULT_AI_CONFIG = Object.freeze({
   provider: "gemini",
-  model: "gemini-3.8-flash",
+  model: "gemini-3.5-flash-lite",
   apiVersion: "v1beta",
   promptVersion: "ai-bundle-prompt-1",
   styleVersion: "none-1",
