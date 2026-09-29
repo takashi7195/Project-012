@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-29",
+  "case": "M01 product orchestration retry diagnostic",
+  "flow": "runAiGeneration with synthetic fixture and in-memory store; no Supabase or database",
+  "models": [
+    {
+      "model": "gemini-3.8-flash",
+      "requests": 2,
+      "outcome": "failed",
+      "lastHttpStatus": 503,
+      "finalErrorCode": "provider_http_503"
+    },
+    {
+      "model": "gemini-3.7-flash",
+      "requests": 2,
+      "outcome": "failed",
+      "lastHttpStatus": 503,
+      "finalErrorCode": "provider_http_503"
+    }
+  ],
+  "retryPolicy": {
+    "maximumProviderRequestsPerJob": 2,
+    "waitWithoutRetryAfterMs": 1000,
+    "honorRetryAfter": true,
+    "sharedDeadlineMs": 90000,
+    "verifiedAgainstProductOrchestrator": true
+  },
+  "databaseWrites": false,
+  "generatedTextDisplayedOrRecorded": false,
+  "apiKeyDisplayedOrRecorded": false,
+  "modelSettingChanged": false,
+  "modeChanged": false,
+  "conclusion": "Retry logic executed as designed. Provider returned HTTP 503 for both attempts on both models; the specific cause remains unknown."
+}

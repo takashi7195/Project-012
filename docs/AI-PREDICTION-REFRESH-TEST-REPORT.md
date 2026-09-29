@@ -1117,3 +1117,7 @@ GitHub Pagesの公開HTMLをGETしHTTP 200、9,602 byteを受信。ページ本�
 ## 2026-09-29 公開反映と直後の障害
 
 利用者の明示指示により追加試験を広げず公開へ進んだ。2 migration適用、predictions配信、main a8e4f44のPages配信が成功し、HTML/script/clientの公開内容一致を確認。AIモードへ切替後、実当日レース（15場7R）のSTARTはHTTP 404。jobは作成されずGemini呼出しにも到達しなかった。本番の当日144レースでprogram_component_idとprogram_projection_idの参照先component.kindがresultであり、AI入力読込が拒否した。PREDICTION_MODEをlegacyへ戻し、v0.1.19画面で従来の予想経路を維持した。画面更新は完了、AI方式への公開切替は未完了。既存の試験未完了を合格へ変更しない。証跡: test-evidence/v0.1.19/20260929-publication.json。
+
+## 141. M01 製品再試行経路の実Gemini確認（2026-09-29 JST）
+
+M01の1要求診断runnerとは別に、製品と同じ`runAiGeneration`を合成レース入力・インメモリstoreで実行した。3.8 Flashと比較用3.7 Flashを各1 jobずつ、最大2要求・90秒以内・APIキー/生成文非表示で確認。4要求すべてHTTP 503となり、成功・保存はなし。DB/Supabaseは利用せず、モデル設定と`PREDICTION_MODE`は変更していない。ローカルの503待機/再試行mock試験8件は合格済み。これによりアプリの再試行処理は動作確認できたが、provider側503は解消しておらず、M01はfailedを維持する。3.7へ恒久変更する根拠も得られていない。[証跡](test-evidence/v0.1.19/20260929-m01-product-retry-live.json)
