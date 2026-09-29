@@ -47,6 +47,7 @@ const predictionStatus = document.getElementById('prediction-status');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
 // Publishable keys are public client identifiers, never service-role secrets.
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_ODGjHx6gmasNpY9b4kKVzQ_qIL6gq64';
+let predictionMode = 'legacy';
 let stadiumAvailability = new Map();
 let stadiumAvailabilityReady = false;
 let loadedAvailabilityDate = null;
@@ -306,6 +307,7 @@ async function loadStadiumAvailability(raceDate = formatJstDate(), { preserveOnE
     });
     if (!response.ok) throw new Error(`stadium_availability_${response.status}`);
     const body = await response.json();
+    predictionMode = body.predictionMode === 'ai_bundle' && body.predictionContractVersion === 'ai-bundle-v1' ? 'ai_bundle' : 'legacy';
     loadedAvailabilityDate = body.raceDate || raceDate;
     stadiumAvailabilityReady = applyStadiumAvailability(body.stadiums, new Date());
   } catch (error) {
@@ -369,8 +371,22 @@ if (typeof setInterval === 'function') setInterval(() => {
   const raceDate = formatJstDate();
   loadStadiumAvailability(raceDate, { preserveOnError: true });
 }, 5 * 60_000);
-async function requestPrediction(signal, selector, deadlineAt) {
-  const { pollPrediction } = await import('./race-prediction/client.mjs');
+async function requestPrediction(signal, selector, deadlineAt, modeForRun = predictionMode) {
+  const { pollPrediction, pollAiBundlePrediction } = await import('./race-prediction/client.mjs?release=v0.1.19');
+  if (modeForRun === 'ai_bundle') {
+    return pollAiBundlePrediction(async signal => {
+      const response = await fetch(PREDICTION_ENDPOINT, { method: 'POST', signal,
+        headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY },
+        body: JSON.stringify({ ...selector, action: 'generate', contractVersion: 'ai-bundle-v1' }) });
+      return { status: response.status, body: await response.json() };
+    }, async (jobId, signal) => {
+      const url = new URL(PREDICTION_ENDPOINT);
+      url.searchParams.set('action', 'prediction-job');
+      url.searchParams.set('jobId', jobId);
+      const response = await fetch(url, { signal, headers: { apikey: SUPABASE_PUBLISHABLE_KEY } });
+      return { status: response.status, body: await response.json() };
+    }, { signal, timeoutMs: Math.max(0, deadlineAt - Date.now()) });
+  }
   return pollPrediction(async signal => {
     const response = await fetch(PREDICTION_ENDPOINT, { method: 'POST', signal,
       headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY }, body: JSON.stringify(selector) });
@@ -419,14 +435,15 @@ startBtn.addEventListener('click', async () => {
     return;
   }
   const selector = { raceDate: formatJstDate(now), stadiumCode, raceNumber };
+  const modeForRun = predictionMode;
   const controller = new AbortController();
   activePrediction = controller;
   const runId = ++predictionRunId;
   preservePredictionDisplay = false;
   const startedAt = performance.now();
-  const deadlineAt = Date.now() + 60_000;
+  const deadlineAt = Date.now() + 90_000;
   let timedOut = false;
-  const timeoutId = setTimeout(() => { timedOut = true; controller.abort(); }, 60_000);
+  const timeoutId = setTimeout(() => { timedOut = true; controller.abort(); }, 90_000);
   startBtn.disabled = true;
   stadiumSelect.disabled = raceSelect.disabled = true;
   setPredictionStatus('レース解析中…');
@@ -444,7 +461,7 @@ startBtn.addEventListener('click', async () => {
   });
   try {
     const [prediction] = await Promise.all([
-      requestPrediction(controller.signal, selector, deadlineAt),
+      requestPrediction(controller.signal, selector, deadlineAt, modeForRun),
       wait(Math.max(0, 3000 - (performance.now() - startedAt))),
     ]);
     clearTimeout(timeoutId);
@@ -471,8 +488,10 @@ startBtn.addEventListener('click', async () => {
     if (code === 'closed') {
       apiClosedRaces.add(raceAvailabilityKey(selector.raceDate, selector.stadiumCode, selector.raceNumber));
       setPredictionStatus('このレースは締切です');
+    } else if (code === 'not_retryable') {
+      setPredictionStatus('予想を生成できませんでした。');
     } else {
-      setPredictionStatus('解析できませんでした');
+      setPredictionStatus('予想を生成できませんでした。もう一度お試しください。');
     }
   } finally {
     clearTimeout(timeoutId);
