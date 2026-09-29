@@ -1,0 +1,53 @@
+{
+  "schema": "race-data-component-reference-fix-v1",
+  "date": "2026-09-29",
+  "cause": "component insert returned every kind into one variable; kind-specific IDs all became the final result ID",
+  "checks": {
+    "isolated_postgres_reproduction_of_old_bug": "passed",
+    "isolated_postgres_new_parser_version_immutable_batch": "passed",
+    "isolated_postgres_component_and_projection_kind_links": "passed",
+    "isolated_postgres_same_batch_conflict_updates_all_links": "passed",
+    "isolated_postgres_preserves_closed_at_wrapper": "passed",
+    "race_ingestion_targeted_node_tests": "22 passed",
+    "race_ingestion_complete_node_suite": "49 passed, 1 failed",
+    "complete_suite_failure": "acceptance-harness simulated timeout expected fetch_timeout classification but observed aborted operation; files outside this fix; recorded as failed/unresolved",
+    "bash_syntax": "passed"
+  },
+  "production_source_snapshot": {
+    "date": "2026-09-29",
+    "status": "fetched",
+    "raceCount": 144,
+    "resultRaceCount": 117,
+    "parserVersion": "v0.1.11-normalizer-2"
+  },
+  "production_migration_applied": false,
+  "production_reingest_performed": false,
+  "gemini_requested": false,
+  "production": {
+    "migration": "20260929000000 applied",
+    "raceIngestFunction": "deployed",
+    "date": "2026-09-29",
+    "ingest": {
+      "records": 144,
+      "chunks": 36,
+      "published": true
+    },
+    "verification": {
+      "currentParserVersion": "v0.1.11-normalizer-2",
+      "currentRaceCount": 144,
+      "correctComponentKindCount": 144,
+      "correctProjectionLinkCount": 144,
+      "sixEntryProgramCount": 144,
+      "sixEntryPreviewCount": 144,
+      "oldParserBatchesForDay": 114,
+      "fixedParserBatchesForDay": 3,
+      "aiInputAvailable": true,
+      "aiInputHasProgram": true,
+      "aiInputHasPreviewField": true,
+      "aiInputProgramExcludesResults": true
+    },
+    "geminiRequested": false
+  },
+  "productionMigrationApplied": true,
+  "productionReingestPerformed": true
+}

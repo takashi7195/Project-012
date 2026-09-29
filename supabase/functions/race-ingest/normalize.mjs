@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-export const PARSER_VERSION = "v0.1.11-normalizer-1";
+export const PARSER_VERSION = "v0.1.11-normalizer-2";
 export const RULES_VERSION = "v0.1.11-rules-1";
 
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
