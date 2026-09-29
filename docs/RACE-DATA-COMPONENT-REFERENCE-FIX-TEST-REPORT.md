@@ -20,3 +20,5 @@
 ## 本番修正結果
 
 2026-09-29にmigration `20260929000000` を本番適用し、`race-ingest` Edge Functionへ修正版parserをデプロイした。9月29日の公式API snapshot（144 race）を36分割で同じsnapshot/batchへ再取込し、最後の分割でday headを公開した。再取込後の読み取り検証では、current batchのrace 144/144でprogram/preview/resultのcomponent kindとprojectionリンクが一致し、program/previewとも144/144 raceで6艇分のentryを確認した。旧parser batchは同日分として114件残存している。AI input RPCもsample raceで取得でき、programを返しresultフィールドを除外した。Gemini providerへのリクエストは行っていない。
+
+再取込時点から10分以内の取得データに合わせるため、9月29日09:32:27 UTCに取得した最新snapshotでもう一度公開した（144 race、結果118 race）。最終current hashは取得snapshotのhashと一致することを確認した。最新の本番結果は同じ証跡JSONに記録している。
