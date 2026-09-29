@@ -30,23 +30,32 @@
     "ingest": {
       "records": 144,
       "chunks": 36,
-      "published": true
+      "published": true,
+      "refreshedToLatestSnapshot": true
     },
     "verification": {
       "currentParserVersion": "v0.1.11-normalizer-2",
+      "currentHashMatchesLatestFetch": true,
       "currentRaceCount": 144,
       "correctComponentKindCount": 144,
       "correctProjectionLinkCount": 144,
       "sixEntryProgramCount": 144,
       "sixEntryPreviewCount": 144,
-      "oldParserBatchesForDay": 114,
-      "fixedParserBatchesForDay": 3,
       "aiInputAvailable": true,
       "aiInputHasProgram": true,
       "aiInputHasPreviewField": true,
       "aiInputProgramExcludesResults": true
     },
-    "geminiRequested": false
+    "geminiRequested": false,
+    "latestSnapshot": {
+      "date": "2026-09-29",
+      "fetchedAt": "2026-09-29T09:32:27.690Z",
+      "rawHash": "9c6d906220bcf46fe8562542aee873d81bdcda5ed206edb76b03d3e07e6708c6",
+      "raceCount": 144,
+      "resultRaceCount": 118,
+      "parserVersion": "v0.1.11-normalizer-2",
+      "chunks": 36
+    }
   },
   "productionMigrationApplied": true,
   "productionReingestPerformed": true
