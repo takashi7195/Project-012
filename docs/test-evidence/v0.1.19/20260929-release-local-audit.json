@@ -1,0 +1,110 @@
+{
+  "schema": "race-ai-release-audit-v1",
+  "date": "2026-09-29",
+  "scope": "read-only release preparation",
+  "result": "passed",
+  "local_migration_history": {
+    "container": "supabase_db_project-012",
+    "query": "select version from supabase_migrations.schema_migrations where version in ('20260926000000','20260927000000') order by version",
+    "applied_versions": [
+      "20260926000000",
+      "20260927000000"
+    ],
+    "ai_tables_present": [
+      "ai_generation_keys",
+      "ai_generation_jobs",
+      "ai_prediction_bundles",
+      "ai_generation_attempts"
+    ],
+    "expected_ai_rpcs_present": 7,
+    "ai_rpc_execute_privileges": {
+      "anon": false,
+      "service_role": true
+    },
+    "hosted_project_checked": false,
+    "database_changed": false
+  },
+  "hosted_migration_history": {
+    "source": "user-provided PowerShell output from supabase migration list --linked",
+    "read_only": true,
+    "matching_applied_versions": 24,
+    "common_versions_match_through": "20260924010000",
+    "pending_local_migrations": [
+      "20260926000000",
+      "20260927000000"
+    ],
+    "remote_applied": false,
+    "database_changed": false
+  },
+  "migration_source_review": {
+    "20260926000000": "adds AI job/key/bundle/attempt tables, constraints, and RPC functions",
+    "20260927000000": "replaces recursive input result-field filter",
+    "drop_truncate_delete_or_legacy_data_update_matches": 0,
+    "remote_partial_object_preflight": "checked; all 4 tables and all 7 functions created by the pending migrations are absent from hosted catalog"
+  },
+  "release_candidate_secret_pattern_scan": {
+    "files_scanned": 13,
+    "patterns": [
+      "AIza-prefixed Google API key shape",
+      "sk-prefixed token shape",
+      "sb_secret-prefixed Supabase key shape",
+      "AQ-prefixed Gemini key shape"
+    ],
+    "matching_files": 0,
+    "limitations": "Pattern scan only; not a general secret scanner."
+  },
+  "deployment": false,
+  "project_files_changed": false,
+  "hosted_object_preflight": {
+    "source": "Supabase CLI db query --linked, catalog-only SELECT",
+    "read_only": true,
+    "migration_objects_checked": {
+      "tables": [
+        "race_prediction.ai_generation_keys",
+        "race_prediction.ai_generation_jobs",
+        "race_prediction.ai_prediction_bundles",
+        "race_prediction.ai_generation_attempts"
+      ],
+      "rpc_names": [
+        "race_prediction_get_ai_input",
+        "race_prediction_claim_ai_job",
+        "race_prediction_begin_ai_attempt",
+        "race_prediction_finish_ai_attempt",
+        "race_prediction_finish_ai_job",
+        "race_prediction_fail_ai_job",
+        "race_prediction_read_ai_job"
+      ]
+    },
+    "existing_objects_found": 0,
+    "database_changed": false
+  },
+  "hosted_functions_read_only": {
+    "source": "supabase functions list --output-format json",
+    "read_only": true,
+    "predictions": {
+      "status": "ACTIVE",
+      "version": 34,
+      "verify_jwt": false
+    },
+    "comments": {
+      "status": "ACTIVE",
+      "version": 65,
+      "verify_jwt": false
+    },
+    "race_ingest": {
+      "status": "ACTIVE",
+      "version": 23,
+      "verify_jwt": false
+    },
+    "deployed_source_matches_candidate": "not verified",
+    "deployment_performed": false
+  },
+  "hosted_secret_names_read_only": {
+    "source": "supabase secrets list --output-format json",
+    "read_only": true,
+    "GEMINI_API_KEY_present": true,
+    "PREDICTION_MODE_present": false,
+    "secret_values_persisted": false,
+    "secret_values_recorded_in_evidence": false
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "test": "remaining locally automatable browser checks",
+  "date": "2026-09-29",
+  "runtime": "Windows Node.js v24.19.0 with Playwright and Edge",
+  "results": [
+    {
+      "tests": ["U04", "U06"],
+      "script": "tools/local-integration/ai-ui-date-refresh-smoke.cjs",
+      "exitCode": 0,
+      "scope": "deadline closure, selection clearing, JST rollover, scheduled refresh, active run crossing deadline; virtual clock and synthetic API"
+    },
+    {
+      "tests": ["U09"],
+      "script": "tools/local-integration/ai-comments-ui-smoke.cjs",
+      "exitCode": 0,
+      "scope": "comment UI display/post/reply and prediction UI coexistence; local static page with intercepted mock API"
+    },
+    {
+      "tests": ["U10"],
+      "script": "tools/local-integration/ai-ui-browser-smoke.cjs",
+      "exitCode": 0,
+      "scope": "320/390/430/1280px viewport layouts, START/poll/success, long narrative, failure clearing; service traffic intercepted"
+    },
+    {
+      "tests": ["U11"],
+      "script": "tools/local-integration/ai-ui-mixed-version-smoke.cjs",
+      "exitCode": 0,
+      "scope": "old v0.1.18 request safely rejected, reload to v0.1.19 mock contract; synthetic local API"
+    }
+  ],
+  "hostedSupabaseRequests": 0,
+  "geminiRequests": 0,
+  "publicUrlRequests": 0,
+  "formalAcceptanceStatusesChanged": false,
+  "limitations": [
+    "No real Edge/API/database/browser service path was tested by these mock UI runs",
+    "U09 legacy prediction linkage remains unverified",
+    "U10 physical smartphone verification remains unverified"
+  ]
+}

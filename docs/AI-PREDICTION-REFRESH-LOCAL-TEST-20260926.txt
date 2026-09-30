@@ -1,0 +1,179 @@
+Environment: WSL Ubuntu, Node.js v24.21.0
+Command: /home/user01/.nvm/versions/node/v24.21.0/bin/node --test --test-isolation=none race-prediction/*.test.mjs
+Scope: local unit tests and static source-contract assertions; excludes PostgreSQL execution and real Gemini calls
+
+✔ late success from POST is rejected (27.5977ms)
+✔ late success from GET is rejected (1.5147ms)
+✔ transient GET failure recovers without repeating POST (2.0392ms)
+✔ later remainingMs cannot extend the shared deadline (2.1376ms)
+✔ cancellation during response prevents adopting a result (4.377201ms)
+✔ nonretryable failure keeps the no-retry classification (0.9845ms)
+✔ a request ignoring AbortSignal still ends at the client timeout (20.376ms)
+✔ a pending request ignoring AbortSignal still ends when user cancels (1.0617ms)
+✔ input retains full pre-race raw facts and removes result data (33.9113ms)
+✔ input rejects malformed or contradictory boat identities, not missing names (2.4756ms)
+✔ output checks structure and distinct tickets without narrative length rules (1.0587ms)
+✔ default model and settings are configurable within the designed limits (0.6808ms)
+✔ Gemini receives instruction and race facts in separate request fields (78.8633ms)
+✔ bundle client starts once, polls the shared job and validates the whole result (1.1703ms)
+✔ prompt leaves paragraphs, tone and narrative lengths unconstrained (0.4791ms)
+✔ valid first response is saved as one bundle without another AI request (6.2119ms)
+✔ invalid first response is repaired once using the same facts (5.6864ms)
+✔ two invalid responses stop without saving or a third request (5.1416ms)
+✔ HTTP 408 without Retry-After waits one second before retry (4.0438ms)
+✔ HTTP 429 without Retry-After waits one second before retry (4.7739ms)
+✔ HTTP 500 without Retry-After waits one second before retry (2.7408ms)
+✔ HTTP 502 without Retry-After waits one second before retry (2.6275ms)
+✔ HTTP 503 without Retry-After waits one second before retry (2.8799ms)
+✔ HTTP 504 without Retry-After waits one second before retry (2.4348ms)
+✔ HTTP 400 ends without retry (1.6035ms)
+✔ HTTP 401 ends without retry (1.2292ms)
+✔ HTTP 403 ends without retry (1.679ms)
+✔ HTTP 404 ends without retry (1.6094ms)
+✔ daily quota exhaustion ends without retry (1.6413ms)
+✔ Retry-After is respected and excessive wait prevents retry (5.0137ms)
+✔ invalid Retry-After falls back to one second (2.3918ms)
+✔ network exception retries once and records uncertain first attempt (2.7777ms)
+✔ truncated output is regenerated even when its JSON is valid (3.2741ms)
+✔ first response taking 70 seconds is accepted without arbitrary early retry (2.2719ms)
+✔ exhausted generation budget prevents another AI request (1.573ms)
+✔ response arriving after deadline is not submitted for saving (1.4544ms)
+✔ missing send authorization or failure log prevents additional requests (2.2978ms)
+✔ save refusal or ambiguous save exception never regenerates the prediction (3.9371ms)
+✔ migration defines isolated tables, primary/foreign keys, retention protection and RLS (0.5415ms)
+✔ DB checks constrain ticket shape, uniqueness, narrative and at most two attempts (0.3657ms)
+✔ each public RPC wrapper calls its matching internal function and stays service-role only (0.8907ms)
+✔ job admission and finish paths enforce the fixed expiry and reuse-key owner (0.4253ms)
+✔ result stripping is recursive and success is saved in one transaction function (0.6396ms)
+✔ edge adapter maps RPC names and never puts the Gemini key in the request payload (0.7598ms)
+✔ JST date is stable across the day boundaries (84.6375ms)
+✔ structured narrative input includes only calculated factors and exclusions (2.0765ms)
+✔ racer display names remove half/full-width spaces before narrative input (0.5814ms)
+✔ excluded factors are not forwarded to Gemini and IDs are stable (0.7171ms)
+✔ valid narrative accepts only cited factor ids (2.9368ms)
+✔ narrative validation accepts three paragraphs from 450 to 650 chars only (1.3783ms)
+✔ narrative line endings normalize to three stable paragraphs (1.0627ms)
+✔ narrative config and prompt require the long three-paragraph grounded format (7.1048ms)
+✔ narrative rejects trifecta listings and bare racer labels (2.4323ms)
+✔ metric labels accept only the matching boat values (2.8663ms)
+✔ style violations are classified with stable rule ids (1.9763ms)
+✔ Gemini success is parsed without changing picks (3.3781ms)
+✔ style violation triggers exactly one retry and succeeds (8.4245ms)
+✔ too-long output triggers one shortening retry and succeeds (7.4622ms)
+✔ second too-long output fails without truncation or a third call (2.6888ms)
+✔ second style violation fails and never exceeds two Gemini calls (3.6142ms)
+✔ quota, timeout, MAX_TOKENS and invalid citation fail without a narrative (2.8098ms)
+✔ validation diagnostics classify the failure without storing generated text (0.9249ms)
+✔ missing API key is configurable failure (0.4893ms)
+✔ prediction snapshot migration is immutable and service-role only (0.3863ms)
+✔ generation lease acquisition arbitrates concurrent reuse keys atomically (0.5532ms)
+✔ prediction edge function reads current published data and saves a snapshot (0.3638ms)
+✔ narrative attempts are append-only and retry the same prediction id (0.2964ms)
+✔ frontend requests current prediction UI and renders counter/hole (0.4483ms)
+✔ prediction handler uses explicit public-client auth and protects narrative retry (0.2208ms)
+✔ canonical keys ignore ingestion metadata and object property order (17.914901ms)
+✔ scoring input changes and score version changes invalidate reuse (23.2867ms)
+✔ invalid exhibition ST excluded everywhere: -0.01 (3.348ms)
+✔ invalid exhibition ST excluded everywhere: -0.01 (1.3875ms)
+✔ invalid exhibition ST excluded everywhere: F.01 (1.1626ms)
+✔ invalid exhibition ST excluded everywhere: L.01 (1.4052ms)
+✔ invalid exhibition ST excluded everywhere: null (3.758ms)
+✔ zero ST remains valid and snapshot stays immutable through narrative input (0.9051ms)
+✔ excluded exhibition time not forwarded as raw narrative fact (1.3716ms)
+✔ equal-score tie uses actual time field only when adopted (0.4588ms)
+✔ invalid deadline blocks null (0.5423ms)
+✔ invalid deadline blocks undefined (0.208ms)
+✔ invalid deadline blocks bad (0.3514ms)
+✔ invalid deadline blocks 2026-02-30T12:00:00Z (0.4001ms)
+✔ invalid deadline blocks 2026-09-23 (0.2707ms)
+✔ invalid deadline blocks 2026-09-23T12:00:00 (0.2757ms)
+✔ deadline before/at/after boundary (0.5893ms)
+✔ 202 never reads picks; waits retryAfter and renders only final 200 (1.6995ms)
+✔ polling is bounded and no non-200 response renders (1.3005ms)
+✔ timeout and cancellation reject even an unresponsive transport (12.2624ms)
+✔ null hole and narrative never preserve previous result (0.5392ms)
+✔ diagnostic average uses available boats while individual denominator excludes missing (1.432ms)
+✔ UI clears prior picks before awaiting; failure restores controls (27.512ms)
+✔ UI renders null hole/narrative without old content and clears on race switch (18.4736ms)
+✔ race selection immediately enables START without waiting for interval refresh (14.3928ms)
+✔ API and first three seconds overlap; companion picks render only after all reels stop plus 500ms (19.4201ms)
+✔ roulette starts while API is pending and secondary results stay hidden (21.1397ms)
+✔ periodic availability update cannot unlock controls during the reveal run (32.9376ms)
+✔ 90-second acquisition timeout stops idle and allows manual retry for an open race (25.4649ms)
+✔ closed response resets race without auto-selecting another and reports closed (25.5495ms)
+✔ status region is directly below START and has a reserved display line (6.8689ms)
+✔ excluded ST changes cannot invalidate canonical reuse; numeric strings normalize (4.7706ms)
+✔ invalid time-of-day is fail-closed (0.5633ms)
+✔ scoring config version identifies the current scoring rules (1.6812ms)
+✔ full usable inputs produce three picks and ranked six boats (1.395ms)
+✔ component diagnostics average available boats per component (0.9283ms)
+✔ diagnostic metadata does not change boat scores, ranks, or picks (0.956ms)
+✔ fewer than six boats stops all picks (0.7429ms)
+✔ missing one motor value excludes motor category for every boat (0.7932ms)
+✔ structured factor evidence has stable IDs while public keyFactors remain text (1.252ms)
+✔ average ST uses fixed stage bands at every boundary (0.2688ms)
+✔ average ST score does not depend on the other five boats (1.4283ms)
+✔ class scores use the approved A1/A2/B1/B2 bands (0.915ms)
+✔ one missing class excludes only that boat's five point maximum (0.5572ms)
+✔ national/local ability uses 60/40 and rescales a single available side (1.1481ms)
+✔ both ability rates missing exclude only that boat's six point maximum (2.3285ms)
+✔ excluded components do not produce narrative factor evidence (1.8013ms)
+✔ F/L exhibition notation excludes exhibition ST without treating F as fastest (1.1828ms)
+✔ missing exhibition time excludes only that subitem (0.583ms)
+✔ hole is omitted when all upside factors are unavailable (0.674ms)
+✔ national and local win rates use the win-rate bands (0.2334ms)
+✔ missing exhibition course falls back to the entry frame, never a result course (1.771ms)
+✔ relative ties receive the average of the occupied rank points (0.3967ms)
+✔ excluded exhibition data is not used as a tie breaker (0.7971ms)
+✔ hole upside uses the specified weighted score, not a simple mean (0.3048ms)
+✔ hole average ST contribution uses the same stage score (0.273ms)
+✔ hole considers only overall ranks 4 through 6 and keeps the best upside first (0.3453ms)
+✔ hole reuses only common available factors and proportionally renormalizes weights (0.5318ms)
+✔ hole selection is deterministic for identical input (0.3913ms)
+✔ venue order remains north-to-south and uses stable stadium codes (4.0436ms)
+✔ start remains disabled until both venue and race are explicitly selected (10.2893ms)
+✔ venues without future races remain visible, disabled, and name-only (8.7123ms)
+✔ availability is derived from the existing race search RPC (5.9845ms)
+✔ availability refreshes every five minutes even when the cached map is empty (3.6022ms)
+✔ race deadlines are formatted in JST and closed races are disabled in place (18.4339ms)
+✔ race and venue selectors retain their original width and equal column layout (4.1617ms)
+✔ venue availability states differ by text color only (3.6848ms)
+✔ initial and changed selector states show idle roulette digits instead of blanks (11.629101ms)
+✔ missing or malformed deadlines fail closed and do not remain selected (14.5055ms)
+✔ venue selection does not auto-select a race and closed selection resets to placeholder (18.4053ms)
+✔ venue availability requires at least one future deadline (11.0437ms)
+ℹ tests 140
+ℹ suites 0
+ℹ pass 140
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1206.522404
+
+SHA-256 of local source/test files after execution:
+fa48af1a92e3802517e79870491d269588046a05be7acb7e8c88ada14bb9d400  race-prediction/ai-client.test.mjs
+b668447ec7fa6aaef40bccac5311d5ed260b7f8d76d472898735fe46fddeb6f3  race-prediction/ai-config.mjs
+d558f195cb1b93d04509d942d53e278693399dbbe1787b09c602b9023867ffdc  race-prediction/ai-contract.test.mjs
+954a609a991e1ece4410b283ebe3ffc4d03b2a7494906cd813c91e6f333160b5  race-prediction/ai-generation.mjs
+b9d3ae2af8ce8de8105b99068984373ce47a2891a601c98bca6a6e3b24234e4d  race-prediction/ai-generation.test.mjs
+8405d1f8e8c671a586c6e6128c07994b6a885d19a89841befdac545cfabb52db  race-prediction/ai-input.mjs
+1aef8c327268908babc3ca3e8d041211fcf753096bd7ea6f0faaa626d508068e  race-prediction/ai-migration-static.test.mjs
+a3ea4a13fa51704580ad085eaf6c2da02a401cb808b9e59a34cbe87463783630  race-prediction/ai-output.mjs
+d5f5ea4da42ea38cd9899689b5918361f78a3dd6baec0e0c3c15841652f37e83  race-prediction/ai-prompt.mjs
+8365f8105ea7b32c6d36d0d827ac944db09f713a9f43b8931e75bed399a5ad65  race-prediction/client.mjs
+75a6f3cceb403ac7a07fca26eec7bf0fde220047c87914f1093d27e8769fe7f9  race-prediction/date-utils.mjs
+18ef87caf05c3b158bc2da7f0e8b337e35cfb3d5bde41a7e2734d59fde0cb6ce  race-prediction/date-utils.test.mjs
+e95ea4b672ff70e48b426b1687073945d388b5c6749f32ba27770944f3ab8416  race-prediction/input-contract.mjs
+a3a185c145e982cc4050a986789ff7cb8b540f6d3b069209ee21346fa0a1fa0a  race-prediction/narrative.mjs
+5e0d8729b86dfdbbd118396c1469a735820191f75243fea5948c463481bd6df9  race-prediction/narrative.test.mjs
+ef654dcebf82e9fedc3abe59bd2d25714d54c51613e6ea6cdd4ebe86b8fbc453  race-prediction/prediction-static.test.mjs
+a8b578b3f8773397d11aabc9d26a88e33bb09659b5fbe1244b8f5cf8979910ee  race-prediction/providers/gemini.mjs
+949c594e1bc342f94090f286e05451955dc45909e3aab01f2759dc8694b671c7  race-prediction/release-regression.test.mjs
+d0784becca552f3c1af8842d88bac6bf5da847271ba9c07111e3c9df867255e7  race-prediction/scoring.mjs
+9b64db78587f45612b3183297e332fcbab66a579f3b4c56a6b9b3857777bfa0f  race-prediction/scoring.test.mjs
+78aff5f401e56ff0d234db155948d03f1bb19d127d37d479a51a2998eb538d6c  race-prediction/stadium-selection.test.mjs
+4cb1edb9f949feaa2182c068ab790e493cb12450b99a63acf5ae923138468976  script.js
+8676223f787f9f3b99c557fed00061e7778aada04dd660560da66e77db4029c7  index.html
+c87de48eefe57276a9ec14bbc6bdabc7a8ccdf702767f0efba746c8b84becf89  supabase/functions/predictions/index.ts
+7a3a8e458e32fe9b61529abc1baf85e3db87f64e5df41fccb2d28905f33a1751  supabase/migrations/20260926000000_ai_prediction_bundle_v0_1_19.sql

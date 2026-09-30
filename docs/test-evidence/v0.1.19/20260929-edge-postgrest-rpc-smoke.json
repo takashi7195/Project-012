@@ -1,0 +1,20 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-edge-postgrest-smoke.mjs",
+  "runnerSha256": "b96d1ea749f26fab9d63d32ac39354e0e06a2543d309e29b224f94cc096a5d31",
+  "executor": "Windows bundled Node.js and local Supabase CLI",
+  "exitCode": 0,
+  "checks": [
+    "existing migration 20260927000000 verified in local database",
+    "real local Edge Function reached the AI input RPC and returned the expected absent-race response",
+    "real local Edge Function reached the AI job read RPC and returned the expected absent-job response"
+  ],
+  "endpoint": "RFC1918 local WSL gateway; Hosted Supabase refused by runner URL guard",
+  "migrationChanged": false,
+  "fixturesAdded": 0,
+  "generationJobsCreated": 0,
+  "geminiRequests": 0,
+  "hostedSupabaseRequests": 0,
+  "cleanup": "temporary function serving process and environment file removed by runner"
+}

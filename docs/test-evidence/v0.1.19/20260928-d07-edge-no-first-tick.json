@@ -1,0 +1,20 @@
+{
+  "testCase": "D07",
+  "date": "2026-09-28",
+  "result": "partial",
+  "http202": true,
+  "workerStartedCallback": true,
+  "workerStartedAfterMs": 18,
+  "firstTimerHeartbeatWithin5Seconds": false,
+  "timerTickLog": false,
+  "timerSetupLogs": "not instrumented in this run",
+  "runtime": "running; exit code 0; OOM false",
+  "diagnostic": "startup route listings only; no exception or shutdown reason",
+  "laterParticipantRead": false,
+  "completionObserved": false,
+  "notes": [
+    "The runner stopped after the 5-second fail-fast and did not wait for 90 seconds.",
+    "No production DB, Gemini API, hosted Supabase project, or public URL was used.",
+    "Cause remains undetermined."
+  ]
+}

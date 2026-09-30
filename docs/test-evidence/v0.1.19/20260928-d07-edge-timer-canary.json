@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "executor": "user Windows PowerShell; local Supabase Edge Runtime; start -x studio",
+  "status": "inconclusive",
+  "observed": {
+    "http202": true,
+    "workerStartedCallback": true,
+    "workerStartAfterResponseMs": 24,
+    "oneSecondTimerCanary": false,
+    "heartbeats": 0,
+    "completionCallback": false,
+    "laterParticipantGet": "not reached",
+    "container": "running; not OOM-killed; exit code 0",
+    "sanitizedRelevantLogs": "only Edge route startup/listing lines; no exception or shutdown line"
+  },
+  "interpretation": "The waitUntil callback began, but its first timer/heartbeat was not observed. Cause remains unknown.",
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  },
+  "followUp": "Probe a one-second canary only and stop within five seconds if it does not arrive; do not run the 90-second phase unless it passes."
+}

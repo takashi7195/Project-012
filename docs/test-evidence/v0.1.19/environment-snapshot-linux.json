@@ -1,0 +1,143 @@
+{
+  "schema": "race-ai-environment-v1",
+  "timestamp": "2026-09-28T13:26:26.340Z",
+  "platform": "linux",
+  "node": "v24.21.0",
+  "checks": {
+    "git": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "2.53.0"
+    },
+    "githubCli": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "2.46.0"
+    },
+    "docker": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "client": "29.8.0",
+      "server": "29.8.0"
+    },
+    "containers": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "items": [
+        {
+          "name": "supabase_edge_runtime_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_pg_meta_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_storage_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_rest_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_realtime_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_inbucket_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_auth_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_kong_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_vector_project-012",
+          "status": "restarting"
+        },
+        {
+          "name": "supabase_analytics_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_db_project-012",
+          "status": "running"
+        }
+      ]
+    },
+    "githubAuth": {
+      "ok": true,
+      "exit": 0,
+      "reason": null
+    },
+    "supabaseCli": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "2.117.0"
+    },
+    "supabaseManagementAuth": {
+      "ok": true,
+      "exit": 0,
+      "reason": null
+    },
+    "browser": {
+      "playwrightModule": true,
+      "windowsEdge": true
+    },
+    "localSecretMetadataFile": {
+      "exists": true
+    },
+    "linkedProjectFile": {
+      "exists": true
+    },
+    "linux": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "KEY_FILE_READY": true,
+      "NVM_FILE_READY": true,
+      "NODE_ON_PATH": true,
+      "DOCKER_ON_PATH": true,
+      "CODEX_ON_PATH": true
+    },
+    "bundledNode": {
+      "exists": false
+    }
+  },
+  "http": [
+    {
+      "host": "127.0.0.1",
+      "path": "/rest/v1/",
+      "status": 200,
+      "error": null
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/functions/v1/predictions",
+      "status": 401,
+      "error": null
+    },
+    {
+      "host": "172.23.70.147",
+      "path": "/rest/v1/",
+      "status": 200,
+      "error": null
+    },
+    {
+      "host": "172.23.70.147",
+      "path": "/functions/v1/predictions",
+      "status": 401,
+      "error": null
+    }
+  ]
+}

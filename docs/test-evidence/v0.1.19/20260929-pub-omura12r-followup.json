@@ -1,0 +1,49 @@
+{
+  "testId": "PUB Omura 12R live follow-up",
+  "date": "2026-09-29",
+  "scope": "Public predictions Function, production DB saved bundles, public job GET and post-deadline guards",
+  "model": "gemini-3.5-flash-lite",
+  "jobs": [
+    {
+      "createdAtJst": "2026-09-29 21:57:41",
+      "state": "succeeded",
+      "providerAttempts": 1,
+      "providerDurationMs": 2041,
+      "savedBundles": 1,
+      "previewFields": "all six preview course/start/exhibition fields null",
+      "contentAudit": {
+        "racerNamesAndClasses": "matched program facts",
+        "mainTicketNarrative": "aligned: boat 1 is the axis, 1-2 main, boat 6 is mentioned",
+        "unsupportedCourseClaim": "narrative stated boat 2 starts from course 2 although all preview course_number values were null; this conflicts with the design rule not to infer course from boat number"
+      }
+    },
+    {
+      "createdAtJst": "2026-09-29 22:31:04",
+      "state": "succeeded",
+      "providerAttempts": 1,
+      "providerDurationMs": 6547,
+      "savedBundles": 1,
+      "previewFields": "course, exhibition time and start timing populated",
+      "contentAudit": {
+        "racerNamesAndClasses": "matched program facts",
+        "exhibitionClaims": "boat 2 exhibition 6.84 was second fastest; boat 5 exhibition 6.81 was fastest; boat 4 F.03 matched the preview data",
+        "mainTicketNarrative": "aligned: boat 1 axis and boats 2 and 5 as opponents",
+        "holeTicketNarrative": "boat 2 reversal is described; boat 6 as third place is not explained"
+      }
+    }
+  ],
+  "postDeadlineChecks": {
+    "savedJobGets": "both returned HTTP 200 success and passed application output validation",
+    "options": "HTTP 200; CORS headers present",
+    "outOfRangeSelector": "HTTP 400 before job creation",
+    "malformedJobId": "HTTP 400",
+    "startAfterClose": "HTTP 200 closed; no jobId or prediction returned",
+    "countsAfterChecks": { "jobs": 2, "bundles": 2, "attempts": 2 }
+  },
+  "validatorGapProbe": "validateAiOutput accepted a structurally valid three-ticket result whose narrative asserted an unavailable course number; validator does not compare narrative claims with source facts",
+  "availabilityRead": "first read HTTP 503; immediate retry HTTP 200 with AI mode and contract version",
+  "hostedDatabaseWritesByFollowupChecks": false,
+  "additionalGeminiRequestsByFollowupChecks": false,
+  "narrativeOrApiKeyPersistedInEvidence": false,
+  "overall": "Production generation/save/retrieval and deadline guards confirmed; content fact mismatch observed when preview course data was missing."
+}

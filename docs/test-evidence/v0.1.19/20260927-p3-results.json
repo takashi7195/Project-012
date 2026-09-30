@@ -1,0 +1,197 @@
+{
+  "created_at": "2026-09-27T21:33:23+09:00",
+  "run_id": "20260927-p3-local-rpc-fixture",
+  "phase": "P3 in progress",
+  "source_baseline": "20260927-p3-source-baseline.json",
+  "source_aggregate_sha256": "46aa5666015427d99f151c6d4446112f15794edaa6c203cad7a8baba6e30ed11",
+  "checks": [
+    {
+      "name": "local PostgREST get_ai_input with synthetic six-entry fixture",
+      "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "preserved raw entries/preview variants; recursively stripped result and prior-prediction fields; fixture cleaned in finally"
+    },
+    {
+      "name": "closed synthetic input through real local Edge + PostgREST",
+      "runner": "tools/local-integration/ai-input-edge-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "edge fetched and validated six-entry input; returned closed before claim; verified zero jobs; fixture cleanup succeeded; Gemini calls 0"
+    },
+    {
+      "name": "production predictions handler + real local PostgREST with mock provider",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": [
+        "real get_ai_input/claim/begin_attempt/finish_attempt/finish_job/read RPCs",
+        "one successful mock response saved atomically and reused without an extra provider request",
+        "duplicate tickets on attempt one repaired by a valid attempt two",
+        "empty narrative twice ended retryable after exactly two attempts with no partial bundle",
+        "fixture/job/attempt/bundle cleanup succeeded; subsequent fixture seed/read/cleanup succeeded"
+      ],
+      "runtime_limit": "Node-hosted production handler and captured waitUntil promise; not a Deno EdgeRuntime post-response persistence test",
+      "mock_provider_requests": 5
+    },
+    {
+      "name": "latest local migration and input/read RPC via real local Edge + PostgREST",
+      "runner": "tools/local-integration/ai-edge-postgrest-smoke.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "migration": "20260927000000",
+      "scope": "missing race and job RPC routes; no fixture/job/Gemini/hosted project"
+    },
+    {
+      "name": "isolated PostgreSQL 17 smoke with both AI migrations",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": [
+        "migration and recursive input filtering",
+        "historical admission fence",
+        "RPC privileges and duplicate-attempt fence",
+        "invalid-output rollback and atomic save/reuse",
+        "expired owner fencing",
+        "two-attempt limit and retryability",
+        "20 concurrent claims: one owner and nineteen joiners"
+      ],
+      "cleanup": "temporary isolated container removed"
+    },
+    {
+      "name": "D12 invalid ticket and narrative database constraints",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "DB constraints rejected duplicate/null/out-of-range/wrong-length/empty/multidimensional/null ticket arrays; blank narrative; invalid and duplicate reuse keys; duplicate bundle; missing key/race/job/prediction references; and mismatched job/reuse-key composite reference. Full isolated smoke and cleanup passed.",
+      "cleanup": "temporary isolated PostgreSQL container removed"
+    },
+    {
+      "name": "Deno Edge typecheck",
+      "runner": "tools/local-integration/ai-edge-typecheck.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "supabase/functions/predictions/index.ts"
+    },
+    {
+      "name": "local stored race fixture inventory",
+      "runner": "read-only PostgreSQL count query",
+      "exit_code": 0,
+      "result": "observed",
+      "counts": {
+        "races": 0,
+        "normalization_batches": 0,
+        "day_heads": 0
+      }
+    },
+    {
+      "name": "single Gemini live smoke",
+      "runner": "tools/local-integration/ai-gemini-live-smoke.mjs",
+      "exit_code": 1,
+      "result": "failed",
+      "http_status": 503,
+      "request_count": 1,
+      "output_text_exposed": false,
+      "scope": "no valid output; further generation stopped pending quota/service availability review"
+    },
+    {
+      "name": "local per_worker EdgeRuntime waitUntil 90-second post-response check",
+      "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+      "result": "unverified",
+      "scope": "temporary local function route returned 404/503 or timed out before the completion marker could be confirmed; no conclusion about product behavior",
+      "cleanup": "temporary function directory removed; no database, Gemini, hosted Supabase or deployment used"
+    },
+    {
+      "name": "local Edge Runtime container boot diagnostic",
+      "runner": "read-only docker inspect/log classification + local health request",
+      "result": "environment_blocked",
+      "scope": "pre-existing edge runtime container was Created; a manual local start exited 1 with main worker entrypoint unavailable and local predictions route returned 503; this does not establish a product defect or hosted behavior",
+      "cleanup": "no database/config changes; container left exited after diagnostic"
+    }
+  ],
+  "external_calls": {
+    "gemini_generate": 1,
+    "hosted_supabase": 0,
+    "github_write": 0,
+    "deploy": 0
+  },
+  "formal_acceptance": {
+    "denominator": 70,
+    "passed": 1,
+    "note": "D12 passed from isolated PostgreSQL evidence; remaining 69 cases are not passed."
+  },
+  "pending": [
+    "I01 all source API fields vs original data (no race source rows locally)",
+    "real Deno EdgeRuntime waitUntil post-response persistence/interruption and 90-second behavior (local route unavailable; unverified)",
+    "actual Edge runtime failure/concurrency injection",
+    "P4 retry only after safe quota and service availability review"
+  ],
+  "mock_provider_requests": 5,
+  "cleanup_postflight": {
+    "exit_code": 0,
+    "fixture_race_rows": 0,
+    "generation_jobs": 0,
+    "saved_bundles": 0,
+    "verification": "read-only local PostgreSQL query"
+  },
+  "followup_runs": [
+    {
+      "name": "race-prediction automated test suite",
+      "runner": "node --test race-prediction/*.test.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "tests": 205,
+      "failures": 0,
+      "scope": "current source unit/mock regression only; not counted as formal acceptance cases"
+    },
+    {
+      "name": "local PostgREST synthetic input fixture",
+      "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "six synthetic raw entries and preview variants preserved; result/prior prediction facts recursively removed; cleanup complete"
+    },
+    {
+      "name": "local Edge synthetic closed-race input fixture",
+      "runner": "tools/local-integration/ai-input-edge-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "real local Edge + PostgREST fetched/validated six entries; closed race rejected before job claim; cleanup complete; Gemini calls 0"
+    },
+    {
+      "name": "production handler + local PostgREST generation fixture",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "claim/attempt/save/read/reuse; duplicate output repair; two invalid responses stop without partial save; synthetic rows cleaned; provider requests 5"
+    },
+    {
+      "name": "local EdgeRuntime waitUntil duration smoke",
+      "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+      "result": "environment_blocked",
+      "scope": "temporary function OPTIONS readiness returned HTTP 503 before task POST; no duration request sent; temporary function cleaned; no DB/Gemini/hosted/deploy"
+    },
+    {
+      "name": "isolated PostgreSQL smoke after D12 key/FK assertions added",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "invalid key shape, missing generation key reference, mismatched job/reuse-key composite FK rejected; constraints plus migration, retry/fencing, atomic save, and 20-way concurrent claim passed; disposable container removed"
+    },
+    {
+      "name": "final isolated PostgreSQL D12 constraint and regression smoke",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "all D12 assertions including null array, duplicate key/bundle, and key/job/attempt/bundle/race FK combinations; plus all existing migration, retry/fencing, save, and concurrency checks; disposable container removed"
+    },
+    {
+      "name": "final SQL-null-strict D12 isolated database regression smoke",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "all D12 assertions treat SQL NULL as a distinct failure; invalid arrays/narrative/keys/duplicates/all key-job-attempt-bundle-race references rejected; migration/retry/fencing/atomic save/20-way claim regression passed; disposable container removed"
+    }
+  ],
+  "last_followup_at": "2026-09-28T00:06:00+09:00"
+}

@@ -1,0 +1,22 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "command": "node tools/local-integration/ai-generation-postgrest-fixture.mjs",
+  "runnerSha256": "9e294bfebf801c512941b977e7df60653c416012c4361218f7af9079ed859506",
+  "exitCode": 0,
+  "formalCase": "M07 partial",
+  "environment": "production handler code in Node fixture; local PostgREST; mock Gemini; fresh module import with PREDICTION_MODE=legacy simulates handler redeploy",
+  "assertions": {
+    "startedAiJobWhileAiBundleEnabled": true,
+    "legacyHandlerReadInFlightJob": true,
+    "legacyOldContractRequestReachedLegacyReadPath": true,
+    "legacyRequestCreatedNoAiJob": true,
+    "providerRequestsForAiJob": 1,
+    "aiJobCompletedAfterModeSwitch": true,
+    "legacyHandlerReadCompletedBundle": true,
+    "repeatedReadKeptSameBundleId": true
+  },
+  "cleanup": "fixture runner reported finally cleanup; no Gemini or hosted Supabase request",
+  "limitation": "No EdgeRuntime container redeploy/restart occurred; runtime survival and rollback to v0.1.18 remain unverified",
+  "formalAcceptanceCountChanged": false
+}

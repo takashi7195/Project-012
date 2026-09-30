@@ -1,0 +1,26 @@
+{
+  "test": "M01 selected-model one-request live generation smoke",
+  "date": "2026-09-29",
+  "command": "source nvm; source local Gemini environment file; node tools/local-integration/ai-gemini-live-smoke.mjs",
+  "exitCode": 0,
+  "model": "gemini-3.5-flash-lite",
+  "realRequests": 1,
+  "httpStatus": 200,
+  "completeResponse": true,
+  "applicationOutputValidation": true,
+  "durationMs": 2908,
+  "usage": {
+    "promptTokens": 578,
+    "outputTokens": 160,
+    "totalTokens": 738
+  },
+  "generatedTextStored": false,
+  "apiKeyStored": false,
+  "databaseWrites": 0,
+  "hostedSupabaseRequests": 0,
+  "limitations": [
+    "synthetic race input",
+    "direct provider smoke only; no production job or database save",
+    "does not complete M01 acceptance"
+  ]
+}

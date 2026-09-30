@@ -1,0 +1,43 @@
+{
+  "date": "2026-09-28",
+  "testCase": "local Edge HTTP readiness route boundary",
+  "result": "partial",
+  "readinessMethod": "unauthenticated GET",
+  "functionServeOutput": "predictions route listed; Edge Runtime 1.74.3",
+  "edgeContainerRoute": {
+    "path": "/predictions",
+    "httpStatus": 401
+  },
+  "kongContainerRoute": {
+    "path": "/functions/v1/predictions",
+    "httpStatus": 401
+  },
+  "wslHostPublishedPort": {
+    "address": "127.0.0.1:54321",
+    "httpStatus": 0,
+    "result": "connection_reset",
+    "restRouteStatus": 0,
+    "authHealthRouteStatus": 0
+  },
+  "windowsHostPublishedPort": {
+    "address": "127.0.0.1:54321",
+    "httpStatus": 0,
+    "curlResult": "empty_reply",
+    "restRouteStatus": 0,
+    "restCurlResult": "empty_reply",
+    "ipv6RestRouteStatus": 0,
+    "ipv6RestCurlResult": "empty_reply",
+    "listeners": [
+      { "address": "::1", "process": "wslrelay" },
+      { "address": "::", "process": "com.docker.backend" }
+    ]
+  },
+  "apiKeyPostSent": false,
+  "databaseRpcCalls": 0,
+  "geminiRequests": 0,
+  "hostedProjectUsed": false,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

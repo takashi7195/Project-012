@@ -1,0 +1,17 @@
+{
+  "testCase": "M01",
+  "date": "2026-09-28",
+  "result": "failed",
+  "commandReachedUbuntu": true,
+  "apiKeyValueRecorded": false,
+  "geminiGenerationRequests": 1,
+  "providerErrorCode": "provider_http_503",
+  "httpStatus": 503,
+  "responseBodyRecorded": false,
+  "generationSucceeded": false,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  },
+  "notes": "One live smoke request returned HTTP 503. Cause not determined; no repeat live request is planned before quota/service status review."
+}

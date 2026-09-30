@@ -1,0 +1,102 @@
+{
+  "created_at": "2026-09-27T14:43:08.755932+09:00",
+  "run_id": "24431cb4-b25a-4523-8d5d-925afcc8f03f",
+  "phase": "P1 diagnostic logging",
+  "source_baseline": "20260927-diagnostics-source-baseline.json",
+  "source_aggregate_sha256": "a61102044a5fc7ef8dc864fbbafb55ddb4518743a8cb047b8e3dc5694892038e",
+  "node": {
+    "version": "v24.21.0",
+    "command": "node --test --test-isolation=none --test-reporter=tap race-prediction/*.test.mjs supabase/functions/predictions/public-auth.test.mjs",
+    "exit_code": 0,
+    "tests": 184,
+    "passed": 184,
+    "failed": 0,
+    "logging_tests_included": 30,
+    "tap_path": "tools/audit-v019/diagnostics-20260927/regression.tap",
+    "tap_sha256": "42f1d27870af725f95f595c76a93d4332737497a677bc3da2f18d98613d483b6"
+  },
+  "deno": {
+    "image": "denoland/deno@sha256:8ce780168429c4bf5962652e6cbea3fd45254ae902069e90585fb33f74c56968",
+    "network": "none",
+    "repo_mount": "read-only",
+    "command": "deno check --no-config supabase/functions/predictions/index.ts",
+    "exit_code": 0
+  },
+  "local_edge": {
+    "runner": "tools/local-integration/ai-edge-local-smoke.mjs",
+    "exit_code": 0,
+    "checks": [
+      "HTTP OPTIONS 200",
+      "unauthorized POST 401",
+      "invalid selector POST 400",
+      "invalid job GET 400",
+      "unique request IDs",
+      "CORS exposed ID",
+      "start/finish log correlation for three requests"
+    ],
+    "safe_records": [
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.started",
+        "timestamp": "2026-09-27T05:39:37.289Z",
+        "requestId": "e72224f3-c7d7-477f-bfda-bda1128f6920"
+      },
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.finished",
+        "timestamp": "2026-09-27T05:39:37.292Z",
+        "requestId": "e72224f3-c7d7-477f-bfda-bda1128f6920",
+        "durationMs": 3,
+        "httpStatus": 401
+      },
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.started",
+        "timestamp": "2026-09-27T05:39:37.331Z",
+        "requestId": "8f7ca312-7eb2-4149-97f6-bc9f8d01b54a"
+      },
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.finished",
+        "timestamp": "2026-09-27T05:39:37.336Z",
+        "requestId": "8f7ca312-7eb2-4149-97f6-bc9f8d01b54a",
+        "durationMs": 5,
+        "httpStatus": 400
+      },
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.started",
+        "timestamp": "2026-09-27T05:39:37.365Z",
+        "requestId": "ed3cf842-3c7f-474d-aa43-30806bd875a7"
+      },
+      {
+        "schema": "race-ai-diagnostic-v1",
+        "event": "request.finished",
+        "timestamp": "2026-09-27T05:39:37.372Z",
+        "requestId": "ed3cf842-3c7f-474d-aa43-30806bd875a7",
+        "durationMs": 8,
+        "httpStatus": 400
+      }
+    ],
+    "initial_failure": "start log missing: collector read Docker stdout only; fixed to filter both stdout and stderr, rerun passed"
+  },
+  "cases": {
+    "L01": "passed",
+    "L02": "passed",
+    "L03": "passed",
+    "L04": "passed",
+    "L05": "passed",
+    "L06": "passed"
+  },
+  "formal_acceptance_updates": 0,
+  "real_gemini_requests": 0,
+  "db_rpc_requests": 0,
+  "db_changes": false,
+  "deployment": false,
+  "push": false,
+  "limits": [
+    "Faults and success-generation paths use mocks; real local Edge tested invalid HTTP boundaries only.",
+    "Vector aggregate-log service restart unresolved; Docker logs direct collection verified.",
+    "Long background lifetime, release UI, real model and release acceptance remain later phases."
+  ]
+}

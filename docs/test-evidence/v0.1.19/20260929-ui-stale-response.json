@@ -1,0 +1,15 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-ui-stale-response-smoke.cjs",
+  "runnerSha256": "1eac3228a6bb246e3caa03e8937ad377fb5f57065078c118c9e1dd3f73077667",
+  "executor": "Windows bundled Node.js, Playwright and Microsoft Edge",
+  "exitCode": 0,
+  "checks": [
+    "navigation: delayed old-page POST did not overwrite new-page success or controls",
+    "same page: first START timed out; controls recovered and second START succeeded",
+    "late response from the timed-out POST was released after the new result and did not replace its narrative, picks or control state",
+    "only the first browser 90-second timeout was accelerated to 250ms; the successful second run retained normal animation timing"
+  ],
+  "network": "Supabase, Gemini and comment routes intercepted; local static server only"
+}

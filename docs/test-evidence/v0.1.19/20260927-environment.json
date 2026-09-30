@@ -1,0 +1,326 @@
+{
+  "document": "v0.1.19 test-plan environment evidence",
+  "checked_at": "2026-09-27T14:07:27.845537+09:00",
+  "scope": "Read-only tool/service probes, temporary Deno and headless browser. No Gemini generation, schema change, deploy or push.",
+  "notes": [
+    "Sandbox failures and successful escalated/host routes are recorded separately.",
+    "The first browser probe returned click=probe because its temporary HTML handler was malformed; only browser_click_capture_verified is an asserted click success.",
+    "Raw credentials, response bodies and Docker logs are not included."
+  ],
+  "local_tools": {
+    "os": "Ubuntu 26.04.1 LTS / WSL2",
+    "node_linux": "24.21.0",
+    "npm_linux": "11.19.0",
+    "git": "2.53.0",
+    "gh_linux": "2.46.0 (not authenticated)",
+    "python": "3.14.4",
+    "codex_nvm": "0.157.0",
+    "codex_app_bundled": "0.158.0-alpha.2",
+    "node_runtime_probe": "1 assertion test passed",
+    "gemini_file_mode": "0600",
+    "project_playwright_resolution": "not found; Windows bundled Playwright verified instead"
+  },
+  "runs": [
+    {
+      "checked_at": "2026-09-27T13:58:58.084282+09:00",
+      "execution_context": "sandbox",
+      "checks": [
+        {
+          "id": "docker_linux_version",
+          "exit_code": 1,
+          "output": "29.8.0 /",
+          "error_class": "permission_denied"
+        },
+        {
+          "id": "docker_linux_containers",
+          "exit_code": 1,
+          "output": "",
+          "error_class": "permission_denied"
+        },
+        {
+          "id": "powershell_windows",
+          "exit_code": 1,
+          "output": "",
+          "error_class": "wsl_interop_socket_error"
+        },
+        {
+          "id": "windows_node",
+          "exit_code": 1,
+          "output": "",
+          "error_class": "wsl_interop_socket_error"
+        },
+        {
+          "id": "supabase_cli_version",
+          "exit_code": 1,
+          "output": "",
+          "error_class": "wsl_interop_socket_error"
+        },
+        {
+          "id": "supabase_local_status",
+          "exit_code": 1,
+          "error_class": "wsl_interop_socket_error"
+        },
+        {
+          "id": "github_auth",
+          "exit_code": 1,
+          "authenticated": false,
+          "error_class": "not_authenticated"
+        },
+        {
+          "id": "github_read_permissions",
+          "exit_code": 4,
+          "error_class": "nonzero_exit"
+        },
+        {
+          "id": "github_remote_refs",
+          "exit_code": 128,
+          "output": "",
+          "error_class": "dns_failure"
+        },
+        {
+          "id": "codex_cli_login",
+          "exit_code": 0,
+          "authenticated": true
+        },
+        {
+          "id": "localhost_bind_fetch",
+          "exit_code": 1,
+          "output": "LOOPBACK_ERROR=EPERM",
+          "error_class": "nonzero_exit"
+        },
+        {
+          "id": "supabase_local_http",
+          "exit_code": 1,
+          "output": "/ ERROR=EPERM\n/auth/v1/health ERROR=EPERM\n/rest/v1/ ERROR=EPERM\n/functions/v1/predictions ERROR=EPERM",
+          "error_class": "nonzero_exit"
+        },
+        {
+          "id": "required_https",
+          "exit_code": 1,
+          "output": "api.github.com ERROR=EAI_AGAIN\nregistry.npmjs.org ERROR=EAI_AGAIN\ngenerativelanguage.googleapis.com ERROR=EAI_AGAIN\napi.supabase.com ERROR=EAI_AGAIN",
+          "error_class": "nonzero_exit"
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-09-27T14:00:24.053421+09:00",
+      "execution_context": "escalated",
+      "checks": [
+        {
+          "id": "docker_linux_version",
+          "exit_code": 1,
+          "output": "29.8.0 /",
+          "error_class": "permission_denied"
+        },
+        {
+          "id": "docker_linux_containers",
+          "exit_code": 1,
+          "output": "",
+          "error_class": "permission_denied"
+        },
+        {
+          "id": "powershell_windows",
+          "exit_code": 0,
+          "output": "{\"PowerShell\":\"5.1.19041.6456\",\"OS\":\"Microsoft Windows 10 Pro\",\"OSVersion\":\"10.0.19045\",\"Edge\":true,\"Chrome\":true}"
+        },
+        {
+          "id": "windows_node",
+          "exit_code": 0,
+          "output": "v24.19.0"
+        },
+        {
+          "id": "supabase_cli_version",
+          "exit_code": 0,
+          "output": "2.117.0"
+        },
+        {
+          "id": "supabase_local_status",
+          "exit_code": 0,
+          "api_url": "http://127.0.0.1:54321",
+          "db_url_present": true,
+          "anon_key_present": true,
+          "service_key_present": true
+        },
+        {
+          "id": "github_auth",
+          "exit_code": 1,
+          "authenticated": false,
+          "error_class": "not_authenticated"
+        },
+        {
+          "id": "github_read_permissions",
+          "exit_code": 4,
+          "error_class": "nonzero_exit"
+        },
+        {
+          "id": "github_remote_refs",
+          "exit_code": 0,
+          "output": "5cc946f937cff7ba34a498659436b4cecd3aa831\trefs/heads/main\n7c9df4ab77ca6f8b483e3ea39dc7691a1717e2c7\trefs/tags/v0.1.18\ne6c263456a5999b10181fda4eae32e9f6bdfa578\trefs/tags/v0.1.18^{}"
+        },
+        {
+          "id": "codex_cli_login",
+          "exit_code": 0,
+          "authenticated": true
+        },
+        {
+          "id": "localhost_bind_fetch",
+          "exit_code": 0,
+          "output": "LOOPBACK_HTTP=200"
+        },
+        {
+          "id": "supabase_local_http",
+          "exit_code": 0,
+          "output": "/ HTTP=404\n/auth/v1/health HTTP=200\n/rest/v1/ HTTP=200\n/functions/v1/predictions HTTP=401"
+        },
+        {
+          "id": "required_https",
+          "exit_code": 0,
+          "output": "api.github.com HTTP=200\nregistry.npmjs.org HTTP=200\ngenerativelanguage.googleapis.com HTTP=404\napi.supabase.com HTTP=404"
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-09-27T14:02:11.934495+09:00",
+      "execution_context": "escalated_windows_route",
+      "checks": [
+        {
+          "id": "docker_windows_version",
+          "error_class": "FileNotFoundError",
+          "errno": 2
+        },
+        {
+          "id": "docker_windows_containers",
+          "error_class": "FileNotFoundError",
+          "errno": 2
+        },
+        {
+          "id": "docker_db_readonly",
+          "error_class": "FileNotFoundError",
+          "errno": 2
+        },
+        {
+          "id": "docker_cached_deno",
+          "error_class": "FileNotFoundError",
+          "errno": 2
+        },
+        {
+          "id": "supabase_hosted_auth",
+          "exit_code": 0,
+          "authenticated": true,
+          "project_count": 3,
+          "linked_project_accessible": true
+        },
+        {
+          "id": "wsl_status",
+          "exit_code": 0,
+          "output": "NAME              STATE           VERSION\r\n* Ubuntu            Running         2\r\n  docker-desktop    Running         2"
+        },
+        {
+          "id": "windows_gh",
+          "exit_code": 0,
+          "output": "GH_WINDOWS=missing"
+        },
+        {
+          "id": "windows_browser_module",
+          "exit_code": 0,
+          "output": "playwright=C:\\Users\\Administrator\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\node\\node_modules\\playwright\\index.js\n@playwright/test=not_resolved\npuppeteer=not_resolved"
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-09-27T14:04:06.058225+09:00",
+      "execution_context": "escalated_host_wsl_and_browser",
+      "checks": [
+        {
+          "id": "docker_windows_path",
+          "exit_code": 0,
+          "output": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker"
+        },
+        {
+          "id": "docker_host_wsl",
+          "exit_code": 0,
+          "output": "29.8.0 / 29.8.0"
+        },
+        {
+          "id": "docker_host_wsl_containers",
+          "exit_code": 0,
+          "output": "supabase_edge_runtime_project-012 Up 5 hours\nsupabase_db_project-012 Up 15 hours (healthy)\nsupabase_studio_project-012 Up 15 hours (healthy)\nsupabase_pg_meta_project-012 Up 15 hours (healthy)\nsupabase_storage_project-012 Up 15 hours (healthy)\nsupabase_rest_project-012 Up 15 hours\nsupabase_realtime_project-012 Up 15 hours (healthy)\nsupabase_inbucket_project-012 Up 15 hours (healthy)\nsupabase_auth_project-012 Up 15 hours (healthy)\nsupabase_kong_project-012 Up 15 hours (healthy)\nsupabase_vector_project-012 Restarting (0) 49 seconds ago\nsupabase_analytics_project-012 Up 15 hours (healthy)"
+        },
+        {
+          "id": "browser_launch_click_capture",
+          "exit_code": 0,
+          "output": "{\"playwright\":\"1.62.1\",\"browser\":\"154.0.4258.37\",\"title\":\"v019 environment probe\",\"click\":\"probe\",\"screenshot\":true}"
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-09-27T14:06:00.628887+09:00",
+      "execution_context": "escalated_verified_routes",
+      "checks": [
+        {
+          "id": "browser_click_capture_verified",
+          "exit_code": 0,
+          "output": "{\"playwright\":\"1.62.1\",\"browser\":\"154.0.4258.37\",\"click\":true,\"screenshot\":true}"
+        },
+        {
+          "id": "postgres_readonly",
+          "exit_code": 0,
+          "output": "17.6\nmigration_v019=true\nai_tables=7"
+        },
+        {
+          "id": "deno_cached_image",
+          "exit_code": 0,
+          "output": "denoland/deno@sha256:8ce780168429c4bf5962652e6cbea3fd45254ae902069e90585fb33f74c56968"
+        },
+        {
+          "id": "deno_runtime",
+          "exit_code": 0,
+          "output": "deno 2.9.7 (stable, release, x86_64-unknown-linux-gnu)\nv8 15.0.245.2-rusty\ntypescript 6.0.3"
+        },
+        {
+          "id": "vector_health",
+          "exit_code": 0,
+          "output": "restarting restartCount=911 exitCode=0"
+        },
+        {
+          "id": "edge_log_read_access",
+          "exit_code": 0,
+          "read_access": true
+        },
+        {
+          "id": "gemini_authenticated_catalog",
+          "exit_code": 0,
+          "output": "MODELS_HTTP=200\nMODEL_FOUND=true\nGENERATE_CONTENT_SUPPORTED=true"
+        }
+      ]
+    },
+    {
+      "checked_at": "2026-09-27T14:11:57.405284+09:00",
+      "execution_context": "read_only_followup",
+      "checks": [
+        {
+          "id": "vector_log_diagnostic",
+          "exit_code": 0,
+          "known_error_markers": {
+            "docker_api_too_old": false,
+            "permission_denied": false,
+            "connection_refused": true,
+            "configuration_error": false,
+            "file_not_found": false,
+            "unexpected_argument": false
+          },
+          "raw_log_saved": false
+        },
+        {
+          "id": "public_url_static_read",
+          "exit_code": 0,
+          "output": "{\"http\":200,\"contains_v018\":true,\"contains_v019\":false,\"scripts_executed\":false}"
+        },
+        {
+          "id": "legacy_runner_local_secret_file",
+          "exists": true
+        }
+      ]
+    }
+  ]
+}

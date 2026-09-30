@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-ui-mixed-version-smoke.cjs",
+  "runner_sha256": "c23c5ee752256c907fc3bb5c164c9dba43a9f9a32eaf727faa480df9c7e20d6e",
+  "executor": "user Windows PowerShell, Playwright with Microsoft Edge",
+  "result": "passed_partial_acceptance",
+  "coverage": [
+    "v0.1.18 frontend old POST safely rejected by mocked new API contract",
+    "zero model requests for rejected legacy POST",
+    "reload serves v0.1.19 frontend and displays its version",
+    "v0.1.19 AI bundle contract completes against mock API"
+  ],
+  "network": "synthetic local API only; no Supabase DB, Gemini, hosted service, or public URL used",
+  "formal_acceptance_cases_passed": 47,
+  "formal_acceptance_cases_total": 70,
+  "limitations": [
+    "real Edge/API deployment mix is not covered",
+    "remaining U11 acceptance criteria are incomplete"
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "created_at": "2026-09-27T21:48:16+09:00",
+  "head": "5cc946f937cff7ba34a498659436b4cecd3aa831",
+  "note": "P5 raw-byte hashes for scoped product/UI test files, including local Playwright UI and scheduled-refresh runners. Aggregate = SHA256 of sorted path + NUL + file SHA256 + LF. Not a commit, backup or release acceptance.",
+  "file_count": 11,
+  "aggregate_sha256": "741e82b29e4e05a53653e067302216c6e2d99f913c7053b376ac7d9c688793f2",
+  "files": [
+    {
+      "path": "comment-safety.js",
+      "sha256": "942e52ffd388c5aca2c5f69b69d98587776e21cb02a0b50feeaf20cfec081a2b"
+    },
+    {
+      "path": "comments.js",
+      "sha256": "b320c9af94ae6779cf36a1abfc57a01942203022a6c8578700d8574abce8d005"
+    },
+    {
+      "path": "index.html",
+      "sha256": "8676223f787f9f3b99c557fed00061e7778aada04dd660560da66e77db4029c7"
+    },
+    {
+      "path": "race-prediction/client.mjs",
+      "sha256": "8365f8105ea7b32c6d36d0d827ac944db09f713a9f43b8931e75bed399a5ad65"
+    },
+    {
+      "path": "script.js",
+      "sha256": "4cb1edb9f949feaa2182c068ab790e493cb12450b99a63acf5ae923138468976"
+    },
+    {
+      "path": "style.css",
+      "sha256": "e9d44d49b8520cd1e3eb9f1672ed38f528a740f8c0322bd9da4a62026a9cd3f9"
+    },
+    {
+      "path": "tools/local-integration/ai-ui-browser-smoke.cjs",
+      "sha256": "84d125637109d03aa8eb1f1149048e33cfbd5df74ae8e940455b7a84efca81eb"
+    },
+    {
+      "path": "tools/local-integration/ai-ui-date-refresh-smoke.cjs",
+      "sha256": "58d9b606ea4ec2cd0490f08fc8cf5a40801ea737ff933eb4f4a9c36861b8f474"
+    },
+    {
+      "path": "tools/local-integration/ai-ui-mixed-version-smoke.cjs",
+      "sha256": "f0f808db829a5ebdd746891c75f0d5c83eda86e1fbdad6b207ecd16ed2c3b788"
+    },
+    {
+      "path": "tools/local-integration/ai-ui-stale-response-smoke.cjs",
+      "sha256": "f856526dd7872e0399311096638e1584fc380ef0029de66c9ab3a4d5452ab970"
+    },
+    {
+      "path": "ui-reference.css",
+      "sha256": "509b3747bdc0006b8af6796195a59e51f3e61f26e78128e452972badd126f39c"
+    }
+  ]
+}

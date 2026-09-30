@@ -1,7 +1,7 @@
 # v0.1.19 AI予想刷新 試験仕様兼試験成績書
 
 - 作成日: 2026-09-26 JST
-- 文書版: 1.95（公開URL現行版の基準・公開試験ゲートを追加）
+- 文書版: 1.97（2026-09-30 公開試験とv0.1.19確定を記録）
 - 製品版: v0.1.19。切り戻し先: v0.1.18（`e6c263456a5999b10181fda4eae32e9f6bdfa578`）。
 - 対象: [基本設計書](AI-PREDICTION-REFRESH-BASIC-DESIGN.md)、[詳細設計書](AI-PREDICTION-REFRESH-DETAILED-DESIGN.md)
 - 実行計画: [試験計画書](AI-PREDICTION-REFRESH-TEST-PLAN.md)、[70項目対応表](AI-PREDICTION-REFRESH-TEST-MATRIX.md)、[環境確認結果](AI-PREDICTION-REFRESH-TEST-ENVIRONMENT.md)
@@ -13,16 +13,16 @@
 | 項目 | 現在値 |
 |---|---|
 | 計画ケース数 | 70（初回公開対象69・後続比較1） |
-| passed | 57 |
-| failed | 1（M01: Gemini HTTP 503） |
+| passed | 58 |
+| failed | 0（M01の3.8 Flash HTTP 503は旧候補の履歴。採用モデル3.5 Flash Liteの現行M01は実API/保存で合格） |
 | 未完了（未実施/一部確認/blocked/後続） | 12 |
-| 実装commit／差分識別 | ローカル作業ツリー差分（未commit）。既存の無関係な差分がありcommit識別なし |
+| 実装commit／差分識別 | 公開コード `a08421e`（v0.1.19 bundle実装 `a8e4f44`＋採用モデル設定）。確定記録コミットは本書末尾とGitタグを参照 |
 | 試験環境・DB識別 | WSL Ubuntu、Node.js v24.21.0。既存の単体/mock150件、Deno型検査、隔離DB・Edge HTTP/PostgREST smokeの成功実績あり。ローカルmigration 20260926000000は適用済み。2026-09-27の環境点検ではDB読取・Deno起動・ブラウザー操作・モデル一覧認証も成功。詳細は第36節と環境確認結果 |
 | 試験担当・実施日時 | Node/mock回帰150件: Codex作業環境。Supabase PostgreSQL/Edge/PostgREST smoke: ユーザーのWSL上のCodex CLIが実行、2026-09-27に結果受領。70受入ケースの全体実施は未完了 |
 | 実モデル使用量・費用 | 実生成スモーク計3要求はHTTP 503。使用量・費用は不明。Geminiのmodels.list認証とモデル一覧確認は成功 |
-| 総合判定 | 判定不可。既存の部分合格実績あり。実モデルの成功、保存までの実統合、製品画面、背景処理、切り戻し等は未確認。ブラウザー起動確認は製品画面合格に含めない |
+| 総合判定 | v0.1.19として公開・確定。58/70 passed、0 failed、12未完了。公開環境で生成・保存・再取得を確認したが、展開文の事実誤認と部分確認項目は残る。全70項目の完了とは扱わない |
 
-本設計の70受入ケースは全体完了していない。passed 57件、failed 1件、残る12件は未実施・一部確認・blocked・後続である。`race-prediction/*.test.mjs`のmodule回帰数は70受入ケースと別集計である。個々のテストが要件の一部を確認しただけでは、受入ケース全体をpassedにしない。設計文書のリンク・ケース番号・件数確認も予想機能の試験実績に数えない。
+本設計の70受入ケースは全体完了していない。passed 58件、現行基準でfailed 0件、残る12件は未実施・一部確認・blocked・後続である。3.8 FlashでのHTTP 503は採用前モデルの履歴として保持し、採用モデル3.5 Flash LiteのM01は実Gemini・本番handler・ローカルPostgREST保存/再読の成功によりpassedへ更新した。2026-09-30の公開実レースでは生成・保存・再読込は成功したが、平均STを当該レースのSTとして述べる事実誤認があった。AI出力調整は次期v0.1.20へ延期する。`race-prediction/*.test.mjs`のmodule回帰数は70受入ケースと別集計である。個々のテストが要件の一部を確認しただけでは、受入ケース全体をpassedにしない。設計文書のリンク・ケース番号・件数確認も予想機能の試験実績に数えない。
 
 ## 2. 試験環境と実施手順
 
@@ -150,14 +150,14 @@
 
 | ID | 要件 | 操作・条件 | 期待結果 | 成績 | 実測・証跡 |
 |---|---|---|---|---|---|
-| M01 | R11,R12 | 隔離環境で3.8 Flashを実キー呼出 | 指定モデル・構造化出力が利用可能。キー非出力 | failed | 3回の各1要求がHTTP 503で契約有効な生成応答なし。直近の事前表示はRPM 1/5、TPM 478/250K、RPD 2/20。503の原因は未特定、同条件追加要求停止 [M01 evidence](test-evidence/v0.1.19/20260928-m01-gemini-retry-503.json) |
-| M02 | R01,R07〜R11 | 6レース程度の固定入力で比較 | 成功率・根拠・買い目との整合・文章の違い・時間・使用量を記録 | 未実施 | — |
-| M03 | R11,R13 | 後続最適化として3.5/3.1 Flash Liteで同じ入力セットを実行 | 同じ評価軸で比較。初回公開の必須条件にはしない | 未実施（後続） | — |
+| M01 | R11,R12 | 採用モデル3.5 Flash Liteを実キーで、通常/展示欠損入力からproduction handler・実PostgREST保存/再読まで確認 | 指定モデル・構造化出力が利用可能。キー非出力 | passed | 実Gemini要求2回が両方HTTP 200/形式検証/DB保存/handler GET成功。通常fixture 5.6秒、展示欠損fixture 1.9秒、各1 attempt・bundle1件。生成文/API keyを証跡に含めず、cleanup後fixture/job/bundle残存0 [M01 integrated evidence](test-evidence/v0.1.19/20260929-m01-handler-postgrest-live.json)。初期候補3.8 Flashの503履歴は第137節 |
+| M02 | R01,R07〜R11 | 6レース程度の固定入力で比較 | 成功率・根拠・買い目との整合・文章の違い・時間・使用量を記録 | 部分確認 | 戸田R1〜R10を4モデルへ同条件で直接生成し、成功率/平均時間と事実整合を確認。成功文字列を保存せず、使用量集計・6種条件/文章多様性の完全評価は不足 [model comparison](test-evidence/v0.1.19/20260929-gemini-model-selection.json) |
+| M03 | R11,R13 | 後続最適化として3.5/3.1 Flash Liteで同じ入力セットを実行 | 同じ評価軸で比較。初回公開の必須条件にはしない | 部分確認（後続） | 10レース同一factsの比較で9/10と10/10、応答時間・事実誤りの差を記録し採用モデルを決定。使用量のモデル間集計/長期評価は未実施 [model comparison](test-evidence/v0.1.19/20260929-gemini-model-selection.json) |
 | M04 | R12,R20 | 追加migration後、v0.1.18タグのpredictions/依存ソース・フロントと旧実効設定へ切り戻す | 旧採点と展開文が動作、表示v0.1.18、旧データ/コメント/収集の維持、新bundle保持。対象外変更なし | 部分確認 | 一時展開したv0.1.18 handlerが現行migration後のローカルPostgREST/DBで旧形式snapshot/narrativeを保存。Geminiはmock。cleanup後AI/comment件数とfixture 0を確認。実EdgeRuntime配信/フロント・設定切替は未確認 [M04 evidence](test-evidence/v0.1.19/20260929-m04-v018-handler-postgrest.json) |
 | M05 | R13,R16 | 背景処理を実行環境で90秒近く継続/中断 | 制約内で完了または期限切れ復帰。応答直後終了の有無を確認 | passed | `waitUntil`登録後に202を返し、追加Function要求なしでworker 90,001ms・host 90,015msの完了callbackを受信。15秒ごとのheartbeatあり。第77節 |
 | M06 | R20 | 公開前のO01〜O04・成績・対象差分・詳細設計12.1〜12.3を確認 | 製品版v0.1.19、コメントの当面方針、本番関数/旧設定の復元基準、切り戻し試験、公開許可がそろうまで未公開 | 未実施 | — |
 | M07 | R16,R17 | ai_bundle生成中にlegacyへ切替、完了後に旧backendへ戻す | 切替後も開始済みjob GETが使え、完了/期限切れ確認後に切り戻せる | 部分確認 | 実PostgREST＋mock providerで進行中/完了後GETとlegacy経路を確認。さらに利用者実行の実EdgeRuntime legacy境界ではAI形式POST拒否、malformed selector拒否、OPTIONS/public-key境界を確認。実EdgeRuntime上の進行中job完了・v0.1.18復帰は未確認 [handler evidence](test-evidence/v0.1.19/20260929-m07-handler-mode-switch.json) [Edge boundary](test-evidence/v0.1.19/20260929-m07-edge-legacy-mode-boundary.json) |
-| M08 | R11,R13 | 設定したRPMを超える異なるレース要求をモックし、実モデル試験は枠内で実施 | 再試行の無限連鎖なし。枠不足とモデル品質を区別し、試験を無料枠内に調整 | 部分確認 | 6個の異なるjobを同時実行し3要求に模擬429を返すunit試験で、全6件の保存成功・合計9要求・各job最大2回を確認。実Geminiの残枠/RPM確認とモデル試験はM01の503で未完了 [AI module regression](test-evidence/v0.1.19/20260928-ai-module-regression.json) |
+| M08 | R11,R13 | 設定したRPMを超える異なるレース要求をモックし、実モデル試験は枠内で実施 | 再試行の無限連鎖なし。枠不足とモデル品質を区別し、試験を無料枠内に調整 | 部分確認 | 6個の異なるjobを同時実行し3要求に模擬429を返すunit試験で、全6件の保存成功・合計9要求・各job最大2回を確認。選定モデルの実APIは単発ずつ2回成功したが、実枠超過や負荷時の動作は未確認 [AI module regression](test-evidence/v0.1.19/20260928-ai-module-regression.json) [M01 integrated evidence](test-evidence/v0.1.19/20260929-m01-handler-postgrest-live.json) |
 
 ## 5. 実モデル比較の記録欄
 
@@ -1121,3 +1121,64 @@ GitHub Pagesの公開HTMLをGETしHTTP 200、9,602 byteを受信。ページ本�
 ## 141. M01 製品再試行経路の実Gemini確認（2026-09-29 JST）
 
 M01の1要求診断runnerとは別に、製品と同じ`runAiGeneration`を合成レース入力・インメモリstoreで実行した。3.8 Flashと比較用3.7 Flashを各1 jobずつ、最大2要求・90秒以内・APIキー/生成文非表示で確認。4要求すべてHTTP 503となり、成功・保存はなし。DB/Supabaseは利用せず、モデル設定と`PREDICTION_MODE`は変更していない。ローカルの503待機/再試行mock試験8件は合格済み。これによりアプリの再試行処理は動作確認できたが、provider側503は解消しておらず、M01はfailedを維持する。3.7へ恒久変更する根拠も得られていない。[証跡](test-evidence/v0.1.19/20260929-m01-product-retry-live.json)
+
+## 142. 10レース実モデル比較と採用モデル決定（2026-09-29 JST）
+
+利用者判断により、Gemini 3.5 Flash Lite (`gemini-3.5-flash-lite`) を実装時の既定モデルに採用する。戸田R1〜R10の出走表・直前情報を各4モデルへ同じ条件で渡し、1要求あたり90秒、各モデル・各レース1回、再試行なしで計40回実行した。実装のprompt、JSON schema、MEDIUM thinking、8,192 max output tokensを使用し、成功はHTTP応答、完了状態、`validateAiOutput`通過で判定した。DB読取はレース事実の取得だけに使い、DB保存・Hosted Supabaseへの生成更新は行っていない。timeoutは0件。
+
+| モデル | 有効生成 | 成功応答平均 | 失敗 |
+|---|---:|---:|---|
+| Gemini 3.1 Flash Lite | 10/10 | 7.4秒 | なし |
+| Gemini 3 Flash | 7/10 | 13.5秒 | HTTP 429が3件 |
+| Gemini 3.5 Flash Lite | 9/10 | 3.9秒 | HTTP 503が1件 |
+| Gemma 4 26B | 0/10 | — | HTTP 400が10件 |
+
+成功した26件はすべて出力形式検証を通過。10レース分の目視確認では、3.1 Flash LiteにR3の進入コース/展示タイム、R7の今泉選手の艇番、R9のF情報の表現、R10の展示STと展示タイム・進入コースの取り違えが見つかった。3.5 Flash Liteの成功9件では、出走表の名前・艇番・進入コースや表示値に明確な矛盾を確認しなかった。予想の的中率は評価していない。この比較は10レースの補助試験であり、70件の正式受入数を変更しない。採用モデルでの実ジョブ・DB保存・画面までの正式確認は別途必要。[集計証跡](test-evidence/v0.1.19/20260929-gemini-model-selection.json)
+
+R7の3.1 Flash Lite文には「今泉澪（3）」と実際に出力された記録がある。出走表では今泉選手は5号艇のため誤記である。対抗シナリオの文章を本命買い目との矛盾と断定した以前の整理は根拠が十分でないため、本文の事実誤りと本命との整合性評価を分けて扱う。
+
+この比較でのGemini 3.5 Flash Liteの成功率は9/10で、3.1 Flash Liteより平均応答が短く、今回確認した事実誤りも少なかったことから採用した。少数レースの観測であり、将来の可用性・応答時間・事実精度を保証しない。第145節で採用モデルの実ジョブ・DB保存・GETを確認した。
+
+## 143. 採用モデルの単発実API疎通と回帰確認（2026-09-29 JST）
+
+選定済み`gemini-3.5-flash-lite`を既定値から呼ぶ実APIスモークを1回実行し、HTTP 200、完了応答、4項目のアプリ検証成功を確認した。所要2,908ms、入力578/output160/合計738 tokens。キー・生成文は出力/保存していない。入力は合成レースで、DB/Hosted Supabaseは不使用。この結果は採用モデルの直接生成経路の現在疎通を示すが、実レース入力から本番handler・PostgREST保存までのM01受入を満たさない。旧候補3.8 FlashのHTTP 503は履歴として残し、採用モデルの結果と混同しない。
+
+同じソース状態でNode回帰217/217件とEdge callback helperを実行し全件passed（終了コード0、約122秒）。続けてproduction handler＋ローカルPostgREST＋mock providerの全シナリオを再実行し、終了コード0、fixture cleanup完了を確認した。これらはモデル既定値変更後の回帰確認であり、正式70項目の件数を変更しない。[選定モデル実API証跡](test-evidence/v0.1.19/20260929-m01-gemini-35-live-smoke.json) [Node回帰証跡](test-evidence/v0.1.19/20260929-model-change-regression.json)
+
+## 144. 未完了UI項目の自律可能なmock再試験（2026-09-29 JST）
+
+Windows Node.js v24.19.0＋Playwright＋EdgeでU04/U06、U09、U10、U11のlocal-only browser runnerを個別再実行し、すべて終了コード0。締切/日付更新、コメント欄との共存、320/390/430/1280px表示と長文・失敗表示、旧画面要求の拒否と新画面契約の再読込を確認した。外部APIは遮断され、Supabase/Gemini/公開URL通信なし。この結果はmock境界を通る条件の再確認である。U04/U06の実Edge/API連携、U09の実サービスおよび旧予想連携、U10の実スマートフォン、U11の実配信Edge組合せを代替しないため、正式合否は部分確認のまま。[UI follow-up証跡](test-evidence/v0.1.19/20260929-local-ui-followup.json)
+
+第143節の選定モデル実要求、217件Node回帰、ローカルPostgREST/mock生成結合、および本節のUI mock再試験は自律可能な追加確認として完了した。D07の同条件EdgeRuntime切断再試験は既知の反復失敗のため行わず、M04切り戻し追加確認は利用者判断による終了を維持した。M01のproduction jobからDB保存まで、実Edge連携を要する残項目、利用者の実機確認・公開判断は未完了であり、これらを合格へ読み替えない。[PostgREST回帰証跡](test-evidence/v0.1.19/20260929-postgrest-regression-after-model-change.json) [モデル変更後Node回帰証跡](test-evidence/v0.1.19/20260929-model-change-regression.json)
+
+## 145. M01 採用モデルの実handler/PostgREST生成・保存（2026-09-29 JST）
+
+新しいlocal-only runnerで合成6艇fixtureを使い、通常previewとpreview欠損の2条件を個別実行。両方とも採用既定値`gemini-3.5-flash-lite`で実Gemini HTTP 200、出力schema/validator成功、attempt 1件、PostgRESTのfinish RPCによるbundle 1件の保存、production handlerのGET successを確認した。応答時間は約5.6秒/約1.9秒。fixtureとjob/bundleをfinallyで削除し、終了後read-only queryでfixture race/day-head/job/bundleがすべて0件を確認。Hosted Supabase・本番DBは不使用。API key・生成文は出力/証跡に含めていない。この一連の合成fixture受入をもってM01をpassedへ更新する。10レースの実レース出走表に対する内容確認は第142節、D07実EdgeRuntime切断とその他部分確認の代用にはならない。[M01 integrated evidence](test-evidence/v0.1.19/20260929-m01-handler-postgrest-live.json)
+
+## 146. M08 採用モデルの枠内同時要求（2026-09-29 JST）
+
+採用モデル`gemini-3.5-flash-lite`に合成6艇入力を使い、production provider adapter経由で実Gemini要求を2件同時に送信。利用者提供のAI Studio表示では上限15 RPM/500 RPDであり、試験要求数はその範囲内。2件とも成功し、応答時間は2,618ms/1,969ms、出力形式検証を通過、使用量は764/783 tokens。APIキーと生成文は表示・保存していない。DBおよびHosted Supabaseは使用していない。
+
+この確認は枠内のprovider同時要求のみで、RPM超過時の実応答、DB上の別race job同時実行、サービス全体での待ち時間やquota制御は未確認。M08は部分確認を維持し、正式合格数は変更しない。[M08 concurrency evidence](test-evidence/v0.1.19/20260929-m08-gemini-concurrent-within-quota.json)
+
+## 147. 公開大村12Rの生成内容・締切後動作確認（2026-09-29 JST）
+
+公開AIモードで大村12Rに対する成功jobが2件保存されていることを確認した。どちらもGemini 3.5 Flash Lite、provider attempt 1回、bundle 1件。1回目はpreviewコース/ST/展示値が全艇nullの入力で、艇番・選手名・級別は出走表と一致し、本命1-2-6も展開の1号艇軸・1-2本線・6号艇への言及と整合した。一方で、展開文は2号艇について「2コース」と記述したが、当該入力にcourse_numberはなく、詳細設計の「展示コースがない場合に艇番をコースとして埋めない」に反する未根拠の断定を検出した。M02の内容品質はこの結果を受けて引き続き未完了とし、70項目の正式件数は変更しない。
+
+2回目はpreview値が存在し、2号艇6.84が2番目、5号艇6.81が最速、4号艇のF.03が入力値と整合し、選手名・級別・本命1-2-5と展開文の軸・相手も一致した。穴2-1-6のうち2号艇逆転は記述されているが、6号艇の3着根拠は展開文にない。
+
+締切後に2件の既存jobを公開GETし、HTTP 200 successと出力契約検証通過を確認。OPTIONSは200でCORS応答あり、不正selectorと不正job IDは各400。締切後の同レースSTARTはHTTP 200 `closed`を返し、job ID・予想を返さなかった。照合前後の本番DB件数は2 job / 2 bundle / 2 attemptで不変。追加Gemini要求は発生していない。開催情報GETは一度503、その直後の再取得は200となった。追加のローカル確認では、構造上有効な買い目に未提供コース情報の断定を含めても`validateAiOutput`が受理することを確認した。現行validatorはJSON/買い目形式を検証し、展開文の根拠整合性は検証しない。証跡には生成文・キーを保存していない。[public Omura 12R evidence](test-evidence/v0.1.19/20260929-pub-omura12r-followup.json)
+
+## 148. 公開当日レースの生成・内容照合（2026-09-30 JST）
+
+公開availabilityで当日144レースを確認し、締切前の2場R1を1件選んで通常の公開STARTを実行した。POSTはHTTP 202 generating、同じjobのGETはHTTP 200 successとなり、採用モデル`gemini-3.5-flash-lite`、3買い目、展開文、保存済み結果の再取得を確認した。実provider所要時間は4,603ms。開催情報の入力値を読み取り照合したところ、6艇すべての直前course_number/start_timing/exhibition_timeがnullだった。
+
+艇番・選手名・級別と買い目の艇番は出走表に一致した。本命1-3-2は1号艇軸・3号艇対抗・2号艇の3着争いと整合し、対抗1-3-4も展開文の軸と整合した。穴3-1-2も3号艇の攻めを1着、1号艇を2着、2号艇を3着とする説明に対応していた。一方、展開文は1号艇の当該レースSTを0.15、3号艇の当該レースSTを0.13と記述していたが、入力に当該レースのST値はなく、同値は出走表の平均STだった。平均STを実レースのスタート値として述べた未根拠の事実誤認である。また直前コースが全艇nullのため「イン戦」等のコース断定も入力から検証できない。買い目との整合性は確認できる一方、展開文の事実整合性に未解決の問題が再発した。M02は未完了を維持し、正式試験件数は変更しない。
+
+公開APIの成功は確認できたが、内容監査は不合格相当の指摘あり。買い目の形式・保存・GET成功を展開文の事実正確性の合格に読み替えない。生成文とAPIキーは証跡へ保存していない。[2026-09-30 public race evidence](test-evidence/v0.1.19/20260930-public-race-spotcheck.json)
+
+## 149. v0.1.19確定・公開URL最終確認（2026-09-30 JST）
+
+利用者指示により、現行の公開状態をv0.1.19として確定し、以後の開発版をv0.1.20とする。公開コードはAI bundle実装`a8e4f44`と既定モデル設定`a08421e`を含む。2026-09-30の公開URL再確認はHTTP 200で、HTMLにv0.1.19表記2件、v0.1.18/0.1.20表記0件。公開AIモードでの生成・保存・GET成功は第148節に記録した。公開ページに新たな製品コード変更は不要で、確定記録のmain反映によりPages配信を更新する。
+
+v0.1.19の総合受入は58/70 passed、0 failed、12未完了で確定する。全項目合格ではない。平均STを当該レースSTとして出力した事実誤認、開始者切断後の実Edge継続、実スマートフォン、コメント等の公開後確認は未完了または部分確認のまま保持する。AI出力の調整・追加試験はv0.1.20の作業とする。既存のv0.1.18タグは保持し、v0.1.19の確定タグは公開コードと試験記録のcommitを基準に作成する。

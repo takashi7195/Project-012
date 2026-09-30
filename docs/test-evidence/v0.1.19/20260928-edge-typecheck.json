@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-28",
+  "testCase": "ai-edge-typecheck",
+  "result": "passed",
+  "command": "bash tools/local-integration/ai-edge-typecheck.sh",
+  "checkedFile": "supabase/functions/predictions/index.ts",
+  "checker": "Deno deno check --no-config",
+  "externalGeminiRequest": false,
+  "hostedSupabaseUsed": false,
+  "projectFilesModifiedByTest": false,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

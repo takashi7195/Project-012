@@ -1,0 +1,21 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "command": "node tools/local-integration/ai-comments-ui-smoke.cjs",
+  "runnerSha256": "ad74077ebda2ff26c2ce55a2f9aabbb08862f090fd305405fc705d76d7f4ad13",
+  "exitCode": 0,
+  "formalCase": "U09 partial, supplemental browser UI",
+  "environment": "Windows bundled Node.js, Playwright, Microsoft Edge; local static server; all service APIs intercepted",
+  "assertions": {
+    "existingCommentAndReplyRendered": true,
+    "userMarkupRenderedAsText": true,
+    "composerOpenedAndFocused": true,
+    "piiNormalizedBeforePost": true,
+    "singlePostAndReplyRendered": true,
+    "composerResetAfterSuccess": true,
+    "predictionSelectionRemainedAvailable": true
+  },
+  "result": "PASS",
+  "limitations": "API persistence was mocked; no real DB, Gemini, hosted project, public URL, or physical phone was used. Legacy prediction/comment linkage was not tested.",
+  "formalAcceptanceCountChanged": false
+}

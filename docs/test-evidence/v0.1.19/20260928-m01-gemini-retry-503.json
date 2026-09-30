@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-09-28T23:11:14+09:00",
+  "case": "M01",
+  "attemptsThisRun": 1,
+  "runner": "tools/local-integration/ai-gemini-live-smoke.mjs",
+  "runnerGuarantee": "one provider request; no DB/hosted project",
+  "exitCode": 1,
+  "errorCode": "provider_http_503",
+  "httpStatus": 503,
+  "modelIdPresentInModelsList": true,
+  "generationSupportedByModelsList": true,
+  "narrativeRecorded": false,
+  "apiKeyRecorded": false,
+  "status": "M01 remains unpassed; repeated 503 after model ID and key authentication/list check",
+  "generationUsage": "unknown"
+}

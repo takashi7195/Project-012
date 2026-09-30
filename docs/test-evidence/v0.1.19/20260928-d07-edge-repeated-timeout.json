@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "executor": "user Windows PowerShell; local Supabase Edge Runtime; start -x studio",
+  "status": "inconclusive",
+  "observed": {
+    "http202": true,
+    "workerStartedCallback": true,
+    "workerStartAfterResponseMs": 14,
+    "firstTimerCanaryMs": 1025,
+    "heartbeatCount": 1,
+    "secondHeartbeatWithin5Seconds": false,
+    "completionCallback": false,
+    "laterParticipantGet": "not reached",
+    "container": "running; exit code 0",
+    "diagnostic": "route listing only; no shutdown or exception reason"
+  },
+  "callbackUnitTest": "not executed; Edge smoke failed first and PowerShell throw skipped the later command",
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  },
+  "followUp": "Probe with single setInterval and run callback unit tests first in explicit command order.",
+  "runnerSha256AtFollowUp": "bc5d0f13133d565abf4b5957f5f71859b9b4480e6d234856bc0f69349e469851"
+}

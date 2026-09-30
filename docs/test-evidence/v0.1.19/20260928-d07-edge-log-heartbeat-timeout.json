@@ -1,0 +1,20 @@
+{
+  "testCase": "D07",
+  "date": "2026-09-28",
+  "result": "partial",
+  "http202": true,
+  "workerStartedCallback": true,
+  "workerStartedAfterMs": 37,
+  "backgroundHttpCallbacksAfterStart": 0,
+  "runtimeLogHeartbeatsAt15Seconds": 0,
+  "runtimeLogHeartbeatsAt30Seconds": 0,
+  "runtimeState": "running; exit code 0",
+  "diagnostics": "startup route listings only; no shutdown or exception reason",
+  "completionObserved": false,
+  "laterParticipantRead": false,
+  "notes": [
+    "The log-based runner stopped safely after 30 seconds without waiting the remaining 90-second deadline.",
+    "No production DB, Gemini API, hosted Supabase project, or public URL was used.",
+    "The project is configured for EdgeRuntime per_worker policy and the stack had been restarted; cause remains undetermined."
+  ]
+}

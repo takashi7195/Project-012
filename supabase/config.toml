@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.predictions]
 verify_jwt = false
+
+[edge_runtime]
+policy = "per_worker"

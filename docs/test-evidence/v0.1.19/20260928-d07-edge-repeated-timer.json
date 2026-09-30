@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "executor": "user Windows PowerShell; local Supabase Edge Runtime; start -x studio",
+  "status": "inconclusive",
+  "observed": {
+    "http202": true,
+    "workerStartedCallback": true,
+    "workerStartAfterResponseMs": 19,
+    "oneSecondTimerCanary": true,
+    "canaryElapsedMs": 1021,
+    "heartbeatCount": 1,
+    "intervalAfterCanaryMs": 1000,
+    "completionCallback": false,
+    "laterParticipantGet": "not reached",
+    "observationSeconds": 108
+  },
+  "interpretation": "The initial one-second timer and callback worked, but no later timer/heartbeat or completion was observed. The failure is not specific to a 15-second timer interval.",
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  },
+  "followUp": "Wait five seconds for the second heartbeat and stop early with safe runtime diagnostics if absent; do not repeat the 90-second wait until the second heartbeat is seen.",
+  "runnerSha256": "2c6d8ac559761d498b04d6d788f9fc42d4bf7c47401048048b2776c6de2bbdd4"
+}

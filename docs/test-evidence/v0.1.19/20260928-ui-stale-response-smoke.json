@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-ui-stale-response-smoke.cjs",
+  "executor": "user Windows PowerShell, Playwright with Microsoft Edge",
+  "result": "passed_partial_acceptance",
+  "coverage": [
+    "old page START POST response delayed",
+    "fresh page completes a separate run",
+    "late old response does not overwrite fresh narrative, tickets, or START state"
+  ],
+  "network": "local browser and mock API only; no Supabase, Gemini, hosted service, or public URL used",
+  "formal_acceptance_cases_passed": 47,
+  "formal_acceptance_cases_total": 70,
+  "limitations": [
+    "same-page newer-run race is not covered",
+    "real API integration is not covered",
+    "remaining U08 acceptance criteria are incomplete"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "testId": "M08 supplemental within-quota concurrency",
+  "date": "2026-09-29",
+  "scope": "Two concurrent direct requests to the adopted Gemini model using the production provider adapter and synthetic six-boat input",
+  "model": "gemini-3.5-flash-lite",
+  "configuredQuotaContext": "User-provided AI Studio snapshot showed 15 RPM and 500 RPD for Gemini 3.5 Flash Lite",
+  "requests": [
+    { "success": true, "durationMs": 2618, "outputValid": true, "totalTokens": 764 },
+    { "success": true, "durationMs": 1969, "outputValid": true, "totalTokens": 783 }
+  ],
+  "result": "Both simultaneous requests completed and passed application output validation.",
+  "limitations": [
+    "Requests stayed within the user-provided quota; quota-overrun behavior was not exercised.",
+    "This did not test the production job queue or concurrent requests for separate database races.",
+    "Synthetic input was used; no database or hosted Supabase was accessed."
+  ],
+  "secretsOrGeneratedNarrativesPersisted": false
+}

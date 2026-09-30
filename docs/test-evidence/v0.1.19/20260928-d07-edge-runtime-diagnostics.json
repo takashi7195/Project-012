@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-runtime-diagnostics.mjs",
+  "executor": "user Windows PowerShell; read-only Docker/runtime diagnostics",
+  "status": "completed_no_cause_found",
+  "observed": {
+    "configPerWorker": true,
+    "cliVersion": "2.117.0",
+    "edgeState": "running",
+    "running": true,
+    "oomKilled": false,
+    "exitCode": 0,
+    "logRead": "ok",
+    "logLines": 6,
+    "completionMatches": 0,
+    "bootMatches": 0,
+    "shutdownMatches": 0,
+    "wallClockMatches": 0,
+    "cpuLimitMatches": 0,
+    "memoryLimitMatches": 0,
+    "exceptionMatches": 0,
+    "perWorkerPolicyMatches": 0,
+    "perRequestPolicyMatches": 0
+  },
+  "rawLogsOrCredentialsDisplayed": false,
+  "classification": "Runtime was running and not OOM-killed; the available log classification did not explain the missing worker heartbeats.",
+  "followUp": "Add a run-specific worker_started callback and a 10-second fail-fast before the 90-second observation.",
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-29",
+  "case": "PUB00",
+  "url": "https://takashi7195.github.io/Project-012/",
+  "httpStatus": 200,
+  "pageBytes": 9602,
+  "versionMarkerCounts": {
+    "v0.1.18": 1,
+    "v0.1.19": 0
+  },
+  "sha256": "b54765e6d6f5d5962e5e78d49fd18c9746cf6dc835a232ddd0d1b541c333f537",
+  "assets": [
+    "script.js?ui=reference06",
+    "comment-safety.js?api=live03",
+    "comments.js?api=reference04",
+    "style.css?ui=bg-v2-fixed",
+    "ui-reference.css?ui=reference06"
+  ],
+  "method": "GET public static page only; no POST/provider/db request"
+}

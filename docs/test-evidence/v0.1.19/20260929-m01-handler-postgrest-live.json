@@ -1,0 +1,39 @@
+{
+  "test": "M01 selected Gemini model through production handler and local PostgREST",
+  "date": "2026-09-29",
+  "runner": "tools/local-integration/ai-generation-live-postgrest-smoke.mjs",
+  "model": "gemini-3.5-flash-lite",
+  "cases": [
+    {
+      "input": "synthetic six-boat race with preview values",
+      "providerHttpStatus": 200,
+      "providerDurationMs": 5566,
+      "providerTokens": 2506,
+      "attempts": 1,
+      "savedBundles": 1,
+      "handlerReadAfterSave": "success",
+      "outputContractValid": true
+    },
+    {
+      "input": "same isolated fixture shape with preview component missing",
+      "providerHttpStatus": 200,
+      "providerDurationMs": 1922,
+      "providerTokens": 1314,
+      "attempts": 1,
+      "savedBundles": 1,
+      "handlerReadAfterSave": "success",
+      "outputContractValid": true
+    }
+  ],
+  "realGeminiRequests": 2,
+  "hostedSupabaseRequests": 0,
+  "productionDatabaseWrites": 0,
+  "fixtureRowsAfterCleanup": 0,
+  "generatedNarrativeStoredInEvidence": false,
+  "apiKeyStoredInEvidence": false,
+  "scopeLimitations": [
+    "race facts are synthetic, not a live race card",
+    "local Node handler + real PostgREST, not hosted Supabase EdgeRuntime",
+    "narrative fact accuracy is assessed separately by the ten-race review"
+  ]
+}

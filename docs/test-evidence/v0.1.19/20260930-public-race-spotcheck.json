@@ -1,0 +1,45 @@
+{
+  "testId": "2026-09-30 public race generation and fact-alignment spot check",
+  "dateJst": "2026-09-30",
+  "scope": "Public availability, START, job polling/GET, saved bundle and read-only production input audit",
+  "availability": {
+    "status": 200,
+    "raceCount": 144,
+    "openRaceCount": 136
+  },
+  "race": {
+    "date": "2026-09-30",
+    "stadiumCode": 2,
+    "raceNumber": 1
+  },
+  "generation": {
+    "startHttp": 202,
+    "initialStatus": "generating",
+    "getHttp": 200,
+    "finalStatus": "success",
+    "mode": "ai_bundle",
+    "reused": false,
+    "model": "gemini-3.5-flash-lite",
+    "providerDurationMs": 4603,
+    "ticketCount": 3,
+    "outputSchemaValidated": true,
+    "savedBundleReadBack": true
+  },
+  "inputAvailability": {
+    "allSixBoats": "course_number/start_timing/exhibition_time were null"
+  },
+  "audit": {
+    "namesAndClasses": "matched program facts",
+    "tickets": {
+      "main": "1-3-2; narrative's boat 1 axis, boat 3 second place, boat 2 third-place contest aligned",
+      "counter": "1-3-4; narrative's boat 1 axis and boat 3 opponent aligned",
+      "hole": "3-1-2; narrative described boat 3 attack, boat 1 second and boat 2 third-place contest"
+    },
+    "factualIssue": "Narrative described boats 1 and 3 as having this-race start timings 0.15 and 0.13. The input had no this-race start_timing; these numbers were the program's average ST values. This is an unsupported substitution of average ST for actual-race ST.",
+    "courseClaim": "Narrative used an inside/inside-race framing although all preview course_number values were null; those course claims cannot be verified from provided input."
+  },
+  "additionalGeminiCallsForAudit": 0,
+  "hostedDatabaseWritesForAudit": false,
+  "narrativeOrCredentialsPersisted": false,
+  "overall": "Generation, persistence and retrieval succeeded. Ticket-to-narrative alignment was acceptable, but narrative factual alignment had a confirmed unsupported ST claim; M02 remains incomplete."
+}

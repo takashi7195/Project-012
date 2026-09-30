@@ -1,0 +1,25 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "executor": "user Windows PowerShell; local Supabase Edge Runtime; start -x studio",
+  "status": "inconclusive",
+  "observed": {
+    "http202": true,
+    "startCallback": true,
+    "workerHeartbeats": 0,
+    "completionCallback": false,
+    "observationSeconds": 107,
+    "laterParticipantGet": "not reached",
+    "cleanup": "runner finally executed; temporary Function/listener cleanup requested"
+  },
+  "runnerIssue": "The runner aborted the fetch signal after fully reading the 202 response. This does not accurately model closing a browser after the completed START response and may have affected runtime behavior; cause is undetermined.",
+  "classification": "Does not prove Edge worker failure or success. No D07/M05 pass or fail recorded from this run.",
+  "followUp": "Removed the abort. Updated runner will leave no client request open during the worker interval and will issue a fresh follower GET only after the completion callback.",
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  },
+  "updatedRunnerSha256": "6667116240423f92d6d6e8b41ebe0ea5afb7794fd8304166e1934e9b1208817d"
+}

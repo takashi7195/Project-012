@@ -1,0 +1,42 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "case": "M04 partial: v0.1.18 prediction handler against post-migration local database",
+  "source": {
+    "tag": "v0.1.18",
+    "commit": "e6c263456a5999b10181fda4eae32e9f6bdfa578",
+    "execution": "temporary git archive under /tmp; removed on process exit"
+  },
+  "runtime": "Node.js v24.21.0 with experimental TypeScript stripping and a local Deno.serve test shim",
+  "database": {
+    "target": "supabase_db_project-012",
+    "path": "local PostgREST RPCs",
+    "migrationState": "existing local v0.1.19 schema retained",
+    "hostedSupabase": false
+  },
+  "result": {
+    "legacyPredictionHandler": "HTTP 200",
+    "legacyLogicVersion": "v0.1.14-roulette-1",
+    "legacySnapshotSaved": true,
+    "legacyNarrativeAttemptSaved": true,
+    "geminiMockRequests": 1
+  },
+  "cleanup": {
+    "legacyGenerationLease": "removed by exact fixture reuse key",
+    "legacySnapshotAndNarrativeAttempt": "removed by existing fixture cleanup SQL",
+    "raceFixtureRowsAfterCleanup": 0,
+    "aiJobBundleAttemptCounts": "unchanged from pre-test baseline",
+    "commentCount": "unchanged from pre-test baseline"
+  },
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0
+  },
+  "notCovered": [
+    "EdgeRuntime function redeployment",
+    "v0.1.18 frontend deployment and browser flow",
+    "restoration of deployed secrets/settings",
+    "full comparison of existing comments and ingestion records"
+  ],
+  "formalAcceptanceCountChanged": false
+}

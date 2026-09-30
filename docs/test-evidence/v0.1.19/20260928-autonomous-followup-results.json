@@ -1,0 +1,291 @@
+{
+  "created_at": "2026-09-28T11:23:18+09:00",
+  "run_id": "20260928-autonomous-followup",
+  "source_baseline": "20260928-autonomous-followup-source-baseline.json",
+  "source_aggregate_sha256": "db204aea3a37e4284c3348a612f1a47b0dd27272b3e1d6681ee63fcc0bb752f0",
+  "summary": "Autonomous local follow-up after the user asked to continue testing. No hosted project, public URL, deploy, push, or additional Gemini generation request.",
+  "formal_acceptance": {
+    "denominator": 70,
+    "initial_release_denominator": 69,
+    "passed": 42,
+    "initial_release_passed": 42,
+    "all_plan_rate_percent": 60.0,
+    "initial_release_rate_percent": 60.9,
+    "note": "D01/D03/D04/D05/D06/D08/D09/D10/D11/D12/D13/D14, I02/I03/I05-I11, G01-G11, T01-T08, T10, and T11 passed with case-specific evidence. T11 combined a production-handler claim blocked on a real DB row lock, which stopped near its 2s budget without provider call, with the client final GET at 2s remaining and nonretryable termination."
+  },
+  "passed_cases": {
+    "D12": "Disposable PostgreSQL verified SQL-null-strict array checks, all three duplicate-pair combinations, valid partial overlap, blank narrative, invalid/duplicate key, duplicate bundle, and key/job/attempt/bundle/race references including composite job/reuse-key consistency. Full smoke/cleanup passed.",
+    "I02": "P3 real PostgREST input fixture and isolated DB recursive filtering.",
+    "I03": "P3 real PostgREST input fixture tested missing, null, empty object, empty array, and raw preview; distinctions preserved.",
+    "I05": "P3 production handler + real PostgREST with preview missing reached mock provider and saved complete bundle.",
+    "I06": "P2 malformed identity tests rejected before claim or provider call.",
+    "I10": "P2 instruction-like facts/unknown fields remained user facts separate from system instruction.",
+    "I11": "P2 missing names/registration values preserved as missing with no inferred replacement.",
+    "G01": "P2 request/prompt and four required output fields verified.",
+    "G02": "P3 normal mock provider response saved/read/reused as one complete bundle.",
+    "G03": "P2 validator and DB reject malformed arrays and never normalize them.",
+    "G04": "P2 validator checks all three duplicate pairs and allows non-identical overlap.",
+    "G05": "P3 missing/null/blank/malformed JSON rejected after bounded attempts; no partial bundle/response.",
+    "G06": "P2 validation plus P5 browser confirmed short/>500/>1000/multiline text is retained/displayed without truncation.",
+    "G07": "P3 invalid first bundle was repaired; saved/read output exactly matched valid second bundle.",
+    "G08": "P3 two invalid results ended after two sends with generic failure and no bundle/fallback.",
+    "T01": "P2 virtual-time fault injection: a 20-second network failure, one retry, successful saved bundle within the shared 90-second budget.",
+    "T02": "P2 virtual time: two provider responses cross the original 90-second deadline; no saved result.",
+    "T03": "P2 network exception and HTTP 408/429/5xx transient cases retry once with backoff; no more than two provider requests.",
+    "T04": "P2 short Retry-After recovered, daily-quota 429 stopped, and overlong Retry-After stopped without another request.",
+    "T05": "P3 real PostgREST + production handler with simulated provider HTTP 401/403/404: no retry, provider body absent from public response, no saved bundle.",
+    "T06": "P2 MAX_TOKENS/incomplete response regenerated once and only the complete second response was saved.",
+    "T07": "P2 client poll continued for seven job reads (>5) and succeeded within simulated 60 seconds without another POST.",
+    "T10": "P2 exhausted generation time after attempt one prevented a second provider request.",
+    "I08": "P3 real local PostgREST preserved 11/31-minute-old and unknown fetchedAt without changing source data; SQL claim did not reject an old timestamp; production handler passed 11-minute-old fetchedAt to the mock provider and completed generation.",
+    "I07": "P3 isolated PostgreSQL claim rejected a historical race; production Edge handler mock rejected malformed date before RPC and missing, invalid, or past close time before claim/provider.",
+    "G09": "P3 real local PostgREST/production handler repeated the same selector, source facts and config; returned the same saved prediction ID and issued no additional provider request.",
+    "G10": "P2 fact-hash tests changed title, parts, FL, motor, preview, presence and close time; changes altered factsHash. P3 handler integration changed one source fact and produced a new job/bundle.",
+    "G11": "P2 configuration hash tests changed model, style/version/text, thinking, output schema, adapter and prompt version. P3 same-input DB integration changed only model and produced a new job/bundle/provider call rather than reusing old output.",
+    "I09": "P3 real local PostgREST: 120 concurrent RPC reads while day_heads switched 120 times between two ready synthetic batches; all returned internally consistent batchId/program/preview/component IDs. Fixture cleanup completed; residual race/batch/component/day_head count was 0.",
+    "D04": "P3 production handler + real local PostgREST: 20 concurrent START requests held behind one mock provider response all returned the same job ID; exactly one worker/owner and one provider request completed the shared job.",
+    "D13": "P3 local Supabase role test confirmed anon/authenticated cannot execute any AI RPC or read private job/bundle tables; service_role retains access. Local Edge HTTP smoke rejected public-key/selector/job-ID invalid cases. Production-handler responses omitted owner token, raw race facts, API key, input/config snapshots, hashes and request payload.",
+    "D08": "P3 production handler + real local PostgREST/mock provider: an in-flight job was expired; GET returned terminal failure without another provider call or worker; later START replaced it with a new job and completed.",
+    "D09": "P3 same delayed-worker scenario as D08: after replacement job became current, delayed old worker returned; stale owner saved no bundle while replacement job saved exactly one.",
+    "D01": "P3 real local PostgREST/production handler/mock provider: success response was persisted and read; DB join confirmed one succeeded job, current/completed reuse key, succeeded winning attempt, and same bundle/reuse key.",
+    "D06": "P3 real local PostgREST/production handler/mock provider: while first job request was held, source subtitle changed and a second START created a different job; persisted input bundles retained before/after values independently and both completed once.",
+    "D03": "P3 production handler + real local PostgREST/mock provider: finish RPC committed the success bundle, then its HTTP response was dropped as 502; worker did not repeat the provider request, and job GET recovered one successful bundle/attempt.",
+    "T08": "P2 mock client: Date.now jumped +24h then -24h during the request while the monotonic clock stayed within the shared deadline; combined with existing tests for ignored remainingMs extensions, transient GET recovery without another POST, and cancellation.",
+    "D11": "P3 production handler + real local PostgREST: after close time elapsed, a new START returned closed without using cached success/provider; GET for the already completed job still returned the same saved bundle.",
+    "D14": "P3 production handler + real local PostgREST: fetchedAt/last_success_at alone were refreshed after generation; next START reused the same snapshot without provider call, and saved inputBundle provenance retained the original fetchedAt.",
+    "D05": "P3 real elapsed time + production handler/local PostgREST/mock provider: first START at +0s; second at +30s joined same job with no new worker/provider request; one result saved/read at +60s within the shared 90s lease.",
+    "D10": "P3 real local PostgREST/production handler/mock provider: job was admitted with a future closeAt, first duplicate ticket answer arrived 3.5 seconds later after close, one repair succeeded, and one bundle saved after closed_at_at_admission while preserving the admitted input.",
+    "T11": "P3 real local DB row-lock injection caused production-handler claim to stop in 2005ms under a 2s budget, generic retryable response, and zero provider requests. P2 client test performed one final job GET with 2s server time remaining and respected retryable=false without a second POST."
+  },
+  "other_runs": [
+    {
+      "name": "race-prediction unit/mock suite",
+      "command": "node --test race-prediction/*.test.mjs",
+      "exit_code": 0,
+      "tests": 206,
+      "passed": 206,
+      "failed": 0,
+      "formal_cases_counted": 0
+    },
+    {
+      "name": "real local PostgREST input fixture with variants",
+      "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "six full synthetic raw entries, recursive result stripping, all preview variants; cleanup completed"
+    },
+    {
+      "name": "real local Edge input fixture",
+      "runner": "tools/local-integration/ai-input-edge-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "closed six-entry race rejected before claim; cleanup completed"
+    },
+    {
+      "name": "production handler + real local PostgREST + mock provider",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "mock_provider_requests": 22,
+      "scope": "missing preview success; atomic save/reuse; duplicate repair with second response equality; blank/missing-field/malformed JSON capped at two with no partial/public picks; HTTP 401/403/404 no retry/body leak; fixture/job/bundle cleanup; model-only config change created a second job/bundle instead of reusing success; 20 concurrent START calls shared one owner/job/provider request; public job response secret/internal-field exclusions checked; expired job GET did not restart; manual START replaced it and stale old worker saved no bundle; during-run source update created a second immutable input/job; successful job/key/attempt/bundle consistency checked; finish RPC response dropped after successful DB commit and GET recovered one saved bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary"
+    },
+    {
+      "name": "P5 long narrative UI",
+      "runner": "tools/local-integration/ai-ui-browser-smoke.cjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "Playwright/Edge rendered exact >1000-character multiline narrative as text; routes fully mocked; no external request"
+    },
+    {
+      "name": "D12 isolated PostgreSQL full smoke",
+      "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "D12 all checks plus migrations, retry/fencing, atomic save, 20-way concurrent claim; disposable DB removed"
+    },
+    {
+      "name": "final G05/G08/T05 production handler integration",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "mock_provider_requests": 22,
+      "scope": "real local PostgREST; missing preview generation; success/reuse; duplicate repair content equality; blank/missing/malformed invalid result limits and no partial/public picks; HTTP 401/403/404 no retry or provider-body exposure; fixture cleanup; model-only config change created a second job/bundle instead of reusing success; 20 concurrent START calls shared one owner/job/provider request; public job response secret/internal-field exclusions checked; expired job GET did not restart; manual START replaced it and stale old worker saved no bundle; during-run source update created a second immutable input/job; successful job/key/attempt/bundle consistency checked; finish RPC response dropped after successful DB commit and GET recovered one saved bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary"
+    },
+    {
+      "name": "focused T02/T09 timing tests",
+      "runner": "race-prediction/ai-generation.test.mjs",
+      "exit_code": 0,
+      "tests": 24,
+      "passed": 24,
+      "failed": 0,
+      "scope": "two delayed responses crossing shared deadline; 50s and 70s mock responses accepted; virtual time only"
+    },
+    {
+      "name": "I08 old/unknown fetchedAt integration",
+      "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs and tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "real local PostgREST retained 11/31-minute-old and null fetchedAt; production handler sent 11-minute-old timestamp through to mock provider; no external AI request; fixture cleanup completed"
+    },
+    {
+      "name": "I07 selector and admission boundary checks",
+      "runner": "race-prediction/ai-edge-handler.test.mjs and tools/local-integration/ai-bundle-db-smoke.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "malformed selector date rejected before RPC; missing/invalid/past deadline rejected before claim/provider; isolated PostgreSQL rejected historical race at claim; disposable database removed"
+    },
+    {
+      "name": "G09/G10/G11 key invalidation and reuse integration",
+      "runner": "race-prediction/ai-p2-input.test.mjs and tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "mock_provider_requests": 13,
+      "scope": "same input returned same saved result without another provider request; preview/presence/fact changes changed factsHash and source-fact change produced a new job; config fields changed configHash and model-only change produced new job/bundle"
+    },
+    {
+      "name": "I09 day_heads concurrent batch consistency",
+      "runner": "tools/local-integration/ai-day-head-consistency-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "reads": 120,
+      "batch_switches": 120,
+      "fixture_residual_rows": 0,
+      "scope": "real local PostgREST, two ready synthetic batches, consistency of batchId/program/preview/component IDs; fixture removed and original day_head restored"
+    },
+    {
+      "name": "D13 local Supabase privilege and public response boundary",
+      "runner": "tools/local-integration/ai-rpc-privilege-smoke.sql, tools/local-integration/ai-edge-local-smoke.mjs, tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "anon/authenticated denied all 7 AI RPCs and private job/bundle reads; service_role privileges retained; Edge HTTP rejects invalid public client/selectors/job IDs; success responses omit raw facts, owner, provider key and internal request/config data"
+    },
+    {
+      "name": "D04 production handler concurrent START sharing",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "concurrent_start_requests": 20,
+      "shared_job_count": 1,
+      "mock_provider_requests_for_cohort": 1,
+      "scope": "provider response held until all starts joined; one worker and mock provider call completed; all requests received same job ID; expired job GET did not restart; manual START replaced it and stale old worker saved no bundle; during-run source update created a second immutable input/job; successful job/key/attempt/bundle consistency checked; finish RPC response dropped after successful DB commit and GET recovered one saved bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "D08/D09 expired job restart and stale-owner fence",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "mock_provider_requests_for_sequence": 2,
+      "old_job_bundle_count": 0,
+      "replacement_job_bundle_count": 1,
+      "scope": "held old provider response; expired job GET caused no retry; manual START created distinct job; stale old worker was rejected and only replacement saved; during-run source update created a second immutable input/job; successful job/key/attempt/bundle consistency checked; finish RPC response dropped after successful DB commit and GET recovered one saved bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "D01 successful atomic result relationship and D06 input immutability",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "success job/key/winning attempt/bundle join returned one consistent row; source changed while provider was held, resulting in separate jobs retaining before/after source values; both bundles saved; finish RPC response dropped after successful DB commit and GET recovered one saved bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "D03 commit success with lost finish response",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "mock_provider_requests_for_case": 1,
+      "saved_bundle_count": 1,
+      "successful_attempt_count": 1,
+      "scope": "finish RPC actually committed then test dropped the response; subsequent job GET read the same success without second provider request or duplicate bundle; post-deadline POST rejected while GET worked; time-only refresh reused bundle and preserved original fetchedAt; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "T08 wall-clock skew and shared-deadline client test",
+      "runner": "race-prediction/ai-client.test.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "simulated host wall clock jumped forward/back by 24h while monotonic deadline stayed bounded; extension ignored; transient GET succeeded without another START"
+    },
+    {
+      "name": "D11/D14 deadline and provenance reuse",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "post-deadline START rejected even with cached success; prior job GET remained readable; fetchedAt/last_success_at-only change reused the same saved bundle and retained the initial timestamp; real-time +0/+30/+60-second START/success timeline passed; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "D05 real-time staggered START test",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "elapsed_ms": 60000,
+      "start_offsets_seconds": [
+        0,
+        30
+      ],
+      "shared_job_count": 1,
+      "provider_requests_for_cohort": 1,
+      "scope": "mock provider was held until +60s; second START at +30s joined first job; only one worker/provider request and one successful saved result; D10 close-time crossed after admission, bounded repair saved using fixed input; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "D10 close-deadline crossing and repair",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "provider_requests_for_case": 2,
+      "saved_bundle_count": 1,
+      "completed_after_close": true,
+      "scope": "job admitted before close; first invalid mock response completed after close; one repair completed after close using stored input; GET returned success; real row-lock claim timed out at ~2s with no provider call; T11 final GET tested at client boundary",
+      "mock_provider_requests": 22
+    },
+    {
+      "name": "T11 claim lock wait and final GET",
+      "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs and race-prediction/ai-client.test.mjs",
+      "exit_code": 0,
+      "result": "passed",
+      "claim_lock_elapsed_ms": 2005,
+      "provider_requests_for_lock_case": 0,
+      "client_final_gets": 1,
+      "scope": "production handler claim hit a real locked reuse-key row and stopped near 2s deadline; client made one final GET at 2s remaining then honored nonretryable=false"
+    },
+    {
+      "name": "final race-prediction regression modules",
+      "command": "node --test race-prediction/*.test.mjs",
+      "exit_code": 0,
+      "tests": 15,
+      "passed": 15,
+      "failed": 0,
+      "formal_cases_counted": 0,
+      "scope": "all 15 race-prediction test modules passed after the follow-up edits"
+    },
+    {
+      "name": "final Deno Edge typecheck",
+      "runner": "tools/local-integration/ai-edge-typecheck.sh",
+      "exit_code": 0,
+      "result": "passed",
+      "scope": "supabase/functions/predictions/index.ts typechecked; no files changed"
+    }
+  ],
+  "blocked_or_pending": [
+    "M05 90-second EdgeRuntime waitUntil still cannot start temporary function route; HTTP 503 before task POST.",
+    "P4 live Gemini result remains unverified after prior HTTP 503; no additional generation attempted.",
+    "I01 source API field-by-field comparison needs real/archived source API records, absent locally.",
+    "Remaining real Edge concurrency/failure, public/hosted URL, smartphone and operational rollback cases are not verified."
+  ],
+  "external_calls": {
+    "gemini_generate": 0,
+    "hosted_supabase": 0,
+    "github_write": 0,
+    "deploy": 0
+  },
+  "last_followup_at": "2026-09-28T11:23:18+09:00",
+  "partially_verified": [
+    {
+      "id": "T09",
+      "evidence": "Mock virtual time accepts 50s/70s provider responses; real EdgeRuntime post-response execution is blocked by local route HTTP 503."
+    }
+  ]
+}

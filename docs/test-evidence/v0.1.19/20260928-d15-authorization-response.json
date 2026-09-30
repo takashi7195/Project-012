@@ -1,0 +1,44 @@
+{
+  "created_at": "2026-09-28T11:44:03+09:00",
+  "case_id": "D15",
+  "status": "passed",
+  "scenario": "begin_ai_attempt commits send authorization but its HTTP response is lost",
+  "implemented_behavior": "Without receiving send authorization, the worker does not call the provider. It attempts to record the attempt as unknown and closes the job as retryable. Diagnostic event names are allowlisted and diagnostic values remain sanitized.",
+  "unit_test": {
+    "command": "node race-prediction/ai-diagnostics.test.mjs",
+    "result": "passed",
+    "tests": "25 passed, 0 failed"
+  },
+  "regression": {
+    "command": "node --test race-prediction/*.test.mjs",
+    "result": "passed",
+    "modules": "15 passed, 0 failed"
+  },
+  "local_postgrest_integration": {
+    "command": "node tools/local-integration/ai-generation-postgrest-fixture.mjs",
+    "result": "passed",
+    "exit_code": 0,
+    "observed": "The fixture committed begin-attempt authorization, replaced the HTTP response with a synthetic 502, then confirmed no provider request, one sequence-1 unknown attempt, and a retryable failed job. All fixture/generated DB rows were removed in finally."
+  },
+  "formal_acceptance": {
+    "passed_before": 42,
+    "passed_after": 43,
+    "denominator": 70,
+    "initial_release_passed_after": 43,
+    "initial_release_denominator": 69,
+    "note": "D15 passed after the real local PostgREST response-loss scenario completed."
+  },
+  "external_services": {
+    "gemini_request": false,
+    "hosted_supabase": false,
+    "github_write": false,
+    "deployment": false
+  },
+  "source_sha256": [
+    { "path": "race-prediction/ai-generation.mjs", "sha256": "09ebc775ecb9e3b71b57b44d10bfb904537f445ebc02f97dfc0c149314b532c7" },
+    { "path": "race-prediction/ai-generation.test.mjs", "sha256": "29b748c3595b4641d7ac9657a66def6d559c609a2434f2b09abeea8505826492" },
+    { "path": "race-prediction/ai-diagnostics.mjs", "sha256": "81123a9ce2d5156c62a4558979e1e4e186ba24566b47ec0c15fb843719da3cdf" },
+    { "path": "race-prediction/ai-diagnostics.test.mjs", "sha256": "f23acee7da35414fcbf0f7ad710e4b8b3b58bd06d2118e11bc80434dd3f445ea" },
+    { "path": "tools/local-integration/ai-generation-postgrest-fixture.mjs", "sha256": "214eb9f759ebf56a35bfd53762be2ad131e7517436d6c64604fe44ef020bf678" }
+  ]
+}

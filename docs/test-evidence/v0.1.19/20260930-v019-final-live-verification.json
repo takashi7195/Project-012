@@ -1,0 +1,32 @@
+{
+  "testId": "v0.1.19 final public release verification",
+  "checkedAtJst": "2026-09-30",
+  "publicPages": {
+    "url": "https://takashi7195.github.io/Project-012/",
+    "http": 200,
+    "htmlVersionCounts": {
+      "v0.1.18": 0,
+      "v0.1.19": 2,
+      "v0.1.20": 0
+    }
+  },
+  "publicPredictionAvailability": {
+    "http": 200,
+    "date": "2026-09-30",
+    "mode": "ai_bundle",
+    "contract": "ai-bundle-v1",
+    "raceCount": 144
+  },
+  "liveGeneration": "See 20260930-public-race-spotcheck.json: public START returned 202, final GET returned 200 success, result contained three tickets and narrative, and save/readback succeeded.",
+  "code": {
+    "bundleReleaseCommit": "a8e4f44a77fa4407b32822b59c640e6e0ffa28e7",
+    "selectedModelCommit": "a08421e"
+  },
+  "releaseDecision": {
+    "version": "v0.1.19",
+    "acceptance": "58/70 passed, 0 failed, 12 incomplete",
+    "knownNarrativeFactIssue": "average ST was phrased as the current race ST; AI output adjustment deferred to v0.1.20 by user direction",
+    "runtimeCodeChangedByFinalization": false
+  },
+  "credentialsOrGeneratedNarrativePersisted": false
+}

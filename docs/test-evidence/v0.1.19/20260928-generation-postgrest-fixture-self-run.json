@@ -1,0 +1,31 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "caseGroup": "D02,D07,D16,G13 and local generation integration",
+  "timestamp": "2026-09-28",
+  "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+  "exitCode": 0,
+  "result": "passed",
+  "checks": [
+    "pre-commit save failure did not persist or expose success and did not retry provider generation",
+    "in-flight job retained frozen input/model/style through repair",
+    "save/read lock race preserved the correct winner",
+    "disconnected leading client did not stop the worker; later client read the shared success",
+    "real local Edge handler and PostgREST completed claim/attempt/save/read/reuse with mock provider",
+    "timestamp-only update reused saved bundle and preserved provenance",
+    "deadline, 20-way concurrent START, staggered START, expired job replacement and source-change scenarios passed",
+    "lost finish response recovered committed success",
+    "model configuration change created a distinct job/bundle",
+    "duplicate output repair and malformed-output rollback scenarios passed",
+    "provider 401/403/404 failures stopped without retry or saved bundle",
+    "admitted job completed after close time with frozen input and bounded repair",
+    "locked claim stopped within the configured budget without provider call",
+    "lost begin-attempt response was fenced without provider call",
+    "D02 and G13 save-failure/config-freeze scenarios passed"
+  ],
+  "cleanup": "runner reported fixture and generated database rows removed in finally",
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0
+  },
+  "scopeNote": "D07 confirms handler/PostgREST job survival after client disconnect with mocked EdgeRuntime waitUntil; it does not establish actual local EdgeRuntime background continuation. D07 remains partial."
+}

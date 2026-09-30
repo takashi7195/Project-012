@@ -1,0 +1,15 @@
+{
+  "date": "2026-09-28",
+  "nodeVersion": "v24.21.0",
+  "command": "node --test --test-timeout=180000 race-prediction/*.test.mjs tools/local-integration/ai-edge-callback.test.mjs",
+  "result": "passed",
+  "tests": 217,
+  "passed": 217,
+  "failed": 0,
+  "durationMs": 123227,
+  "includesRealGeminiRequest": false,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

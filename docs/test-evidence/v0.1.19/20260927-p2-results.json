@@ -1,0 +1,83 @@
+{
+  "created_at": "2026-09-27T20:20:55.769447+09:00",
+  "run_id": "d987b923-8e11-4e3d-ae68-d767c26c9ee4",
+  "phase": "P2 in progress",
+  "source_baseline": "20260927-p2-source-baseline.json",
+  "source_aggregate_sha256": "2daec03aca07fbf0ccca4b728ea6fb20ad4d9e4e4b956f3f372172b75c802d90",
+  "unit_regression": {
+    "node": "v24.21.0",
+    "command": "node --test --test-isolation=none --test-reporter=tap race-prediction/*.test.mjs supabase/functions/predictions/public-auth.test.mjs",
+    "exit_code": 0,
+    "tests": 209,
+    "passed": 209,
+    "failed": 0,
+    "tap_path": "tools/audit-v019/diagnostics-20260927/p2-regression.tap",
+    "tap_sha256": "6124b592c2e6d67852b2e92d6e2439f551dc2fa2c636f798671e2e70a7355718"
+  },
+  "focused_input_contract": {
+    "path": "tools/audit-v019/diagnostics-20260927/p2-contract.tap",
+    "exit_code": 0,
+    "tests": 28,
+    "passed": 28,
+    "failed": 0
+  },
+  "focused_invalid_entry_edge": {
+    "path": "tools/audit-v019/diagnostics-20260927/p2-target.tap",
+    "exit_code": 0,
+    "tests": 32,
+    "passed": 32,
+    "failed": 0
+  },
+  "database": {
+    "runner": "tools/local-integration/ai-bundle-db-smoke.sh",
+    "target": "disposable PostgreSQL 17-alpine container with isolated temporary schema/database",
+    "exit_code": 0,
+    "checks": [
+      "recursive exclusion of result/payout/refund/actual race result and existing AI prediction keys",
+      "past-date admission rejected",
+      "fetchedAt older than 26 years alone does not block claim",
+      "RPC privileges",
+      "attempt ownership and duplicate fence",
+      "invalid output rollback and atomic save/reuse",
+      "20 concurrent claim owner/join behavior"
+    ]
+  },
+  "deno": {
+    "command": "deno check --no-config supabase/functions/predictions/index.ts",
+    "exit_code": 0,
+    "network": "none",
+    "workspace": "read-only"
+  },
+  "findings_fixed": [
+    "Deeply nested result-only fields and named legacy/AI prediction fields are removed recursively in JS and SQL input filters.",
+    "factsHash now includes closedAt using inputSchemaVersion ai-input-v2, so deadline changes invalidate reuse identity."
+  ],
+  "formal_case_status": "No overall 70-case status promoted. P2 subchecks recorded separately because several IDs also require P3/P4/P5 evidence.",
+  "next": [
+    "I01/P3 input full-field comparison through local real RPC",
+    "P3 real Edge + mocked Gemini integration",
+    "P4 model use within verified project limits"
+  ],
+  "rate_and_polling_cases": {
+    "path": "tools/audit-v019/diagnostics-20260927/p2-rate.tap",
+    "exit_code": 0,
+    "tests": 3,
+    "passed": 3,
+    "cases": [
+      "20-second transient network failure then successful retry",
+      "six parallel different-race jobs with simulated project HTTP 429",
+      "job status polling over six pending reads then success within 60 seconds"
+    ]
+  },
+  "tested_conditions": {
+    "T01": "P2 mock passed; no real-time 20-second connection",
+    "T03": "P2 mock passed; real provider pending",
+    "T04": "P2 mock passed; real provider quota pending",
+    "T05": "P2 mock passed; real public UI pending",
+    "T06": "P2 mock passed; real provider pending",
+    "T07": "P2 mock passed; real Edge pending",
+    "T08": "P2 mock/client tests passed; end-to-end pending",
+    "T10": "P2 virtual-time mock passed",
+    "M08": "P2 simulated multi-job HTTP429 passed; real model usage remains P4"
+  }
+}

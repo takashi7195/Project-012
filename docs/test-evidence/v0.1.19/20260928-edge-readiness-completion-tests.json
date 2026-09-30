@@ -1,0 +1,14 @@
+{
+  "date": "2026-09-28",
+  "result": "passed",
+  "nodeVersion": "v24.21.0",
+  "testFiles": [
+    { "file": "tools/local-integration/ai-edge-completion.test.mjs", "passed": 4, "failed": 0 },
+    { "file": "tools/local-integration/ai-edge-readiness.test.mjs", "passed": 4, "failed": 0 }
+  ],
+  "geminiRequests": 0,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

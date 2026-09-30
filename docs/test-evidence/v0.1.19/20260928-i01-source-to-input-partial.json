@@ -1,0 +1,30 @@
+{
+  "id": "I01",
+  "timestamp": "2026-09-28T23:26:57+09:00",
+  "classification": "partial_confirmation",
+  "sourceUrl": "https://boatraceopenapi.github.io/api/v1/2026/20260101.json",
+  "sourceDate": "2026-01-01",
+  "sourceHttp": 200,
+  "sourceSha256": "207dc5e0779435b7778f58dab4ab7208b7f85bbbba3eb23a8dfe6dbf7d0c12f7",
+  "sourceBytes": 1407507,
+  "snapshotRaces": 156,
+  "checks": [
+    "real public snapshot parsed and normalized successfully",
+    "one six-entry source record was transformed by buildAiInput; every pre-race entry property/value compared",
+    "embedded preview and result facts excluded from program AI facts"
+  ],
+  "networkExposure": "single unauthenticated read of documented historical public snapshot; source payload not persisted",
+  "localDbRowsAtPriorCheck": 0,
+  "relatedLocalPostgrestFixture": "synthetic fixture passed separately; does not provide API sample to SQL RPC",
+  "unverified": [
+    "actual source sample has not been staged into local race_data and compared through race_prediction_get_ai_input",
+    "current day source/API live snapshot parity not checked"
+  ],
+  "sourceFileSha256": {
+    "race-ingestion/normalize.mjs": "f1a6bc957970f735b585c8d238f21510c5daf32441f96d8fb0fb01001b5729e1",
+    "race-ingestion/records.mjs": "e19b01225fccb1d20d602ac51eef911fbd1951bfe4174cebf0d54bfb771fed45",
+    "race-prediction/ai-input.mjs": "239cf30f9741e9aeb620892d188bf6ffdcf769d5a39ff3edb5bfaf05eea17959",
+    "supabase/migrations/20260926000000_ai_prediction_bundle_v0_1_19.sql": "0ab009bcb8685ad91d29a6f20a990faffede87f14201723b86d5b63d8ae12228",
+    "tools/local-integration/ai-input-postgrest-fixture.mjs": "3a19e5d0d9d5eb9b7d2eb7da6fa099bceaf1bd1398d419bf309c54dcb6fa83ab"
+  }
+}

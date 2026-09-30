@@ -1,0 +1,22 @@
+{
+  "id": "G12",
+  "timestamp": "2026-09-28T23:01:39+09:00",
+  "classification": "passed",
+  "checks": [
+    "supported Gemini model configured without UI/schema change; same Gemini adapter built generateContent URL for selected model",
+    "mocked valid response accepted by existing adapter contract",
+    "unsupported provider configuration rejected",
+    "unsupported thinking parameter rejected before network"
+  ],
+  "testFile": "race-prediction/ai-p2-input.test.mjs",
+  "testFileSha256": "f9ee059321bbbd598b80a803d70c64c25602b54d364c5fc84868df18aa8ea682",
+  "isolatedCheck": "Node.js synthetic fetch assertions exit 0",
+  "networkRequests": 0,
+  "geminiRequests": 0,
+  "hostedProjectRequests": 0,
+  "limitations": [
+    "cross-provider adapters are not implemented or claimed; initial design supports Gemini and changing a supported Gemini model by configuration",
+    "no live availability or quality claim for alternate model"
+  ],
+  "formalCount": "50/70 (initial publication 50/69)"
+}

@@ -1,0 +1,101 @@
+{
+  "schema": "gemini-model-selection-v1",
+  "date": "2026-09-29",
+  "scope": "supplemental_direct_generation_model_comparison",
+  "races": {
+    "date": "2026-09-29",
+    "stadiumCode": 2,
+    "raceNumbers": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "sameFactsPerRaceAcrossModels": true,
+    "programEntries": 6,
+    "previewEntries": 6
+  },
+  "requestPolicy": {
+    "models": [
+      "gemini-3.1-flash-lite",
+      "gemini-3-flash-preview",
+      "gemini-3.5-flash-lite",
+      "gemma-4-26b-a4b-it"
+    ],
+    "requestsPerModelPerRace": 1,
+    "totalRequests": 40,
+    "timeoutMs": 90000,
+    "retries": 0,
+    "databaseWrites": 0,
+    "generatedTextStored": false,
+    "apiKeyStored": false
+  },
+  "validation": {
+    "provider": "Gemini generateContent API",
+    "promptAndSchema": "application implementation versions at test time",
+    "thinkingLevel": "MEDIUM",
+    "maxOutputTokens": 8192,
+    "successCriteria": [
+      "HTTP 200",
+      "complete response",
+      "validateAiOutput success"
+    ],
+    "timeouts": 0,
+    "successes": 26,
+    "failures": 14
+  },
+  "results": [
+    {
+      "model": "gemini-3.1-flash-lite",
+      "successes": 10,
+      "requests": 10,
+      "formatValid": 10,
+      "averageSuccessfulResponseMs": 7364,
+      "failures": {}
+    },
+    {
+      "model": "gemini-3-flash-preview",
+      "successes": 7,
+      "requests": 10,
+      "formatValid": 7,
+      "averageSuccessfulResponseMs": 13492,
+      "failures": {
+        "http429": 3
+      }
+    },
+    {
+      "model": "gemini-3.5-flash-lite",
+      "successes": 9,
+      "requests": 10,
+      "formatValid": 9,
+      "averageSuccessfulResponseMs": 3852,
+      "failures": {
+        "http503": 1
+      }
+    },
+    {
+      "model": "gemma-4-26b-a4b-it",
+      "successes": 0,
+      "requests": 10,
+      "formatValid": 0,
+      "averageSuccessfulResponseMs": null,
+      "failures": {
+        "http400": 10
+      }
+    }
+  ],
+  "manualReview": {
+    "hitRateEvaluated": false,
+    "gemini35FlashLiteClearFactMismatchesFound": 0,
+    "gemini31FlashLiteMismatchesObserved": [
+      "R3: exhibition course attribution and fastest exhibition time claim",
+      "R7: Imaizumi Mio identified as boat 3 though entry is boat 5",
+      "R9: historical F-hold wording conflicts with program flying-count fields; exhibition F display is present",
+      "R10: exhibition ST 0.04 described as exhibition time and boat 5 described as outermost though boat 6 is course 6"
+    ],
+    "limitations": [
+      "10 races is a small sample",
+      "direct provider generation and output validation only; no production job, database save, or UI acceptance",
+      "no claim about future quota, availability, factuality, or hit rate"
+    ]
+  },
+  "decision": {
+    "selectedModel": "gemini-3.5-flash-lite",
+    "basis": "9/10 valid generations, shortest successful-response average among the tested models with usable responses, and no clear entry/fact mismatch found in the nine reviewed outputs"
+  }
+}

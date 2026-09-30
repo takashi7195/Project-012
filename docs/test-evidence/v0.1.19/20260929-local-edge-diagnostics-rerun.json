@@ -1,0 +1,21 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "command": "node tools/local-integration/ai-edge-local-smoke.mjs",
+  "runnerSha256": "1505df38595434e296971be8ff3924e28e79b161fb047c3a4e0a36571ef968ec",
+  "exitCode": 0,
+  "formalCase": "supplemental local Edge diagnostics smoke",
+  "environment": "Windows PowerShell, local Supabase Edge Runtime, Windows bundled Node.js",
+  "assertions": {
+    "requestIdHeaders": true,
+    "corsExposure": true,
+    "sanitizedRuntimeLogCorrelation": true,
+    "localEdgeHttpRoute": true,
+    "publicKeyRejection": true,
+    "selectorValidation": true,
+    "jobIdValidation": true
+  },
+  "result": "PASS",
+  "sideEffects": "No DB RPC, Gemini request, database write, or deployment occurred",
+  "formalAcceptanceCountChanged": false
+}

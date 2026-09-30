@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-28",
+  "testCase": "ai-bundle-db-smoke",
+  "result": "passed",
+  "target": "disposable database inside local Supabase PostgreSQL container",
+  "checks": [
+    "migrations and input filtering",
+    "DB constraints and RPC privileges",
+    "duplicate attempt fence and stale worker fence",
+    "invalid output rollback and atomic success save",
+    "retryable and nonretryable failure states",
+    "20 concurrent START requests share one owner"
+  ],
+  "temporaryDatabaseRemoved": true,
+  "existingRaceDataUsed": false,
+  "hostedSupabaseUsed": false,
+  "geminiRequests": 0,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

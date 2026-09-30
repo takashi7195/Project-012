@@ -1,0 +1,30 @@
+{
+  "id": "I04",
+  "timestamp": "2026-09-28T22:52:16+09:00",
+  "classification": "passed",
+  "execution": {
+    "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs",
+    "exitCode": 0,
+    "finalExitCode": 0,
+    "fixtureCleanup": "finally cleanup completed (runner exited 0)"
+  },
+  "assertions": [
+    "six raw API-style entries retained",
+    "expected national/local win-rate and motor two-place aggregate numbers matched for all six synthetic source entries",
+    "existing race result/prediction fields recursively removed",
+    "input RPC reads selected race from current day-head/current batch/components; no historical racer search"
+  ],
+  "fixture": "synthetic current-race API-shaped input; removed in runner finally",
+  "geminiRequests": 0,
+  "hostedProjectRequests": 0,
+  "sourceSha256": {
+    "tools/local-integration/ai-input-postgrest-fixture.mjs": "3a19e5d0d9d5eb9b7d2eb7da6fa099bceaf1bd1398d419bf309c54dcb6fa83ab",
+    "tools/local-integration/seed-ai-input-fixture.sql": "8259648190b2e72175b3203ab79831b844801ba3118ed0f2811a2ba54431b7d1",
+    "supabase/migrations/20260926000000_ai_prediction_bundle_v0_1_19.sql": "0ab009bcb8685ad91d29a6f20a990faffede87f14201723b86d5b63d8ae12228"
+  },
+  "formalCount": "49/70 (initial publication 49/69)",
+  "limitations": [
+    "does not prove parity against a full contemporaneous source API response",
+    "does not transmit historical race-result rows; per R05 no additional historical search is allowed"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "test": "production prediction handler with local PostgREST and mock Gemini after model default change",
+  "date": "2026-09-29",
+  "command": "node tools/local-integration/ai-generation-postgrest-fixture.mjs",
+  "exitCode": 0,
+  "scenariosPassed": 20,
+  "fixtureCleanup": true,
+  "realGeminiRequests": 0,
+  "hostedSupabaseRequests": 0,
+  "persistentFixtureRowsAfterCleanup": 0
+}

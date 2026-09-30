@@ -1,0 +1,16 @@
+{
+  "test": "race-prediction Node regression plus Edge callback helper",
+  "dateTimeJst": "2026-09-29 13:44-13:46 JST",
+  "command": "/home/user01/.nvm/versions/node/v24.21.0/bin/node --test race-prediction/*.test.mjs tools/local-integration/ai-edge-callback.test.mjs",
+  "nodeVersion": "v24.21.0",
+  "exitCode": 0,
+  "tests": 217,
+  "passed": 217,
+  "failed": 0,
+  "durationMs": 122957,
+  "networkScope": "local loopback callback receiver only",
+  "geminiRequests": 0,
+  "hostedSupabaseRequests": 0,
+  "persistentDataChanges": 0,
+  "notes": "Initial sandboxed attempt passed 15 test files but could not bind the callback receiver (listen EPERM). Re-run with local network permission passed all 217 tests. This regression run does not change formal acceptance counts."
+}

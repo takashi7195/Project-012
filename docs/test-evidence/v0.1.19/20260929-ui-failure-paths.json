@@ -1,0 +1,18 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-ui-browser-smoke.cjs",
+  "runnerSha256": "79f26db4b1b45eec4dd50b6db58eea3f2213b95af6adc83818becc9c63f523a1",
+  "executor": "Windows bundled Node.js, Playwright and Microsoft Edge",
+  "exitCode": 0,
+  "checks": {
+    "successBundleDisplayedBeforeFailures": true,
+    "providerHttp503": "generic retryable UI message; old picks and narrative cleared; idle reels restored to 1-2-3; START restored",
+    "networkDisconnect": "generic retryable UI message; old picks and narrative cleared; idle reels restored to 1-2-3; START restored",
+    "invalidAiBundle": "generic retryable UI message; old picks and narrative cleared; idle reels restored to 1-2-3; START restored",
+    "saveFailureResponse": "generic retryable UI message; old picks and narrative cleared; idle reels restored to 1-2-3; START restored",
+    "viewportWidths": [320, 390, 430, 1280]
+  },
+  "network": "Supabase, Gemini and comment routes intercepted; local static server only",
+  "limitations": "UI mock response coverage only; provider/save failure causes were not induced in Edge/PostgREST"
+}

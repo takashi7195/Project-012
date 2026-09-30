@@ -1,0 +1,521 @@
+{
+  "created_at": "2026-09-27T14:43:08.755932+09:00",
+  "head": "5cc946f937cff7ba34a498659436b4cecd3aa831",
+  "note": "Post-diagnostic change raw-byte scoped source hashes. Not a commit, backup or release acceptance. Aggregate = SHA256 of sorted path + NUL + file SHA256 + LF.",
+  "file_count": 128,
+  "aggregate_sha256": "a61102044a5fc7ef8dc864fbbafb55ddb4518743a8cb047b8e3dc5694892038e",
+  "files": [
+    {
+      "path": "comment-safety.js",
+      "sha256": "942e52ffd388c5aca2c5f69b69d98587776e21cb02a0b50feeaf20cfec081a2b"
+    },
+    {
+      "path": "comments.js",
+      "sha256": "b320c9af94ae6779cf36a1abfc57a01942203022a6c8578700d8574abce8d005"
+    },
+    {
+      "path": "index.html",
+      "sha256": "8676223f787f9f3b99c557fed00061e7778aada04dd660560da66e77db4029c7"
+    },
+    {
+      "path": "race-ingestion/acceptance-harness.test.mjs",
+      "sha256": "e66f8f840b9f85b5c0ff4cd061062d4885bc85e6bb56f17576870003ef51c245"
+    },
+    {
+      "path": "race-ingestion/advanced-search-smoke.sql",
+      "sha256": "b1a994a6afd16e271a0b916ece5c15b9db4fe10948c11836174b93fa1512e85b"
+    },
+    {
+      "path": "race-ingestion/advanced-search-sql.test.mjs",
+      "sha256": "767840aaaa744f49474da844a98838c76f54139cee0bb23a504416012b70f41a"
+    },
+    {
+      "path": "race-ingestion/api-client.mjs",
+      "sha256": "1b150bfef18334f00f652263bc9be5a696e65572ec13c577f2fd988a49a1eec9"
+    },
+    {
+      "path": "race-ingestion/api-client.test.mjs",
+      "sha256": "9eb649d64d7cf13e30582d3fb6390012150e1d154b49359ade132f019dc32f34"
+    },
+    {
+      "path": "race-ingestion/backup-restore-smoke.sql",
+      "sha256": "6170dcf9fe9987d0528e0c86952dd82816492ac3e8bb15636a707d72c98771b8"
+    },
+    {
+      "path": "race-ingestion/capacity-acceptance.mjs",
+      "sha256": "029a1cf9919c3f15e05aefaff9068bcd0fe5b082c61ca17b691ca11c8a3c7718"
+    },
+    {
+      "path": "race-ingestion/capacity-cron.sql",
+      "sha256": "1bd9f6a1fda08d5b1bab239970c4f196b478070458b15f51757bd18990b74e4f"
+    },
+    {
+      "path": "race-ingestion/closed-at-contract.test.mjs",
+      "sha256": "9794521f4025567475aaac26169dda8ffb09c5acfcfe6c9fae97feda34c713fa"
+    },
+    {
+      "path": "race-ingestion/coverage-maintenance-sql.test.mjs",
+      "sha256": "6763c376cb416a8c18a089af314ebebf31929e723406487f682a5bd05dbabc60"
+    },
+    {
+      "path": "race-ingestion/coverage-report-smoke.sql",
+      "sha256": "6a0f6c9d62b2156cc5ce97d561e7575af686f36aff6f13b0d0ab215fed913bd1"
+    },
+    {
+      "path": "race-ingestion/coverage-report-sql.test.mjs",
+      "sha256": "23b3f62a64b84c4501b5b9cfb3989b4d7a8158b2c23c8de39d94817d587cd869"
+    },
+    {
+      "path": "race-ingestion/coverage-table-smoke.sql",
+      "sha256": "bbc71427b9d6e933be303ede74cc3dedf972c68367168f4c2057bcd4cae86fdf"
+    },
+    {
+      "path": "race-ingestion/cron-jobs.sql",
+      "sha256": "cd8be58f791b425b9e9bdd9a51a214d223d653c2a63da37c778d07357bde8a5a"
+    },
+    {
+      "path": "race-ingestion/cron-run-status.sql",
+      "sha256": "8d8ad7888f1df422ceaeae2bdfea53c2504197f9bd0cad94d2ddf9a9609bd3a7"
+    },
+    {
+      "path": "race-ingestion/edge-worker-static.test.mjs",
+      "sha256": "071bdba41b39d9a610880fe2e0f47f877c4534480656821c14e52f1c318be1ac"
+    },
+    {
+      "path": "race-ingestion/evidence-smoke.mjs",
+      "sha256": "1fb23dc2ef286e8d3fc6e65cd85e5f6f45a421449d3abc57d680f4f7c71e56d4"
+    },
+    {
+      "path": "race-ingestion/generic-search-smoke.sql",
+      "sha256": "1b7b5fcec1fbba10ad229de09ed0403b7dd02ad79440b255b5b7bc5df09f4c62"
+    },
+    {
+      "path": "race-ingestion/generic-search-sql.test.mjs",
+      "sha256": "587a4d59d226da06f2c4b0a216122b96c8138631bca9a9be18abeafa95494ce6"
+    },
+    {
+      "path": "race-ingestion/ingest-date.mjs",
+      "sha256": "18baef4a3d7604351c74218a96e6a6d152aa00449472e58d88144236044e57e5"
+    },
+    {
+      "path": "race-ingestion/normalize.mjs",
+      "sha256": "f1a6bc957970f735b585c8d238f21510c5daf32441f96d8fb0fb01001b5729e1"
+    },
+    {
+      "path": "race-ingestion/normalize.test.mjs",
+      "sha256": "fd41a8dc069dc45084e07167d6f372de8334ef8def0cfeed03784ea6be7ba622"
+    },
+    {
+      "path": "race-ingestion/prepare-date.mjs",
+      "sha256": "892bdf8a73fb07b2cb234b2ee2bc67bf1a834671089dabd184c9dc950bc048f1"
+    },
+    {
+      "path": "race-ingestion/race-history-smoke.sql",
+      "sha256": "acaf13f0b42cfa4bf5fb84847173d2f9133b5672ab22859aff60441baeb12541"
+    },
+    {
+      "path": "race-ingestion/race-history-sql.test.mjs",
+      "sha256": "d001c521704dd847227baa737fc548915769b0c7554feb882b88586dd132536d"
+    },
+    {
+      "path": "race-ingestion/records.mjs",
+      "sha256": "e19b01225fccb1d20d602ac51eef911fbd1951bfe4174cebf0d54bfb771fed45"
+    },
+    {
+      "path": "race-ingestion/records.test.mjs",
+      "sha256": "297321553faea9ec0a4c844798f76916969190ecb2047cd0676156df63949b55"
+    },
+    {
+      "path": "race-ingestion/register-cron.sql",
+      "sha256": "544d71755d4ad6d226264bbc73311e9eb26e80637db5bb4698ed13d3af8a581e"
+    },
+    {
+      "path": "race-ingestion/reparse-payload.mjs",
+      "sha256": "4fa4e350b00906ac10f03504200aa06bfbeaceeae5f3270bdbf1c3484a8aa94f"
+    },
+    {
+      "path": "race-ingestion/reparse-payload.test.mjs",
+      "sha256": "86aea2fb35f5f2de9a5dd46e1ed78ed50d1f9a1a4a466dc99e78c8a4eeb44da8"
+    },
+    {
+      "path": "race-ingestion/scheduler-db-smoke.sql",
+      "sha256": "8a572f123c4d577931d62671072ff8b2daca2ab37682d52d9bb73267cfd87e7e"
+    },
+    {
+      "path": "race-ingestion/scheduler-requeue.sql",
+      "sha256": "1affdc69e70069d581ef541dec94d424dbc1272fd3dfa51d98d1d9b9d85df5ed"
+    },
+    {
+      "path": "race-ingestion/scheduler-sql.test.mjs",
+      "sha256": "7969364240191a716ca82191aa46686027a9e06da58cea2b29295db6a49f4180"
+    },
+    {
+      "path": "race-ingestion/scheduler.mjs",
+      "sha256": "ce99279e6a3e62b011c5077c32e4adcce30e63136383719feb9c9a49b75efcea"
+    },
+    {
+      "path": "race-ingestion/scheduler.test.mjs",
+      "sha256": "f20a1dcf8c313584168550607e7f5fa286c48348b963e059d506c4c3d548ccc0"
+    },
+    {
+      "path": "race-ingestion/task-count.sql",
+      "sha256": "44fd817c82bb20428b55af3114c1b3cc761650c95cb0589b5959f18954878c14"
+    },
+    {
+      "path": "race-ingestion/today-404-requeue-sql.test.mjs",
+      "sha256": "42f4e483ce00dfb79ce6085c5ca25744831be1dafb1dcc2129fb711a62d07441"
+    },
+    {
+      "path": "race-ingestion/worker-task-diagnostics.sql",
+      "sha256": "35d1e57d040c2d435ddfd1a6d94d735ed5d5ac07fc404f1fdcde452610ec07c0"
+    },
+    {
+      "path": "race-ingestion/worker.mjs",
+      "sha256": "4632c67d62804f4a97d5a5b9fca343934a35f2c8cb33d0852a64897f0d20d8da"
+    },
+    {
+      "path": "race-ingestion/worker.test.mjs",
+      "sha256": "71c765ab14716c29592013992d60aa5ed55b9cf42b16932bc54f199a48b27868"
+    },
+    {
+      "path": "race-ingestion/write-ingest-chunks.mjs",
+      "sha256": "47477fcf12cc345934361eba69f321e2e05682b1504d0a45721433706e617e55"
+    },
+    {
+      "path": "race-ingestion/write-ingest-sql.mjs",
+      "sha256": "c9c6f5845537d4c5bbbc1cd3ba306b32210459a716c33d481ee5ccd5d3862b93"
+    },
+    {
+      "path": "race-prediction/ai-client.test.mjs",
+      "sha256": "fa48af1a92e3802517e79870491d269588046a05be7acb7e8c88ada14bb9d400"
+    },
+    {
+      "path": "race-prediction/ai-config.mjs",
+      "sha256": "b668447ec7fa6aaef40bccac5311d5ed260b7f8d76d472898735fe46fddeb6f3"
+    },
+    {
+      "path": "race-prediction/ai-contract.test.mjs",
+      "sha256": "d558f195cb1b93d04509d942d53e278693399dbbe1787b09c602b9023867ffdc"
+    },
+    {
+      "path": "race-prediction/ai-diagnostics-edge.test.mjs",
+      "sha256": "133b80e3f51b6604a10e2dda40378f993c04e06424ee329cdd544d203fddd988"
+    },
+    {
+      "path": "race-prediction/ai-diagnostics.mjs",
+      "sha256": "943a2334ba5ab559f131480648401c3a0dea4624495a0b443e4f68e21564973c"
+    },
+    {
+      "path": "race-prediction/ai-diagnostics.test.mjs",
+      "sha256": "f660953135bed778e6f7d4f4d45acbc1062affc0eb90fb35a77985dfc9d384d5"
+    },
+    {
+      "path": "race-prediction/ai-edge-handler.test.mjs",
+      "sha256": "17cdbeabee5111e992044b43800039da60a737b26fbf4020ce7a9f5494b38ec8"
+    },
+    {
+      "path": "race-prediction/ai-generation.mjs",
+      "sha256": "9b6265755da6df63cf2272f3eb876bace83448fd86d758d150f710b754a344df"
+    },
+    {
+      "path": "race-prediction/ai-generation.test.mjs",
+      "sha256": "b9d3ae2af8ce8de8105b99068984373ce47a2891a601c98bca6a6e3b24234e4d"
+    },
+    {
+      "path": "race-prediction/ai-input.mjs",
+      "sha256": "8405d1f8e8c671a586c6e6128c07994b6a885d19a89841befdac545cfabb52db"
+    },
+    {
+      "path": "race-prediction/ai-migration-static.test.mjs",
+      "sha256": "1aef8c327268908babc3ca3e8d041211fcf753096bd7ea6f0faaa626d508068e"
+    },
+    {
+      "path": "race-prediction/ai-output.mjs",
+      "sha256": "a3ea4a13fa51704580ad085eaf6c2da02a401cb808b9e59a34cbe87463783630"
+    },
+    {
+      "path": "race-prediction/ai-prompt.mjs",
+      "sha256": "d5f5ea4da42ea38cd9899689b5918361f78a3dd6baec0e0c3c15841652f37e83"
+    },
+    {
+      "path": "race-prediction/client.mjs",
+      "sha256": "8365f8105ea7b32c6d36d0d827ac944db09f713a9f43b8931e75bed399a5ad65"
+    },
+    {
+      "path": "race-prediction/date-utils.mjs",
+      "sha256": "75a6f3cceb403ac7a07fca26eec7bf0fde220047c87914f1093d27e8769fe7f9"
+    },
+    {
+      "path": "race-prediction/date-utils.test.mjs",
+      "sha256": "18ef87caf05c3b158bc2da7f0e8b337e35cfb3d5bde41a7e2734d59fde0cb6ce"
+    },
+    {
+      "path": "race-prediction/input-contract.mjs",
+      "sha256": "e95ea4b672ff70e48b426b1687073945d388b5c6749f32ba27770944f3ab8416"
+    },
+    {
+      "path": "race-prediction/narrative.mjs",
+      "sha256": "a3a185c145e982cc4050a986789ff7cb8b540f6d3b069209ee21346fa0a1fa0a"
+    },
+    {
+      "path": "race-prediction/narrative.test.mjs",
+      "sha256": "5e0d8729b86dfdbbd118396c1469a735820191f75243fea5948c463481bd6df9"
+    },
+    {
+      "path": "race-prediction/prediction-static.test.mjs",
+      "sha256": "ef654dcebf82e9fedc3abe59bd2d25714d54c51613e6ea6cdd4ebe86b8fbc453"
+    },
+    {
+      "path": "race-prediction/providers/gemini.mjs",
+      "sha256": "207e4da55e745ee25caaecefbcecdffa74f58f2c3551ce0f15a317ed81cb3e21"
+    },
+    {
+      "path": "race-prediction/release-regression.test.mjs",
+      "sha256": "949c594e1bc342f94090f286e05451955dc45909e3aab01f2759dc8694b671c7"
+    },
+    {
+      "path": "race-prediction/scoring.mjs",
+      "sha256": "d0784becca552f3c1af8842d88bac6bf5da847271ba9c07111e3c9df867255e7"
+    },
+    {
+      "path": "race-prediction/scoring.test.mjs",
+      "sha256": "9b64db78587f45612b3183297e332fcbab66a579f3b4c56a6b9b3857777bfa0f"
+    },
+    {
+      "path": "race-prediction/stadium-selection.test.mjs",
+      "sha256": "78aff5f401e56ff0d234db155948d03f1bb19d127d37d479a51a2998eb538d6c"
+    },
+    {
+      "path": "script.js",
+      "sha256": "4cb1edb9f949feaa2182c068ab790e493cb12450b99a63acf5ae923138468976"
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "487c82471774eb67c556066c566c6a8a07d4e914ac60fd9aaddaf9730026d33d"
+    },
+    {
+      "path": "supabase/functions/comments/ai-reply.mjs",
+      "sha256": "6c204551e9f737232e8d83369cb31fd918062de039d5d97c5f5561f7139bf2d6"
+    },
+    {
+      "path": "supabase/functions/comments/ai-reply.test.mjs",
+      "sha256": "d4798723bb947f77c330dfd25b25eaafa9d40d0ff52a29e461175b5b7af0d525"
+    },
+    {
+      "path": "supabase/functions/comments/index.integration.test.ts",
+      "sha256": "57f8e0915e9c855b7f61d243d0f92556bc4482676015a379317801ea3f2954a7"
+    },
+    {
+      "path": "supabase/functions/comments/index.ts",
+      "sha256": "83e037632943120f4ef4e7aac4e37930a6dd5e2e6e119175995b1276d3ddd8e4"
+    },
+    {
+      "path": "supabase/functions/comments/moderation.mjs",
+      "sha256": "ab100ea5936e2e970c02170701386112d84db9ad182b963792b9e8b96a4a0425"
+    },
+    {
+      "path": "supabase/functions/comments/moderation.test.mjs",
+      "sha256": "a9263dd5b2822a4d6aed4fb41a0e31e6b683567a0477412659b1b37946c40499"
+    },
+    {
+      "path": "supabase/functions/comments/prediction-context.mjs",
+      "sha256": "1b53f62675d6690d95b60215a20ba771d2734e9d8dd0b4bdd210e5b818f4f922"
+    },
+    {
+      "path": "supabase/functions/comments/prediction-context.test.mjs",
+      "sha256": "a234afd2f7d69115abbae56d4692eb1246c61346bee320e3abbe10557ef43656"
+    },
+    {
+      "path": "supabase/functions/comments/race-context.mjs",
+      "sha256": "0c48868757588e15b61e598cc606feb85d1b047c56c0671148d94b39d8518d25"
+    },
+    {
+      "path": "supabase/functions/comments/race-context.test.mjs",
+      "sha256": "c925530930bc1ddc996daf667658bb66c6e5a9cea50c5b05268d5afb00d74ce1"
+    },
+    {
+      "path": "supabase/functions/comments/reply-router.mjs",
+      "sha256": "2f6adf3f00438efcaf67be29487a93d431080ff941b2cd69f8f6aee265968c73"
+    },
+    {
+      "path": "supabase/functions/comments/reply-router.test.mjs",
+      "sha256": "a282e7014f5a8dc1f7e073b0b6c97025b67786cdc9ae2bab7c9a96e8bf1ede6f"
+    },
+    {
+      "path": "supabase/functions/predictions/index.ts",
+      "sha256": "8636d5c030469f63c53fe79b206e12785de47ec6f483c551f09d2b88f3bb874b"
+    },
+    {
+      "path": "supabase/functions/predictions/public-auth.mjs",
+      "sha256": "2db608423945443809e0ee43be848e25ee9f2b467d5ea445d84335a2c8bfce28"
+    },
+    {
+      "path": "supabase/functions/predictions/public-auth.test.mjs",
+      "sha256": "fbf11247f27ec5c96fd2ebf7bb64613787ece3ac4f1d43c2191afaf9534b08c6"
+    },
+    {
+      "path": "supabase/functions/race-ingest/index.ts",
+      "sha256": "6c97e5a0272796f58cd59094ee2a8820f0951c95ebdbfa936307a0c9d0f5c83e"
+    },
+    {
+      "path": "supabase/functions/race-ingest/normalize.mjs",
+      "sha256": "f1a6bc957970f735b585c8d238f21510c5daf32441f96d8fb0fb01001b5729e1"
+    },
+    {
+      "path": "supabase/functions/race-ingest/records.mjs",
+      "sha256": "e19b01225fccb1d20d602ac51eef911fbd1951bfe4174cebf0d54bfb771fed45"
+    },
+    {
+      "path": "supabase/functions/race-ingest/scheduler.mjs",
+      "sha256": "ce99279e6a3e62b011c5077c32e4adcce30e63136383719feb9c9a49b75efcea"
+    },
+    {
+      "path": "supabase/functions/race-ingest/worker.mjs",
+      "sha256": "4632c67d62804f4a97d5a5b9fca343934a35f2c8cb33d0852a64897f0d20d8da"
+    },
+    {
+      "path": "supabase/migrations/20260913000000_comments.sql",
+      "sha256": "980588f787c8c6f2cb2f2da6ddf00fd080a490ea1a38b133c95e42a300b2d832"
+    },
+    {
+      "path": "supabase/migrations/20260914000000_gemini_comment_replies.sql",
+      "sha256": "99c82bd85a5ff29d225a04f454db1e0fba0d7eb96326926bb26d11807eea3c33"
+    },
+    {
+      "path": "supabase/migrations/20260914100000_ai_takashi_template_fallback.sql",
+      "sha256": "df199181d7cbba6947e092366d92f94665ffe6155932750325990de84e579450"
+    },
+    {
+      "path": "supabase/migrations/20260914120000_comment_tip_nudges.sql",
+      "sha256": "8d022bac5202ab9e6e6d6c6c98c607a4a4b7882110848ad7186db124c4c103dc"
+    },
+    {
+      "path": "supabase/migrations/20260917000000_comment_rate_10_seconds.sql",
+      "sha256": "51d7ea8fc084af1340a8cf2b902ae4c3e153f1326a14b7413e2a58501a1e9a72"
+    },
+    {
+      "path": "supabase/migrations/20260917010000_remove_reply_length_limit.sql",
+      "sha256": "beb371d1b94deabaf4cc79c2ff6443f532bdb3a89da8c9418f16fe12641f931c"
+    },
+    {
+      "path": "supabase/migrations/20260917020000_comment_length_300.sql",
+      "sha256": "e66d10c074ff0250db84dd92ccfbb9992a6ec5d12dbed7f24da38b343278a9db"
+    },
+    {
+      "path": "supabase/migrations/20260920000000_race_data_ingestion.sql",
+      "sha256": "dc171b366ef3c285b847954dcaba9393d4dae380dd3d55d1441c2e2921f8be97"
+    },
+    {
+      "path": "supabase/migrations/20260921000000_race_data_scheduler.sql",
+      "sha256": "328ff24e03b201e4659a1109aca4c1351322a64716ab65278bf2db2487fc6f8b"
+    },
+    {
+      "path": "supabase/migrations/20260921000001_limit_backfill_window.sql",
+      "sha256": "6e81e197558a0a5e2584f48db442db74bffc54336a968fb7810bdeabd39127ba"
+    },
+    {
+      "path": "supabase/migrations/20260921000002_ingestion_failure_logs.sql",
+      "sha256": "b9fbd277465c7b0cc47037448d952fcaca9e98a9c8a321b6439cf809074dbebe"
+    },
+    {
+      "path": "supabase/migrations/20260921000003_conditional_fetch_metadata.sql",
+      "sha256": "b634058c11aa5806a3fe612630cb7d34b805dc901d62d8c6c6bdd281162b5fe9"
+    },
+    {
+      "path": "supabase/migrations/20260921000004_capacity_observations.sql",
+      "sha256": "8c3334e52238b3db469c977c2192e18148e880885c2fd2481efcb5cc450d6cb1"
+    },
+    {
+      "path": "supabase/migrations/20260921000005_generic_search.sql",
+      "sha256": "4cdc08f3f212b217b52941c196af84042245ae4eae4c61ffd63b116c004f40fb"
+    },
+    {
+      "path": "supabase/migrations/20260921000006_advanced_search.sql",
+      "sha256": "bdd0cac38d19f88939b48a89a1b645ecb4b2449c060f77ddc88156f302e5a909"
+    },
+    {
+      "path": "supabase/migrations/20260921000007_search_indexes.sql",
+      "sha256": "e5e0d0b2cf894519fb90f0c29834df39e362c361d2e9f58453f52fef7af88b46"
+    },
+    {
+      "path": "supabase/migrations/20260921000008_coverage_report.sql",
+      "sha256": "21316bc237272f1ed91675bf1b86479c50c732bf22f604355e81159571532cf8"
+    },
+    {
+      "path": "supabase/migrations/20260921000009_race_history.sql",
+      "sha256": "ca7211a362857cc5065e7915be3dd3d3ddffa092b2a6e03006b6d57db63feb46"
+    },
+    {
+      "path": "supabase/migrations/20260921000011_coverage_maintenance.sql",
+      "sha256": "5762b22af70b2e00762de5da0cdf39c8fa6e98c728e41a1cc4a80d0949e8f317"
+    },
+    {
+      "path": "supabase/migrations/20260922000000_prediction_snapshots_v0_1_14.sql",
+      "sha256": "8bdc63a028b1b3db24ce51cc0871ac99ba2b96c87238ad0065c66d139d7fdc77"
+    },
+    {
+      "path": "supabase/migrations/20260922000001_narrative_attempts_v0_1_14.sql",
+      "sha256": "62fa66aaf4be6f0422476a67077ccee8d7414a1c841b03203da12b296b876a16"
+    },
+    {
+      "path": "supabase/migrations/20260923000000_prediction_generation_lease_atomic_v0_1_14.sql",
+      "sha256": "158917ddc8fc5cc1b242a69f3ab8287c2a459b1c5af237b3bc1e4ba56c763321"
+    },
+    {
+      "path": "supabase/migrations/20260924000000_closed_at_contract_v0_1_14.sql",
+      "sha256": "059d9465b7e247be443463227f6edfa341cd742719a2afc63d22aa3f11991994"
+    },
+    {
+      "path": "supabase/migrations/20260924010000_race_data_today_404_requeue_v0_1_16.sql",
+      "sha256": "5c5dffb7fdc759f911c12b0b9142b10d6c80583cbc2200f13379ffcacc784b1b"
+    },
+    {
+      "path": "supabase/migrations/20260926000000_ai_prediction_bundle_v0_1_19.sql",
+      "sha256": "0ab009bcb8685ad91d29a6f20a990faffede87f14201723b86d5b63d8ae12228"
+    },
+    {
+      "path": "supabase/rollback/20260920000000_race_data_ingestion_down.sql",
+      "sha256": "408494aac5fc7424abdac87f7cdcb3a1db359b75f8f3d0f2b1734aad3dcb50ae"
+    },
+    {
+      "path": "tools/local-integration/ai-bundle-db-smoke.sh",
+      "sha256": "ce401e74684d40e314329aba2950fa2fef8f3c74fff35daba01b8d75d66c2344"
+    },
+    {
+      "path": "tools/local-integration/ai-diagnostics-summary.mjs",
+      "sha256": "28aac11e89aa27fa7c01421ddcc85038455c8d40618b520181f4aa416d6af2f0"
+    },
+    {
+      "path": "tools/local-integration/ai-edge-local-smoke.mjs",
+      "sha256": "fe133b1d1b35c1bba62ebc82245717c380ed38b23e32021ef3706dde4d128bd7"
+    },
+    {
+      "path": "tools/local-integration/ai-edge-postgrest-smoke.mjs",
+      "sha256": "84a1e9fda1f2d43fdc4b768af4adfa7168d11f2347fd3f390ea417150bcef9b8"
+    },
+    {
+      "path": "tools/local-integration/ai-edge-typecheck.sh",
+      "sha256": "ed79b32bc72d070d85f288c62505af9a64d7ffa40c53eedcec18d91fc1c7883a"
+    },
+    {
+      "path": "tools/local-integration/ai-gemini-live-smoke.mjs",
+      "sha256": "494acbabf99755709584a726010a4ae853229e03d1eb29d18e06b9d139aa1b67"
+    },
+    {
+      "path": "tools/local-integration/cleanup-prediction-fixture.sql",
+      "sha256": "42930a66effcf3753e0f9fc0309f4b9fc759b1b96dc71df9da9c7006a0536986"
+    },
+    {
+      "path": "tools/local-integration/run-prediction-integration.mjs",
+      "sha256": "1309359bfc7757c21d00e0b0176c4e8c9209ce60245b9456fb30a64bceb341fe"
+    },
+    {
+      "path": "tools/local-integration/seed-prediction-fixture.sql",
+      "sha256": "09fdbc8316ee97a4bf139e05a0551072912b78874125057a75d8bd772980705f"
+    },
+    {
+      "path": "ui-reference.css",
+      "sha256": "509b3747bdc0006b8af6796195a59e51f3e61f26e78128e452972badd126f39c"
+    }
+  ]
+}

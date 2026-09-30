@@ -1,0 +1,12 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "command": "node --test race-prediction/release-regression.test.mjs",
+  "exitCode": 0,
+  "tests": 1,
+  "passed": 1,
+  "failed": 0,
+  "scope": "static release/regression checks; does not establish an actual v0.1.18 database rollback",
+  "geminiRequests": 0,
+  "hostedSupabaseRequests": 0
+}

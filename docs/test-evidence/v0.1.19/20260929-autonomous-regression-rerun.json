@@ -1,0 +1,28 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "commands": [
+    {
+      "command": "node --test race-prediction/ai-*.test.mjs race-prediction/release-regression.test.mjs",
+      "exitCode": 0,
+      "tests": 10,
+      "passed": 10,
+      "failed": 0,
+      "durationMs": 123253,
+      "scope": "AI module unit/mock and static release regression; not the 70 formal acceptance cases"
+    },
+    {
+      "command": "node --test supabase/functions/comments/*.test.mjs",
+      "exitCode": 0,
+      "testFiles": 5,
+      "passedTestFiles": 5,
+      "failedTestFiles": 0,
+      "scope": "Existing comments Node regression files; browser submission/list integration remains unverified"
+    }
+  ],
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0
+  },
+  "formalAcceptanceCountChanged": false
+}

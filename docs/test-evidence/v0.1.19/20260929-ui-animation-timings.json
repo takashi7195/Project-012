@@ -1,0 +1,48 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-ui-animation-smoke.cjs",
+  "runnerSha256": "36c4024f10c461fbe99eac40420117dfe95613f938cc3bfd2ba493137d2a0e9c",
+  "executor": "Windows bundled Node.js, Playwright and Microsoft Edge",
+  "exitCode": 0,
+  "initialSuccessfulMeasurement": {
+    "fast": { "firstStopAfterStartMs": 3039, "nextStopAfterPreviousFinishMs": [6017, 9016], "secondaryBundleAfterFinalStopMs": 500 },
+    "delayed": { "firstStopAfterStartMs": 5842, "nextStopAfterPreviousFinishMs": [6017, 9017], "secondaryBundleAfterFinalStopMs": 509 }
+  },
+  "scenarios": {
+    "fast": {
+      "idleBoats": [1, 2, 3],
+      "startEnabledAfterVenueOnly": false,
+      "startEnabledAfterVenueAndRace": true,
+      "predictionPostsBeforeStart": 0,
+      "predictionPostsAfterStart": 1,
+      "firstStopAfterStartMs": 3041,
+      "nextStopAfterPreviousFinishMs": [6018, 9016],
+      "secondaryBundleAfterFinalStopMs": 500,
+      "jobReads": 2
+    },
+    "delayed": {
+      "idleBoats": [1, 2, 3],
+      "startEnabledAfterVenueOnly": false,
+      "startEnabledAfterVenueAndRace": true,
+      "predictionPostsBeforeStart": 0,
+      "predictionPostsAfterStart": 1,
+      "firstStopAfterStartMs": 5821,
+      "nextStopAfterPreviousFinishMs": [6016, 9016],
+      "secondaryBundleAfterFinalStopMs": 499,
+      "jobReads": 2
+    }
+  },
+  "checks": [
+    "idle reel display shows boats 1-2-3 after the initial CSS transition settles",
+    "venue-only selection keeps START disabled; selecting an open race enables START",
+    "venue/race selection causes zero prediction POST requests",
+    "all three reels start immediately after START",
+    "fast response observed the 3-second minimum animation",
+    "stop sequence was third, second, first",
+    "second reel starts six seconds after the prior stop completes",
+    "first-place reel starts nine seconds after the second-place stop completes",
+    "counter, longshot and narrative appeared together about 500ms after the final stop"
+  ],
+  "network": "Supabase, Gemini and comment routes intercepted; local static server only"
+}

@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-29",
+  "case": "M07",
+  "source": "user-supplied PowerShell output",
+  "runner": "tools/local-integration/ai-edge-legacy-mode-smoke.mjs",
+  "runnerSha256": "12be57b27c015945c351938a23d078adf14daaac943ff9b9c202f1b30afe47a5",
+  "result": "partial",
+  "exitCode": null,
+  "observed": [
+    "real local EdgeRuntime legacy mode: AI bundle POST rejected before DB/provider",
+    "malformed legacy selector rejected",
+    "OPTIONS and public-key rejection passed"
+  ],
+  "limits": [
+    "exit code not supplied",
+    "in-flight job completion and v0.1.18 redeployment not tested"
+  ],
+  "externalCalls": "no Gemini or hosted project per runner output"
+}

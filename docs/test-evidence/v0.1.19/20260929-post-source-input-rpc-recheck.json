@@ -1,0 +1,15 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-input-postgrest-fixture.mjs",
+  "exitCode": 0,
+  "checks": [
+    "six synthetic source entries retained and post-race/prediction facts recursively removed",
+    "missing/null/empty-object/empty-array/source preview variants distinguished",
+    "11/31-minute-old and unknown fetchedAt values preserved"
+  ],
+  "cleanup": "runner completed its finally cleanup after the I01 public-source fixture",
+  "generationJobs": 0,
+  "geminiRequests": 0,
+  "hostedSupabaseRequests": 0
+}

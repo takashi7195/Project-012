@@ -1,0 +1,23 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-ui-browser-smoke.cjs",
+  "executor": "user Windows PowerShell, Playwright with Microsoft Edge",
+  "result": "passed_partial_acceptance",
+  "coverage": [
+    "venue and race selection",
+    "START, polling, and success display",
+    "secondary bundle display",
+    "multiline narrative exceeding 1000 characters",
+    "clearing previous output on failure",
+    "viewport widths 320, 390, 430, and 1280 pixels"
+  ],
+  "network": "Supabase, Gemini, and comment traffic intercepted; no external service called",
+  "formal_acceptance_cases_passed": 47,
+  "formal_acceptance_cases_total": 70,
+  "limitations": [
+    "fine-grained animation timing criteria remain unverified",
+    "real API/Edge integration is not covered by this browser mock",
+    "physical smartphone behavior is not covered",
+    "remaining acceptance criteria for the partially covered U cases remain open"
+  ]
+}

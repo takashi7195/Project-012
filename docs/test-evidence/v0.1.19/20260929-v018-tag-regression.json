@@ -1,0 +1,21 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "source": {
+    "tag": "v0.1.18",
+    "commit": "e6c263456a5999b10181fda4eae32e9f6bdfa578",
+    "execution": "git archive into a temporary /tmp directory; source removed by trap"
+  },
+  "command": "node --test <temporary-v0.1.18>/race-prediction/*.test.mjs",
+  "exitCode": 0,
+  "testFiles": 6,
+  "passedTestFiles": 6,
+  "failedTestFiles": 0,
+  "assertionCount": "not reported by the top-level node --test summary",
+  "scope": "Legacy prediction module regressions only; no migration, database, Edge Function, frontend deployment, or rollback operation",
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0
+  },
+  "formalAcceptanceCountChanged": false
+}

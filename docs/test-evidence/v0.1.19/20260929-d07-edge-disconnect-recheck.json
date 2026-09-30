@@ -1,0 +1,24 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "command": "Windows Node 24.19.0: tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "runnerSha256": "db0767e1d29a4349222a2a93ccd9038cdd6283c910cf140d602fc62c7dc20ca4",
+  "exitCode": 1,
+  "observed": {
+    "http202": true,
+    "initiatingRequestCompleted": true,
+    "waitUntilWorkerStartedMs": 27,
+    "heartbeatWithin30s": false,
+    "runtimeContainer": "running",
+    "completionObserved": false,
+    "laterParticipantGet": "not reached"
+  },
+  "diagnosticScope": "runtime route/startup lines only; no worker heartbeat or termination reason",
+  "cleanup": {
+    "temporaryFunctionRemoved": true,
+    "raceDatabaseUsed": false,
+    "geminiRequests": 0,
+    "hostedSupabaseRequests": 0
+  },
+  "formalCase": "D07 remains partial; M05 evidence is a separate connected-client condition"
+}

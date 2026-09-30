@@ -71,7 +71,7 @@ import vm from 'node:vm';
 import { readFileSync } from 'node:fs';
 function uiHarness(request) {
  const scheduled=new Map();let nextTimer=0;
- const setTimer=(fn,ms)=>{const id=++nextTimer;if(ms===60000)scheduled.set(id,fn);else queueMicrotask(()=>{if(scheduled.has(id)||ms!==60000)fn()});return id};
+ const setTimer=(fn,ms)=>{const id=++nextTimer;if(ms===90000)scheduled.set(id,fn);else queueMicrotask(()=>{if(scheduled.has(id)||ms!==90000)fn()});return id};
  const element=()=>({textContent:'old',style:{},childNodes:[],disabled:false,events:{},dataset:{},className:'slot',classList:{add(){},remove(){}},
  addEventListener(name,fn){this.events[name]=fn},replaceChildren(...children){this.childNodes=children;this.textContent=''},appendChild(child){this.childNodes.push(child)},removeAttribute(){},querySelector(){return this.reel}});
  const ids=Object.fromEntries(['start-btn','stadium-select','race-select','race-development-text','prediction-status','slot-1','slot-2','slot-3'].map(id=>[id,element()]));
@@ -95,7 +95,7 @@ test('UI clears prior picks before awaiting; failure restores controls',async()=
  let reject;const ui=uiHarness(()=>new Promise((_,r)=>{reject=r}));const pending=ui.click();
  assert.equal(ui.rows.longshot.textContent,'—');assert.equal(ui.rows.counter.textContent,'—');assert.equal(ui.ids['start-btn'].disabled,true);
  assert.equal(ui.ids['prediction-status'].textContent,'レース解析中…');
- reject(Error('private transport detail'));await pending;assert.equal(ui.ids['start-btn'].disabled,false);assert.equal(ui.ids['stadium-select'].disabled,false);assert.equal(ui.ids['race-select'].disabled,false);assert.equal(ui.ids['prediction-status'].textContent,'解析できませんでした');
+ reject(Error('private transport detail'));await pending;assert.equal(ui.ids['start-btn'].disabled,false);assert.equal(ui.ids['stadium-select'].disabled,false);assert.equal(ui.ids['race-select'].disabled,false);assert.equal(ui.ids['prediction-status'].textContent,'予想を生成できませんでした。もう一度お試しください。');
 });
 test('UI renders null hole/narrative without old content and clears on race switch',async()=>{
  const ui=uiHarness(async()=>displayResult(success.body));await ui.click();assert.equal(ui.rows.longshot.textContent,'—');assert.notEqual(ui.ids['race-development-text'].textContent,'old');assert.equal(ui.ids['start-btn'].disabled,false);
@@ -134,12 +134,12 @@ test('periodic availability update cannot unlock controls during the reveal run'
  assert.equal(ui.ids['stadium-select'].disabled,true);assert.equal(ui.ids['race-select'].disabled,true);assert.equal(ui.ids['start-btn'].disabled,true);
  rejectRequest(new Error('network'));await pending;
 });
-test('60-second acquisition timeout stops idle and allows manual retry for an open race',async()=>{
+test('90-second acquisition timeout stops idle and allows manual retry for an open race',async()=>{
  let rejectRequest;
  const ui=uiHarness(signal=>new Promise((_,reject)=>{rejectRequest=reject;signal.addEventListener('abort',()=>reject(new Error('aborted')),{once:true})}));
  const pending=ui.click();await Promise.resolve();
  ui.fireDeadline();await pending;
- assert.equal(ui.ids['prediction-status'].textContent,'解析できませんでした');
+ assert.equal(ui.ids['prediction-status'].textContent,'予想を生成できませんでした。もう一度お試しください。');
  assert.equal(ui.ids['stadium-select'].value,'桐生');assert.equal(ui.ids['race-select'].value,'1R');
  assert.equal(ui.ids['start-btn'].disabled,false);assert.equal(ui.stops.length,0);
 });

@@ -1,0 +1,41 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-edge-waituntil-smoke.mjs",
+  "executor": "user Windows PowerShell; local Supabase Edge Runtime; start -x studio",
+  "status": "passed",
+  "http202": true,
+  "startCallback": true,
+  "heartbeats": [
+    15003,
+    30020,
+    45036,
+    60050,
+    75067
+  ],
+  "workerElapsedMs": 90001,
+  "hostElapsedMs": 90015,
+  "additionalFunctionRequestsDuringWait": 0,
+  "cleanup": {
+    "temporaryFunctionRemoved": true,
+    "callbackListenerClosed": true
+  },
+  "services": {
+    "localDatabase": false,
+    "gemini": false,
+    "hostedSupabase": false,
+    "publicUrl": false
+  },
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70,
+    "case": "M05"
+  },
+  "limitations": [
+    "D07 user browser disconnect with later participant was not exercised",
+    "Studio remains excluded from local stack until restarted without -x studio"
+  ],
+  "sourceHashes": {
+    "tools/local-integration/ai-edge-waituntil-smoke.mjs": "d314a3fa071cfa682ac2328d5eb0738085e16acaba2077ee54623d21aa053456",
+    "tools/local-integration/ai-edge-callback.mjs": "f701a5a28a7768e12162eaea4502d483d4437458375c4f0fa804289a4ebb0389"
+  }
+}

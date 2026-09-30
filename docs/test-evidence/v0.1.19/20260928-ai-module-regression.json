@@ -1,0 +1,15 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-28",
+  "command": "node --test race-prediction/ai-*.test.mjs",
+  "exitCode": 0,
+  "tests": 9,
+  "passed": 9,
+  "failed": 0,
+  "durationMs": 122891,
+  "scope": "AI module unit/mock regression; not the 70 formal acceptance cases",
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0
+  }
+}

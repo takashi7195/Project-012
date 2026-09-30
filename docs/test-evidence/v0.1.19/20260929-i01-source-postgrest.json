@@ -1,0 +1,20 @@
+{
+  "id": "I01",
+  "timestamp": "2026-09-29",
+  "classification": "passed",
+  "runner": "tools/local-integration/ai-input-source-postgrest.mjs",
+  "sourceUrl": "https://boatraceopenapi.github.io/api/v1/2026/20260101.json",
+  "sourceHttp": 200,
+  "sourceSha256": "207dc5e0779435b7778f58dab4ab7208b7f85bbbba3eb23a8dfe6dbf7d0c12f7",
+  "snapshotRaces": 156,
+  "selectedEntries": 6,
+  "checks": [
+    "one actual public source race was staged in a temporary local fixture and read through race_prediction_get_ai_input",
+    "every pre-race program field/value matched after the documented result-field filter and buildAiInput assembly",
+    "embedded preview fields matched the source; result facts were absent from assembled program facts",
+    "temporary race fixture was deleted in finally"
+  ],
+  "providerRequests": 0,
+  "hostedSupabaseRequests": 0,
+  "rawSourcePayloadPersisted": false
+}

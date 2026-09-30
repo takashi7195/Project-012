@@ -1,0 +1,24 @@
+{
+  "testCase": "D07",
+  "date": "2026-09-28",
+  "environment": "Windows local Supabase EdgeRuntime; temporary smoke function and local callback receiver",
+  "result": "partial",
+  "observations": {
+    "http202": true,
+    "workerStartedCallback": true,
+    "workerStartedAfterMs": 14,
+    "firstIntervalHeartbeat": true,
+    "firstHeartbeatAfterMs": 1025,
+    "secondHeartbeatWithin5Seconds": false,
+    "completionCallback": false,
+    "laterParticipantRead": false,
+    "runtimeRunning": true,
+    "diagnosticReason": "not available; sanitized output contained only runtime route listings"
+  },
+  "notes": [
+    "The runner stopped after the 5-second fail-fast; it did not wait for the 90-second background task.",
+    "Callback unit tests were not run because the PowerShell command listed the Edge smoke before the unit test and stopped after the smoke failed.",
+    "No production database, Gemini API, hosted Supabase project, or public URL was used.",
+    "Cause of the missing second heartbeat remains undetermined."
+  ]
+}

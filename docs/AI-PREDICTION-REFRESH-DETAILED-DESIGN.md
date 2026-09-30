@@ -1,7 +1,7 @@
 # v0.1.19 AI予想刷新 詳細設計書
 
 - 作成日: 2026-09-26 JST
-- 文書版: 1.8（ローカルEdge smoke readiness診断を補足。公開前）
+- 文書版: 2.0（2026-09-30 公開確認とv0.1.19確定を記録）
 - 製品版: v0.1.19。切り戻し先はv0.1.18。
 - 関連: [基本設計書](AI-PREDICTION-REFRESH-BASIC-DESIGN.md)、[試験仕様兼試験成績書](AI-PREDICTION-REFRESH-TEST-REPORT.md)
 - 前提: 利用者要件は基本設計R01〜R20。以下の内部構造はその実現方法であり、追加の予想誘導を行わない。
@@ -161,7 +161,7 @@ styleTextの初期値は空。将来口調を追加した場合はconfigHashが�
 |---|---|---|
 | PREDICTION_MODE | legacy / ai_bundle | 未設定時legacy。公開切替でai_bundleを指定 |
 | RACE_AI_PROVIDER | gemini | 初回実装のprovider |
-| RACE_AI_MODEL | gemini-3.8-flash | 合意済み |
+| RACE_AI_MODEL | gemini-3.5-flash-lite | 2026-09-29の10レース比較で採用。環境変数指定時はその値を優先 |
 | RACE_AI_PROMPT_VERSION | ai-bundle-prompt-1 | 本文ハッシュも保存 |
 | RACE_AI_STYLE_VERSION | none-1 | styleTextは空 |
 | RACE_AI_TOTAL_TIMEOUT_MS | 90000 | 合意済み上限 |
@@ -350,7 +350,7 @@ request_id/job_id、工程、attempt、HTTP status、validation code、時間、
 
 実モデル試験は初期6ケース程度を各モデルで比較する案とし、最大2回ならモデルごと最大12要求となる。実施直前に当日の既存使用量と無料枠を確認して件数を調整する。コメントと同一プロジェクトの同一モデル枠を消費し得る。429を品質不良と混ぜない。有料課金・本番POST・Secrets変更はこの設計書作成には含めない。
 
-初回は3.8 Flashで6ケースを確認する。3.5/3.1 Flash Liteの比較は後続の最適化として実施し、初回公開の必須条件から分離する。各試験は既存使用量を含むRPM/TPM/RPDの枠を守って間隔を空ける。異なるレースの同時要求では各ジョブが最大2回でもプロジェクト全体でレート上限を超え得るため、429動作を別に検証する。
+当初は3.8 Flashを候補としていたが、複数回HTTP 503となったため、10レースの比較結果から3.5 Flash Liteを実装既定モデルに採用した。比較は直接生成と出力形式検証までで、保存・画面表示の受入試験は別途行う。各試験は既存使用量を含むRPM/TPM/RPDの枠を守って間隔を空ける。異なるレースの同時要求では各ジョブが最大2回でもプロジェクト全体でレート上限を超え得るため、429動作を別に検証する。
 
 ## 12. 変更対象・移行・切り戻し
 

@@ -1,0 +1,19 @@
+{
+  "date": "2026-09-28",
+  "testCase": "local Edge HTTP smoke",
+  "result": "unverified",
+  "failure": "predictions route readiness not observed within 30000ms",
+  "readinessProbes": "GET only",
+  "apiKeyPostSent": false,
+  "databaseRpcCalls": 0,
+  "geminiRequests": 0,
+  "hostedProjectUsed": false,
+  "edgeRuntimeAtDiagnostic": "running",
+  "safeDiagnosticLines": 5,
+  "bootOrErrorMarkers": 0,
+  "createdEdgeRuntimeStoppedAfterTest": true,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  }
+}

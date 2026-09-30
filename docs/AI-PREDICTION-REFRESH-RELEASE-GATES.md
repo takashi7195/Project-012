@@ -1,6 +1,8 @@
-# v0.1.19 公開前の必須試験と後続試験
+# v0.1.19 公開・確定記録と後続試験
 
-現在の公開状態（2026-09-29）: 画面v0.1.19・対応Function・2 migrationを反映済み。公開後STARTがHTTP 404となり、当日144レースのprogram component/projectionがresult componentを参照する既存DB不整合を確認。AI生成は開始されていない。PREDICTION_MODEはlegacyへ復帰済みで、AI方式への切替は未完了。詳細は[公開証跡](test-evidence/v0.1.19/20260929-publication.json)。以下の公開前一覧は確認時点の履歴として残す。
+2026-09-30時点でv0.1.19を確定する。GitHub PagesはHTTP 200でv0.1.19を配信し、公開AI予想Functionは`ai_bundle`モードで稼働している。2026-09-30に当日レースの公開START→保存→GET成功を確認した。70受入項目は58 passed / 0 failed / 12未完了。生成文が平均STを当該レースのSTとして述べる問題は確認済みで、利用者判断によりAI出力調整をv0.1.20へ延期する。D07等の部分確認も未完了として保持する。詳細は[試験成績書](AI-PREDICTION-REFRESH-TEST-REPORT.md)と[当日公開試験証跡](test-evidence/v0.1.19/20260930-public-race-spotcheck.json)。
+
+以下の公開前ゲート表・ファイル候補は公開作業時点の履歴であり、現在の配信状態を表す一覧ではない。公開結果の経緯は末尾の確定記録を参照する。
 
 作成日: 2026-09-29 JST。利用者は「公開URLへの反映を目指し、必要な試験は必ず行い、後でできる試験は後に回す」と指示。製品仕様と70受入項目の期待結果は変更しない。未完了を合格へ読み替えず、以下の公開条件と全70項目の成績を別に管理する。
 
@@ -8,7 +10,7 @@
 
 | 条件 | 元のID | 必要な確認 | 現在の不足 |
 |---|---|---|---|
-| RLS01 実生成 | M01/M02/M08 | 現在の利用枠を確認済み（表示1/5 RPM、478/250K TPM、2/20 RPD）。models.listはHTTP 200で、設定モデルがgenerateContentをサポートすることも確認済み。実生成はHTTP 503。公式説明では503は一時的な過負荷または停止の可能性があるが、今回の要求の詳細原因・回復時刻は分からない。正常JSONを一度確認後、通常入力と展示欠損入力の2種類で買い目/文章の矛盾・架空の具体値を確認し、時間・要求数・結果を記録 | 実生成成功なし。利用枠表示後の要求も503。API keyとモデル名の基本確認は済んだが、provider側の回復が確認できないため追加生成要求を保留 [M01 evidence](test-evidence/v0.1.19/20260929-m01-gemini-503-with-quota.json)、[Gemini公式503説明](https://ai.google.dev/gemini-api/docs/generate-content/api-errors) |
+| RLS01 実生成 | M01/M02/M08 | 現在の採用モデル3.5 Flash Liteで通常/展示欠損入力からproduction handler・PostgREST保存/GETまで確認し、実レースの出力整合性も評価 | M01の合成fixture2条件は実Gemini HTTP 200・形式検証・PostgREST保存/GETまで成功。10実レース4モデル比較では3.5 Flash Liteが9/10、平均約3.9秒で、成功9件の目視で明確な出走表事実誤りは確認されなかった。残りは6種固定入力の根拠/整合性/多様性/使用量評価と通常公開対象の実sample通し確認 [M01 integrated evidence](test-evidence/v0.1.19/20260929-m01-handler-postgrest-live.json) [model comparison](test-evidence/v0.1.19/20260929-gemini-model-selection.json) |
 | RLS02 一連の動作 | M02/U04/U06 | 同じ公開予定コードを使うブラウザー→実Edge→DB→実Gemini→一括保存→GET→表示・再利用。失敗/締切時の安全な案内は実Edge＋模擬providerで確認可能 | 各部品の確認済み証跡あり。実モデルを含む一連の確認なし |
 | RLS03 切断後の継続 | D07/M05 | 実Edgeで開始者が離脱してもjobが完了し、後続GETで同じ結果を取得。試験補助timerや通知自体の停止と製品worker停止を区別 | M05の90秒完了実績あり。D07実runtime未確認。原因を絞る新条件を準備 |
 | RLS04 切り戻し | M04/M07 | 旧ソース・実効設定・現行本番の復元基準を保全。隔離環境で新規停止→進行job完了/失効→旧backend/frontend復帰、データ保持を確認 | ユーザー判断で追加切り戻し確認を終了。既存のDB/旧handler互換とlegacy境界の部分確認を受容する。実runtime切替と画面復元は未確認で、M04/M07の正式成績は部分確認のまま |

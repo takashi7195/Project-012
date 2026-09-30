@@ -1,0 +1,32 @@
+{
+  "date": "2026-09-28",
+  "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+  "executor": "user Windows PowerShell; production handler in Node; local PostgREST; mock provider",
+  "status": "partial",
+  "scenario": {
+    "leadingStartHttpStatus": 202,
+    "leadingRequestSignalAborted": true,
+    "laterParticipantJoinedSameJob": true,
+    "mockProviderRequests": 1,
+    "savedBundlesForJob": 1,
+    "laterParticipantReadStatus": 200,
+    "laterParticipantReadSameSuccess": true
+  },
+  "fullFixture": "all reported cases passed, including D02, G13 and D16; cleanup completed",
+  "services": {
+    "localPostgrest": true,
+    "mockProvider": true,
+    "gemini": false,
+    "hostedSupabase": false
+  },
+  "limitation": "This runner captures EdgeRuntime.waitUntil in Node; it does not exercise a real browser socket disconnect or the Deno Edge Runtime for this combined scenario. M05 separately verifies real local EdgeRuntime waitUntil for 90,001ms. A later-result GET has been added to that real-runtime smoke and awaits user rerun.",
+  "sourceSha256": {
+    "tools/local-integration/ai-generation-postgrest-fixture.mjs": "4cfc9b0c2a105d3b646e30790867ac0d9d75eae254c4e30c71fc112cd561e5ff"
+  },
+  "formalAcceptance": {
+    "case": "D07",
+    "status": "partial",
+    "passed": 48,
+    "total": 70
+  }
+}

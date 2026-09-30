@@ -1,0 +1,37 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "checks": [
+    {
+      "command": "bash tools/local-integration/ai-bundle-db-smoke.sh",
+      "runnerSha256": "0b15b23a6ce7befb01fc23f58b4df045851765f0c9998d7fc265fb441b04261d",
+      "exitCode": 0,
+      "result": "PASS: isolated PostgreSQL migrations, input/result filtering, privileges, key/job/attempt/bundle constraints, duplicate attempt fence, invalid output rollback, atomic save, stale owner fence, retryable/nonretryable failure, 20 concurrent START requests",
+      "cleanup": "temporary PostgreSQL container absent after run"
+    },
+    {
+      "command": "Windows Node 24.19.0: tools/local-integration/ai-ui-date-refresh-smoke.cjs",
+      "runnerSha256": "4db4656399566dd5dc1f0866470f79fca23164a6155215f8eb82ce6d83b585b4",
+      "exitCode": 0,
+      "result": "PASS: U04 deadline closure, JST rollover, scheduled refresh; U06 active run crossing deadline has closed notice and no retry prompt",
+      "testHarnessAdjustment": "use Playwright page.clock.runFor for interval progression; application code unchanged"
+    },
+    {
+      "command": "Windows Node 24.19.0: tools/local-integration/ai-ui-mixed-version-smoke.cjs",
+      "runnerSha256": "c23c5ee752256c907fc3bb5c164c9dba43a9f9a32eaf727faa480df9c7e20d6e",
+      "exitCode": 0,
+      "result": "PASS: old v0.1.18 request safely rejected with zero model calls; reload uses v0.1.19 UI/API mock contract"
+    }
+  ],
+  "externalRequests": {
+    "gemini": 0,
+    "hostedSupabase": 0,
+    "publicUrl": 0
+  },
+  "formalAcceptanceCountChanged": false,
+  "limitations": [
+    "U04/U06 still lack real Edge/API integration evidence",
+    "U11 still lacks real Edge/API distribution-mixing evidence",
+    "isolated database smoke is regression evidence, not a new formal acceptance case"
+  ]
+}

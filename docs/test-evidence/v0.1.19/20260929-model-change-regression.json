@@ -1,0 +1,14 @@
+{
+  "test": "model-default-change regression",
+  "date": "2026-09-29",
+  "nodeVersion": "v24.21.0",
+  "command": "node --test race-prediction/*.test.mjs tools/local-integration/ai-edge-callback.test.mjs",
+  "exitCode": 0,
+  "tests": 217,
+  "passed": 217,
+  "failed": 0,
+  "durationMs": 122053,
+  "geminiRequests": 0,
+  "hostedSupabaseRequests": 0,
+  "persistentDataChanges": 0
+}

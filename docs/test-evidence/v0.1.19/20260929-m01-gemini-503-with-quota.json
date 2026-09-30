@@ -1,0 +1,21 @@
+{
+  "date": "2026-09-29",
+  "case": "M01",
+  "requestCount": 1,
+  "model": "gemini-3.8-flash",
+  "dashboardBeforeRequest": {
+    "RPM": "1/5",
+    "TPM": "478/250000",
+    "RPD": "2/20",
+    "window": "7 days",
+    "project": "Project-012"
+  },
+  "result": "failed",
+  "httpStatus": 503,
+  "errorCode": "provider_http_503",
+  "responseBody": "withheld",
+  "apiKey": "withheld",
+  "generatedText": "none received",
+  "supabaseOrDatabase": "not used",
+  "exitCode": 1
+}

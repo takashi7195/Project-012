@@ -1,0 +1,163 @@
+{
+  "schema": "race-ai-environment-v1",
+  "timestamp": "2026-09-28T13:27:34.984Z",
+  "platform": "win32",
+  "node": "v24.19.0",
+  "checks": {
+    "githubCli": {
+      "ok": false,
+      "exit": null,
+      "reason": "ENOENT",
+      "version": null
+    },
+    "githubAuth": {
+      "ok": false,
+      "exit": null,
+      "reason": "ENOENT"
+    },
+    "git": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "2.55.0"
+    },
+    "containers": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "items": [
+        {
+          "name": "supabase_edge_runtime_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_pg_meta_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_storage_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_rest_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_realtime_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_inbucket_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_auth_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_kong_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_vector_project-012",
+          "status": "restarting"
+        },
+        {
+          "name": "supabase_analytics_project-012",
+          "status": "running"
+        },
+        {
+          "name": "supabase_db_project-012",
+          "status": "running"
+        }
+      ]
+    },
+    "docker": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "client": "29.8.0",
+      "server": "29.8.0"
+    },
+    "supabaseCli": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "2.117.0"
+    },
+    "supabaseManagementAuth": {
+      "ok": true,
+      "exit": 0,
+      "reason": null
+    },
+    "browser": {
+      "playwrightModule": true,
+      "windowsEdge": true
+    },
+    "localSecretMetadataFile": {
+      "exists": true
+    },
+    "linkedProjectFile": {
+      "exists": true
+    },
+    "powershell": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "version": "5.1.19041"
+    },
+    "ubuntuLaunch": {
+      "ok": true,
+      "exit": 0,
+      "reason": null
+    },
+    "ubuntu": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "KEY_FILE_READY": true,
+      "NVM_FILE_READY": true,
+      "NODE_ON_PATH": false,
+      "DOCKER_ON_PATH": true,
+      "CODEX_ON_PATH": true
+    },
+    "windowsPortListeners": {
+      "ok": true,
+      "exit": 0,
+      "reason": null,
+      "recognized": [
+        "wslrelay",
+        "com.docker.backend"
+      ]
+    },
+    "bundledNode": {
+      "exists": true
+    }
+  },
+  "http": [
+    {
+      "host": "127.0.0.1",
+      "path": "/rest/v1/",
+      "status": 200,
+      "error": null
+    },
+    {
+      "host": "127.0.0.1",
+      "path": "/functions/v1/predictions",
+      "status": 401,
+      "error": null
+    },
+    {
+      "host": "172.23.70.147",
+      "path": "/rest/v1/",
+      "status": 200,
+      "error": null
+    },
+    {
+      "host": "172.23.70.147",
+      "path": "/functions/v1/predictions",
+      "status": 401,
+      "error": null
+    }
+  ]
+}

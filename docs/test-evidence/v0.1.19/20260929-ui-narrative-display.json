@@ -1,0 +1,15 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "runner": "tools/local-integration/ai-ui-browser-smoke.cjs",
+  "runnerSha256": "79f26db4b1b45eec4dd50b6db58eea3f2213b95af6adc83818becc9c63f523a1",
+  "executor": "Windows bundled Node.js, Playwright and Microsoft Edge",
+  "exitCode": 0,
+  "checks": [
+    "multiline narrative longer than 1000 characters displayed in full",
+    "newline remains visible in browser-rendered innerText",
+    "HTML-like narrative content rendered as text and did not create img or script elements",
+    "prediction UI did not add fetchedAt/source timestamp/model detail"
+  ],
+  "network": "Supabase, Gemini and comment routes intercepted; local static server only"
+}

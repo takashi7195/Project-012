@@ -1,0 +1,34 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestampJst": "2026-09-29 13:47",
+  "case": "M04 partial: v0.1.18 rollback source rehearsal",
+  "source": {
+    "tag": "v0.1.18",
+    "commit": "e6c263456a5999b10181fda4eae32e9f6bdfa578",
+    "method": "git archive extracted into a new temporary directory; existing worktree untouched",
+    "cleanup": "temporary directory removed after test"
+  },
+  "checks": {
+    "frontendVersionMarker": "present",
+    "frontendScript": "present",
+    "predictionsHandler": "present",
+    "legacyPredictionUnitFiles": 6,
+    "legacyPredictionUnitPassed": 6,
+    "legacyPredictionUnitFailed": 0,
+    "exitCode": 0
+  },
+  "scope": {
+    "hostedProject": false,
+    "deployment": false,
+    "database": false,
+    "gemini": false,
+    "existingWorktreeReset": false
+  },
+  "notCovered": [
+    "redeploying the v0.1.18 handler to an Edge Runtime",
+    "restoring live v0.1.18 settings and secrets",
+    "publishing and exercising the v0.1.18 frontend against the restored handler",
+    "full live data and comment preservation comparison"
+  ],
+  "formalAcceptanceCountChanged": false
+}

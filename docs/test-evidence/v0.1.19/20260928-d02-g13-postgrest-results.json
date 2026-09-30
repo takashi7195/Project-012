@@ -1,0 +1,49 @@
+{
+  "created_at": "2026-09-28T12:10:32+09:00",
+  "case_ids": ["D02", "G13"],
+  "status": "passed",
+  "runner": "tools/local-integration/ai-generation-postgrest-fixture.mjs",
+  "execution": "User ran the fixture in WSL Ubuntu against local Supabase PostgREST; output was returned in the conversation.",
+  "D02": {
+    "fault": "finish RPC returned a synthetic 502 before the request reached PostgREST, before database commit.",
+    "observed": [
+      "Exactly one mock provider request; no provider regeneration after save failure.",
+      "No prediction bundle was created.",
+      "Job GET did not expose success or partial output."
+    ],
+    "result": "passed"
+  },
+  "G13": {
+    "fault": "While the first provider request was held, source facts, model, and style settings were changed before a new START.",
+    "observed": [
+      "The original job and its repair request used the original model, style, and immutable input facts.",
+      "A later START created a distinct job using the changed model, style, and input facts.",
+      "Both jobs saved their own complete bundle."
+    ],
+    "result": "passed"
+  },
+  "cleanup": "Fixture reported that fixture and generated DB rows were removed in finally.",
+  "formal_acceptance": {
+    "passed_before": 43,
+    "passed_after": 45,
+    "denominator": 70,
+    "all_plan_rate_percent": 64.3,
+    "initial_release_passed_after": 45,
+    "initial_release_denominator": 69,
+    "initial_release_rate_percent": 65.2
+  },
+  "external_services": {
+    "gemini_request": false,
+    "hosted_supabase": false,
+    "github_write": false,
+    "deployment": false
+  },
+  "source_sha256": [
+    { "path": "tools/local-integration/ai-generation-postgrest-fixture.mjs", "sha256": "2014206f0d7c0db1ba2a89f623c0a328013204f14f4e06e948bc43999616f984" }
+  ],
+  "node_regression": {
+    "command": "node --test race-prediction/*.test.mjs",
+    "result": "passed",
+    "modules": "15 passed, 0 failed"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "created_at": "2026-09-27T21:48:16+09:00",
+  "run_id": "20260927-p5-ui-mock",
+  "phase": "P5 partial",
+  "source_baseline": "20260927-p5-source-baseline.json",
+  "source_aggregate_sha256": "741e82b29e4e05a53653e067302216c6e2d99f913c7053b376ac7d9c688793f2",
+  "runner": "tools/local-integration/ai-ui-browser-smoke.cjs",
+  "exit_code": 0,
+  "additional_checks": [
+    {
+      "name": "U04 scheduled availability refresh and JST date rollover",
+      "runner": "tools/local-integration/ai-ui-date-refresh-smoke.cjs",
+      "exit_code": 0,
+      "result": "partial",
+      "scope": "virtual browser clock verified a selected race becomes unavailable at its deadline, venue/race selections clear, a JST day rollover fetches the new date, and the five-minute availability refresh fetches the current date again; synthetic local mock only, not real Edge/API integration"
+    },
+    {
+      "name": "U06 failure after deadline during an active run",
+      "runner": "tools/local-integration/ai-ui-date-refresh-smoke.cjs",
+      "exit_code": 0,
+      "result": "partial",
+      "scope": "active generation crossed the deadline under virtual time; UI ended with a closed notice and START disabled, without encouraging another retry; synthetic local mock only"
+    },
+    {
+      "name": "U08 delayed response after navigation",
+      "runner": "tools/local-integration/ai-ui-stale-response-smoke.cjs",
+      "exit_code": 0,
+      "result": "partial",
+      "scope": "first page POST response was held until a new page completed its own generation; releasing the old response did not overwrite the fresh bundle or START state; synthetic local mock only"
+    },
+    {
+      "name": "U11 v0.1.18 frontend against v0.1.19 API contract, then reload",
+      "runner": "tools/local-integration/ai-ui-mixed-version-smoke.cjs",
+      "exit_code": 0,
+      "result": "partial",
+      "scope": "old POST shape received safe rejection with zero model calls; reload showed v0.1.19 and its AI bundle POST contract completed; local API mock only"
+    },
+    {
+      "name": "comment feature regression unit tests relevant to U09",
+      "command": "node --test supabase/functions/comments/moderation.test.mjs supabase/functions/comments/ai-reply.test.mjs supabase/functions/comments/prediction-context.test.mjs supabase/functions/comments/race-context.test.mjs supabase/functions/comments/reply-router.test.mjs",
+      "exit_code": 0,
+      "tests": 52,
+      "passed": 52,
+      "failed": 0,
+      "scope": "local unit/regression checks only; does not cover browser comment posting, deployed Edge integration, or formal U09 acceptance"
+    }
+  ],
+  "environment": {
+    "os": "Windows 10 Pro",
+    "runtime": "Windows Node.js v24.19.0",
+    "browser": "Microsoft Edge 154.0.4258.37",
+    "automation": "Playwright 1.62.1",
+    "site": "local static HTTP server on loopback"
+  },
+  "conditions": {
+    "U01": "partial: START disabled until selectors chosen, then enabled for mock open race",
+    "U02": "partial: 202 pending then status polling returns success; exact fast-vs-slow timing not measured",
+    "U03": "partial: complete animation sequence finished before bundle displayed",
+    "U04": "partial: virtual-clock browser mock verified deadline selection clearing, JST date rollover fetch, and the five-minute scheduled refresh",
+    "U05": "partial: mock 503 shows retry message, clears stale counter/hole/narrative and reenables START",
+    "U06": "partial: active run crossing the deadline ends closed without a retry prompt",
+    "U08": "partial: delayed old-page POST response after navigation did not overwrite the fresh page result/control state",
+    "U11": "partial: old v0.1.18 POST shape safely rejected with no model call; reload selected v0.1.19 and completed the new bundle contract",
+    "U07": "partial: long fixture narrative and HTML-like text rendered as text, no markup execution",
+    "U10": "partial: no horizontal overflow at 320/390/430/1280px"
+  },
+  "traffic": {
+    "supabase_requests": "intercepted and mocked",
+    "gemini_requests": 0,
+    "comments_requests": "intercepted; no mutation",
+    "other_external_requests": "aborted",
+    "public_url": 0,
+    "hosted_db": 0
+  },
+  "formal_acceptance": {
+    "denominator": 70,
+    "passed": 0,
+    "note": "This mock browser run is partial evidence; no formal acceptance case was promoted."
+  },
+  "pending": [
+    "real smartphone visual confirmation",
+    "U09 browser comment list/post and legacy prediction context integration",
+    "UI connected to real local Edge and DB"
+  ]
+}

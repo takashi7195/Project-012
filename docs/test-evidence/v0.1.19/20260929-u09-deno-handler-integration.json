@@ -1,0 +1,45 @@
+{
+  "schema": "race-ai-test-evidence-v1",
+  "timestamp": "2026-09-29",
+  "case": "U09 partial handler integration stub",
+  "commands": [
+    {
+      "command": "docker run --rm --network none --mount type=bind,source=<repo>,target=/workspace,readonly --workdir /workspace denoland/deno:alpine deno test --no-config supabase/functions/comments/index.integration.test.ts",
+      "exitCode": 1,
+      "result": "Type checking failed before test execution; 15 existing TypeScript diagnostics",
+      "scope": "No test body executed"
+    },
+    {
+      "command": "docker run --rm --network none --env DENO_TESTING=1 --env SUPABASE_URL=http://127.0.0.1:54321 --env SUPABASE_SERVICE_ROLE_KEY=local-test-only --env GEMINI_API_KEY=local-test-only --mount type=bind,source=<repo>,target=/workspace,readonly --workdir /workspace denoland/deno:alpine deno test --no-config --no-check --allow-env supabase/functions/comments/index.integration.test.ts",
+      "exitCode": 0,
+      "tests": 9,
+      "passed": 9,
+      "failed": 0,
+      "scope": "Deno handler integration harness with injected stub implementations; not real database or browser coverage"
+    }
+  ],
+  "isolation": {
+    "dockerNetwork": "none",
+    "workspaceMount": "read-only",
+    "environmentValues": "dummy test-only values",
+    "hostedSupabaseRequests": 0,
+    "geminiRequests": 0,
+    "databaseWrites": "one synthetic comment and one rate-limit row inserted then deleted; both absences verified"
+  },
+  "localPostgrestFollowup": {
+    "timestamp": "2026-09-29",
+    "target": "supabase_db_project-012 via http://127.0.0.1:54321/rest/v1",
+    "handler": "current comments handler with injected service-role REST transport",
+    "post": "HTTP 201; direct Gemini reply plan was mocked; actual local rate-limit and create_comment_with_reply RPCs were used",
+    "get": "HTTP 200; exact created comment and AI Takashi reply appeared in list",
+    "geminiRequests": 0,
+    "cleanup": "exact comment UUID and unique SHA-256 rate key deleted; follow-up reads confirmed both absent",
+    "hostedSupabaseRequests": 0,
+    "browserUsed": false
+  },
+  "formalAcceptanceCountChanged": false,
+  "remaining": [
+    "Browser submission and list rendering",
+    "Old prediction integration"
+  ]
+}

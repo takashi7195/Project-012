@@ -1,0 +1,14 @@
+{
+  "testCase": "M01",
+  "date": "2026-09-28",
+  "result": "not_run",
+  "commandReachedUbuntu": false,
+  "observedError": "Wsl/Service/0x8007274c",
+  "apiKeyLoaded": false,
+  "geminiRequests": 0,
+  "formalAcceptance": {
+    "passed": 48,
+    "total": 70
+  },
+  "nextStep": "read-only PowerShell query: wsl.exe -l -v"
+}

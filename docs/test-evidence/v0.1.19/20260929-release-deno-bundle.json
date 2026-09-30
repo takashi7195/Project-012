@@ -1,0 +1,27 @@
+{
+  "date": "2026-09-29",
+  "testCase": "release-deno-bundle",
+  "result": "passed",
+  "runner": "Docker + denoland/deno:alpine",
+  "runtime": {
+    "deno": "2.9.7",
+    "command": "deno bundle --no-config --no-remote --output /dev/null supabase/functions/predictions/index.ts"
+  },
+  "environment": {
+    "projectMount": "read-only",
+    "supabaseRequest": false,
+    "geminiRequest": false,
+    "deployment": false,
+    "projectFilesChanged": false,
+    "network": "enabled only to download Deno bundle's esbuild compiler dependency"
+  },
+  "resultDetails": {
+    "bundledModules": 12,
+    "outputBytes": 109020,
+    "entrypoint": "supabase/functions/predictions/index.ts",
+    "parentDirectoryImportsResolved": true
+  },
+  "limitations": [
+    "This verifies Deno module bundling, not the Supabase CLI deployment packaging or hosted project configuration."
+  ]
+}

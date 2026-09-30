@@ -1,0 +1,43 @@
+{
+  "created_at": "2026-09-28T12:17:08+09:00",
+  "case_id": "T09",
+  "status": "passed",
+  "unit_test": {
+    "command": "node --test --test-name-pattern='T09 real wall-clock' race-prediction/ai-generation.test.mjs",
+    "result": "passed",
+    "scenarios": [
+      { "provider_delay_ms": 50000, "provider_requests": 1, "saved_bundles": 1, "within_original_90000ms_deadline": true },
+      { "provider_delay_ms": 70000, "provider_requests": 1, "saved_bundles": 1, "within_original_90000ms_deadline": true }
+    ],
+    "provider": "mock; no Gemini generation API call"
+  },
+  "postgrest_handler_evidence": {
+    "case_id": "D05",
+    "observed": "Real local PostgREST and production handler shared a job started at 0s; a second caller joined at 30s; mocked provider completed and saved at 60s.",
+    "result": "passed",
+    "source": "20260928-autonomous-followup-results.json"
+  },
+  "regression": {
+    "command": "node --test race-prediction/*.test.mjs",
+    "result": "passed",
+    "modules": "15 passed, 0 failed",
+    "includes_real_elapsed_t09": true
+  },
+  "formal_acceptance": {
+    "passed_after": 46,
+    "denominator": 70,
+    "all_plan_rate_percent": 65.7,
+    "initial_release_passed_after": 46,
+    "initial_release_denominator": 69,
+    "initial_release_rate_percent": 66.7
+  },
+  "source_sha256": [
+    { "path": "race-prediction/ai-generation.test.mjs", "sha256": "ab573bd813e5536ebff2f6bcb9d409571c5df3261850eabd34543ccd23343133" }
+  ],
+  "external_services": {
+    "gemini_request": false,
+    "hosted_supabase": false,
+    "github_write": false,
+    "deployment": false
+  }
+}
