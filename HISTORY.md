@@ -695,3 +695,12 @@
 - 公開APIの開催一覧GETはHTTP 200、`ai_bundle`、`ai-bundle-v1`を返し、当日144レースを列挙した。確認時点で当日レースはすべて締切済み、翌日の開催データは0件で、公開画面から実STARTできるレースはなかった。実Gemini生成は今回実施していない。
 - モデル設定変更`race-prediction/ai-config.mjs`をcommit `a08421e`（`Use Gemini 3.5 Flash Lite for AI predictions`）としてmainへpush済み。再確認で`origin/main`とHEADが一致し、pushは`Everything up-to-date`。
 - 公開URL: https://takashi7195.github.io/Project-012/ 。次の締切前レースが公開開催一覧に現れた後、利用者が実画面のSTART試験を行う。
+
+## 2026-10-01 19:43 JST — v0.1.20 確定・公開
+
+- 利用者依頼により、公開中のv0.1.20を確定した。公開コードのannotated tag `v0.1.20`（`Release v0.1.20`）をcommit `ae154fde65f2fe53671910fe7566e8f42f6de6bb`へ付け、originへpush済み。既存の`v0.1.19` tagは変更していない。
+- 公開URL: https://takashi7195.github.io/Project-012/ 。GitHub Pagesはbuild `ae154fde65f2fe53671910fe7566e8f42f6de6bb`で`built`。cache query付きURLからHTML/CSS/JSを取得し、公開対象ファイルと一致することを確認した。
+- v0.1.20では、ルーレットとAIタカシのキャラクター共有、AIタカシの任意指示削除、タイトルアイコン・空の初期展開文・コメント枠の幅合わせ、レース欄を「選択後は番号のみ／選択肢では締切時刻つき」としiOS Safariの横はみ出しを抑えるCSSを含む。
+- 試験: AIタカシ応答・ルーティングのNode試験32件がpass。トップページのEdge/Playwright表示試験、締切・日付更新試験、レース選択Node試験12件、モバイルWebKit 375x812/DPR3の選択・START・結果試験がpass。WebKit試験では幅375px・倍率1・横offset 0を維持。試験計画と結果は`docs/TOP-PAGE-FIX-TEST-SPEC-v0.1.20.md`、`docs/TOP-PAGE-FIX-TEST-REPORT-v0.1.20.md`、Safari調査記録に保存した。
+- 既知の確認事項: Playwright WebKitによる再現・修正確認はpassしたが、iPhone 13 mini / iOS 26.6.2実機で左寄り・縮小が解消したことは利用者による確認待ち。実機の合否を自動試験済みとは扱わない。
+- タグ付与後に本記録を追記した。v0.1.20の公開コード状態は上記tagで固定し、以後の開発は`v0.1.21`として扱う。
