@@ -1,7 +1,7 @@
 # トップページ表示調整 基本設計書 v0.1.20
 
 作成日: 2026-10-01 JST
-状態: Safari横はみ出し対策まで実装済み。公開前。
+状態: Safari横はみ出し対策まで実装済み・公開反映済み。
 
 関連: [詳細設計](TOP-PAGE-FIX-DETAILED-DESIGN-v0.1.20.md)、[試験仕様](TOP-PAGE-FIX-TEST-SPEC-v0.1.20.md)、[試験成績](TOP-PAGE-FIX-TEST-REPORT-v0.1.20.md)
 
@@ -40,4 +40,4 @@
 
 ## 7. 対応状況
 
-A案とSafari向け横はみ出し対策を実装し、ローカルWebKit/Edgeで試験済み。公開前。
+A案とSafari向け横はみ出し対策を実装し、ローカルWebKit/Edgeで試験し、GitHub Pagesへ公開済み。
