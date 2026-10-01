@@ -79,11 +79,22 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
     const stadium = page.locator('#stadium-select');
     const race = page.locator('#race-select');
     const start = page.locator('#start-btn');
+    assert.equal(await page.locator('#race-development-text').textContent(), '', 'the initial page must not show a sample race narrative');
+    assert.equal(await page.locator('.title-avatar').evaluate((image) => image.complete && image.naturalWidth > 0), true, 'AI Takashi avatar should load next to the title');
     await page.waitForFunction(() => window.__testNoop || document.querySelector('#stadium-select')?.options?.[1]?.dataset?.available !== undefined);
     assert.equal(await start.isDisabled(), true, 'START must remain disabled until both selectors are chosen');
     await stadium.selectOption('大村');
     await race.selectOption('12R');
     assert.equal(await start.isDisabled(), false, 'open race should enable START');
+    assert.equal(await race.locator('option:checked').textContent(), '12R', 'race selector should contain only the race number');
+    assert.match(await page.locator('#selected-race-deadline').textContent(), /^\d{2}:\d{2} 締切予定$/, 'selected race deadline should be displayed beside the race selector');
+    assert.equal(await race.getAttribute('aria-describedby'), 'selected-race-deadline');
+    await race.selectOption('');
+    await race.focus();
+    await page.keyboard.press('ArrowDown');
+    assert.equal(await race.inputValue(), '12R', 'native keyboard selection should remain available');
+    assert.match(await page.locator('#selected-race-deadline').textContent(), /^\d{2}:\d{2} 締切予定$/);
+    await race.selectOption('12R');
 
     await start.click();
     await page.getByRole('status').filter({ hasText: 'レース解析中…' }).waitFor({ timeout: 5_000 });
@@ -129,15 +140,29 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
       assert.deepEqual(idleBoats, [1, 2, 3], `${failureKind} must restore idle 1-2-3; got ${JSON.stringify(idleBoats)}`);
     }
 
-    for (const width of [320, 390, 430, 1280]) {
+    for (const width of [320, 375, 390, 430, 768, 1280]) {
       await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
-      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
-      assert.ok(scrollWidth <= width + 1, `horizontal overflow at ${width}px`);
+      const geometry = await page.evaluate(() => {
+        const frame = (selector) => { const rect = document.querySelector(selector).getBoundingClientRect(); return { left: rect.left, right: rect.right, width: rect.width }; };
+        const race = document.querySelector('#race-select');
+        const time = document.querySelector('#selected-race-deadline');
+        const avatar = document.querySelector('.title-avatar').getBoundingClientRect();
+        return { scrollWidth: document.documentElement.scrollWidth, roulette: frame('.game-panel'), comments: frame('.comments-section'),
+          raceText: race.selectedOptions[0]?.textContent, timeText: time.textContent, timeFits: time.scrollWidth <= time.clientWidth + 1,
+          avatarWidth: avatar.width, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
+      });
+      assert.ok(geometry.scrollWidth <= width + 1, `horizontal overflow at ${width}px`);
+      assert.ok(Math.abs(geometry.roulette.left - geometry.comments.left) <= 1 && Math.abs(geometry.roulette.right - geometry.comments.right) <= 1,
+        `white panel edges differ at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.equal(geometry.raceText, '12R', `race label should remain number-only at ${width}px`);
+      assert.ok(geometry.timeFits, `deadline should be fully visible at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.avatarWidth >= (width >= 768 ? 80 : 64), `avatar should remain recognizable at ${width}px`);
+      assert.ok(geometry.title.left >= 0 && geometry.title.right <= geometry.viewport + 1, `title/avatar exceed viewport at ${width}px`);
     }
     await context.close();
     assert.ok(bundle.narrative.length > 1000, 'fixture narrative must exceed 1000 characters');
     console.log('PASS: Playwright/Edge local UI selection, START/poll/success, secondary bundle, >1000-character multiline narrative, and four failure paths with result clearing');
-    console.log('PASS: layouts 320/390/430/1280px; all Supabase/Gemini/comment traffic was intercepted and no external service was called');
+    console.log('PASS: layouts 320/375/390/430/768/1280px; title/deadline fit and roulette/comments white frames align; all service traffic was intercepted');
   } finally {
     if (browser) await browser.close();
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));

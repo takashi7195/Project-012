@@ -3,6 +3,7 @@
 .reference-ui {
   --ink: #111f33;
   --blue: #0875f4;
+  --panel-inline-inset: 7px;
   font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
   color: var(--ink);
   padding: max(26px, 7.8svh) max(15px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
@@ -10,19 +11,26 @@
 }
 .reference-ui button, .reference-ui select, .reference-ui input, .reference-ui textarea { font-family: inherit; }
 .reference-ui .site-stack { width: min(100%, 480px); gap: 0; }
-.reference-ui .game-hero { min-height: calc(65svh - max(26px, 7.8svh)); padding-inline: 7px; padding-bottom: 44px; }
+.reference-ui .game-hero { min-height: calc(65svh - max(26px, 7.8svh)); padding-inline: var(--panel-inline-inset); padding-bottom: 44px; }
 .reference-ui #site-title {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
   margin: 0 0 18px;
   color: #fff;
-  font-size: clamp(23px, 7.1vw, 36px);
+  font-size: clamp(20px, 6vw, 30px);
   line-height: 1.35;
   letter-spacing: -.04em;
   font-weight: 800;
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
   text-shadow: 0 2px 3px #195c9466, 0 5px 14px #15549b44;
 }
+.reference-ui .title-avatar {
+  flex: 0 0 64px; width: 64px; height: 64px;
+  border-radius: 50%; object-fit: contain;
+}
 .reference-ui .selectors {
-  width: 64%; min-width: 220px; max-width: 280px;
+  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
+  width: 100%; min-width: 0; max-width: 360px;
   margin: 0 auto 14px; gap: 0; padding: 5px 9px;
   border: 1px solid #ffffffb3; border-radius: 13px;
   background: linear-gradient(120deg, #ffffffee, #e6f6ffe0);
@@ -32,9 +40,12 @@
   border: 0; border-radius: 0; background-color: transparent;
   height: 34px; min-height: 34px;
   color: #14263c; font-size: 20px; font-weight: 700;
-  padding: 0 28px 0 15px; background-position: right 9px center;
+  min-width: 0; width: 100%; padding: 0 22px 0 8px; background-position: right 6px center;
 }
-.reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
+.reference-ui .race-choice { display: flex; align-items: center; min-width: 0; gap: 10px; border-left: 1px solid #7794ac50; }
+.reference-ui .race-choice select { flex: 0 0 66px; }
+.reference-ui .selected-race-deadline { min-width: 0; color: #14263c; font-size: clamp(12px, 3.4vw, 14px); font-weight: 650; line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.reference-ui .selected-race-deadline:empty { display: none; }
 .reference-ui .selectors select option[data-available="true"] { color: #14263c; }
 .reference-ui .selectors select option:disabled { color: #6b7785; background: #e5e7eb; }
 .reference-ui .game-panel {
@@ -166,6 +177,8 @@
   white-space: pre-line;
 }
 .reference-ui .comments-section {
+  width: calc(100% - var(--panel-inline-inset) - var(--panel-inline-inset));
+  margin-inline: var(--panel-inline-inset);
   background: linear-gradient(115deg, #f7fcfff2, #e9f7ffed);
   border: 1px solid #ffffffcc; border-radius: 15px; overflow: hidden;
   box-shadow: 0 4px 18px #1c618f22;
@@ -252,3 +265,6 @@
   .reference-ui .prediction-boat { width: 27px; height: 27px; font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
+@media (min-width: 768px) {
+  .reference-ui .title-avatar { flex-basis: 80px; width: 80px; height: 80px; }
+}

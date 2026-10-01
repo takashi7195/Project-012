@@ -66,9 +66,11 @@ const server = http.createServer((request, response) => {
     await stadium.selectOption('大村');
     await race.selectOption('12R');
     assert.equal(await start.isDisabled(), false, 'race before its deadline should remain selectable');
+    assert.equal(await page.locator('#selected-race-deadline').textContent(), '23:59 締切予定');
 
     await page.clock.fastForward(65_000);
     await page.waitForFunction(() => document.querySelector('#race-select')?.value === '');
+    assert.equal(await page.locator('#selected-race-deadline').textContent(), '', 'expired selection must clear the deadline label');
     assert.equal(await start.isDisabled(), true, 'race must become unselectable after its deadline');
     assert.match(await page.locator('#prediction-status').textContent(), /締切/);
 
@@ -93,10 +95,12 @@ const server = http.createServer((request, response) => {
     await stadium.selectOption('大村');
     await race.selectOption('1R');
     assert.equal(await start.isDisabled(), false, 'new-day race should be selectable before its deadline');
+    assert.equal(await page.locator('#selected-race-deadline').textContent(), '00:05 締切予定', 'deadline should follow the JST date rollover');
     await start.click();
     await page.getByRole('status').filter({ hasText: 'レース解析中…' }).waitFor({ timeout: 5_000 });
     await page.clock.fastForward(105_000);
     await page.waitForFunction(() => document.querySelector('#race-select')?.value === '');
+    assert.equal(await page.locator('#selected-race-deadline').textContent(), '', 'deadline label should clear when the active race expires');
     const finalStatus = await page.locator('#prediction-status').textContent();
     assert.match(finalStatus, /締切/);
     assert.doesNotMatch(finalStatus, /もう一度|再試行/);

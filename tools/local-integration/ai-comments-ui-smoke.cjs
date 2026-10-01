@@ -88,6 +88,19 @@ let submittedNickname;
     assert.equal(await page.locator('#comment').inputValue(), '');
     assert.equal(await page.locator('#comment-count').textContent(), '0/300');
 
+    for (const width of [320, 375, 390, 430, 768, 1280]) {
+      await page.setViewportSize({ width, height: width < 500 ? 844 : 900 });
+      const geometry = await page.evaluate(() => {
+        const frame = (selector) => { const rect = document.querySelector(selector).getBoundingClientRect(); return { left: rect.left, right: rect.right }; };
+        return { roulette: frame('.game-panel'), comments: frame('.comments-section'), scrollWidth: document.documentElement.scrollWidth, width: innerWidth,
+          cards: [...document.querySelectorAll('.comment-card')].map(card => ({ left: card.getBoundingClientRect().left, right: card.getBoundingClientRect().right })) };
+      });
+      assert.ok(Math.abs(geometry.roulette.left - geometry.comments.left) <= 1 && Math.abs(geometry.roulette.right - geometry.comments.right) <= 1,
+        `white panels should align with populated comments at ${width}px`);
+      assert.ok(geometry.scrollWidth <= width + 1, `populated comments should not cause horizontal overflow at ${width}px`);
+      assert.ok(geometry.cards.every(card => card.left >= geometry.comments.left && card.right <= geometry.comments.right), `comment cards should fit inside the frame at ${width}px`);
+    }
+
     await page.locator('#stadium-select').selectOption('大村');
     await page.locator('#race-select').selectOption('12R');
     assert.equal(await page.locator('#start-btn').isDisabled(), false, 'comment interaction must not break prediction selection');
