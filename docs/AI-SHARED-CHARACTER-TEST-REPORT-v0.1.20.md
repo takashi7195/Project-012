@@ -14,9 +14,9 @@
 | C06 | 合格 | AI入力・provider契約のNode単体試験 |
 | C07 | 合格 | Deno comments handler integration: 9 passed / 0 failed |
 | C08 | 合格 | Deno typecheck: comments/index.ts と predictions/index.ts の両方が成功 |
-| C09 | 公開後確認 | Pages v0.1.20とFunction版を反映後に読み取り確認 |
+| C09 | 合格 | 公開Pagesでv0.1.20表示・script cache queryを確認。Supabase comments v69、predictions v40 |
 | C10 | 利用者試験 | 公開URLでの文章確認 |
 
 APIキー、認証情報、コメント本文などの秘密情報は証跡に記録しない。公開URLで実生成するC10は利用者が実施する。
 
-2026-10-01 JST: 対象Node試験 61 passed / 0 failed。comments Deno handler integration 9 passed / 0 failed。Deno typecheckはcommentsとpredictionsが成功。公開反映およびFunction版確認はC09として実施する。
+2026-10-01 JST: 対象Node試験 61 passed / 0 failed。comments Deno handler integration 9 passed / 0 failed。Deno typecheckはcommentsとpredictionsが成功。GitHub Pagesの公開HTMLはv0.1.20、script cache queryはv0.1.20。Supabase Functionはcomments v69、predictions v40で稼働を確認。実レース生成によるC10は利用者確認待ち。
