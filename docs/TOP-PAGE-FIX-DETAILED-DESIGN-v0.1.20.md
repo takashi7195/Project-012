@@ -19,13 +19,15 @@ index.htmlのh1内を既存画像とタイトル文字列用spanに分ける。�
 
 ui-reference.cssでタイトルをflex配置、中央寄せ、画像と文字の間隔12pxにする。画像はflex-shrink: 0、64px角、768px以上80px角。既存画像全体をobject-fit: containで表示する。文字のnowrapを解除し、min-width: 0と折り返しを許可する。文字サイズは20〜28pxを目安にし、320px幅でも横スクロールと画像・文字の重なりがないことを試験する。
 
-## 3. レース表示
+## 3. レース欄を以前の仕様へ戻す
 
-`option.textContent`は「9R」のみとする。`aria-label`には選択肢の番号に加えて締切時刻・状態を設定し、候補の時刻も読み上げ可能にする。
+締切表示専用のHTML要素とCSS、JavaScript更新処理を削除する。`applyRaceAvailability()`で以前と同じようにoption内へ表示する。
 
-締切表示用の要素をレースselectの隣に追加し、選択されているレースの`closedAt`を`formatJstTime()`でJST表示する。選択可能な選択肢なら「18:52 締切予定」、選択なし・日付不一致・時刻欠損・締切済みなら空欄にする。選択変更時と`applyRaceAvailability()`による再判定時に更新する。時刻はAPIデータから引き、optionの文字列を解析しない。選択可能性、締切境界、選択解除およびSTART制御は既存どおり。
+- 締切前: `${raceLabel}　${formatJstTime(deadline)} 締切予定`
+- 締切済み: `${raceLabel}　締切`
+- accessible nameもレース番号と締切時刻・状態を含む。
 
-レース時刻表示は「締切予定」を一行に保ち、CSS gapでレース番号と離す。320px幅でも欠けず、水平スクロールを発生させない。幅が不足した場合は文字の隠蔽でなく、選択欄と締切表示の割当幅を調整する。
+`.selectors`はwidth 64%、min-width 220px、max-width 280px。2つのselectは同じ幅に戻し、selectのpaddingと文字サイズも以前の値を使う。見切れの挙動を含めて直前の仕様へ戻す。
 
 ## 4. 展開本文
 

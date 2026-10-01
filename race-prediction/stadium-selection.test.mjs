@@ -43,7 +43,7 @@ function loadUi(options) {
     };
   };
   const elements = new Map();
-  for (const id of ['start-btn', 'race-development-text', 'selected-race-deadline']) elements.set(id, make());
+  for (const id of ['start-btn', 'race-development-text']) elements.set(id, make());
   const race = make();
   race.options = [placeholder('レース'), ...Array.from({ length: 12 }, (_, index) => ({ value: `${index + 1}R`, dataset: {}, disabled: false, textContent: '', setAttribute(name, value) { this[name] = value; }, getAttribute(name) { return this[name] ?? null; } }))];
   race.selectedIndex = 0; race.value = '';
@@ -67,7 +67,6 @@ function loadUi(options) {
   return {
     stadium,
     race: elements.get('race-select'),
-    deadline: elements.get('selected-race-deadline'),
     slots: ['slot-3', 'slot-2', 'slot-1'].map(id => elements.get(id)),
     context,
   };
@@ -132,37 +131,33 @@ test('availability refreshes every five minutes even when the cached map is empt
   assert.match(script, /if \(\(preserveOnError \|\| activePrediction\) && stadiumAvailability\.size\)/);
 });
 
-test('race options show only race numbers while the selected race deadline is displayed separately in JST', () => {
+test('race options retain the original combined race and deadline label in JST', () => {
   const options = [option('桐生', 1)];
-  const { stadium, race, deadline, context } = loadUi(options);
-  stadium.value = '桐生'; stadium.selectedIndex = 1;
-  race.value = '1R'; race.selectedIndex = 1;
+  const { race, context } = loadUi(options);
   context.applyStadiumAvailability([{ stadiumCode: 1, hasRaces: true, races: [
     { raceNumber: 1, closedAt: '2026-09-23T00:00:00.000Z' },
     { raceNumber: 2, closedAt: '2026-09-23T01:00:00.000Z' },
   ] }], new Date('2026-09-22T23:00:00.000Z'));
   context.applyRaceAvailability(1, new Date('2026-09-22T23:00:00.000Z'));
   assert.equal(race.options[1].disabled, false);
-  assert.equal(race.options[1].textContent, '1R');
+  assert.equal(race.options[1].textContent, '1R　09:00 締切予定');
   assert.equal(race.options[1].getAttribute('aria-label'), '1R、09:00 締切予定');
   assert.equal(race.options[1].textContent.includes('|'), false);
-  assert.equal(deadline.textContent, '09:00 締切予定');
   assert.equal(race.options[2].disabled, false);
   context.applyRaceAvailability(1, new Date('2026-09-23T00:30:00.000Z'));
   assert.equal(race.options[1].disabled, true);
-  assert.equal(race.options[1].textContent, '1R');
+  assert.equal(race.options[1].textContent, '1R　締切');
   assert.equal(race.options[1].getAttribute('aria-label'), '1R、締切');
   assert.equal(race.options[1].textContent.includes('|'), false);
-  assert.equal(deadline.textContent, '');
   assert.equal(race.options[2].disabled, false);
-  assert.equal(race.options[2].textContent, '2R');
+  assert.equal(race.options[2].textContent, '2R　10:00 締切予定');
 });
 
-test('race and venue selectors reserve a separate deadline display and comment frame matches roulette width', () => {
+test('race selector restores the original width and comment frame matches roulette width', () => {
   const css = readFileSync(join(root, 'ui-reference.css'), 'utf8');
-  assert.match(css, /\.reference-ui \.selectors\s*\{[^}]*grid-template-columns:/s);
-  assert.match(css, /\.reference-ui \.race-choice select\s*\{[^}]*flex:\s*0 0 66px/s);
-  assert.match(css, /\.reference-ui \.selected-race-deadline\s*\{[^}]*white-space:\s*nowrap/s);
+  assert.match(css, /\.reference-ui \.selectors\s*\{[^}]*width:\s*64%;\s*min-width:\s*220px;\s*max-width:\s*280px/s);
+  assert.match(css, /\.reference-ui \.selectors select\s*\{[^}]*padding:\s*0 28px 0 15px/s);
+  assert.doesNotMatch(css, /\.reference-ui \.race-choice/);
   assert.match(css, /--panel-inline-inset:\s*7px/);
   assert.match(css, /\.reference-ui \.comments-section\s*\{[^}]*calc\(100% - var\(--panel-inline-inset\) - var\(--panel-inline-inset\)\)/s);
   assert.match(css, /\.reference-ui \.selectors select\s*\{[^}]*font-size:\s*20px/s);

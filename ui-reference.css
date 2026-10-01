@@ -29,8 +29,7 @@
   border-radius: 50%; object-fit: contain;
 }
 .reference-ui .selectors {
-  display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.6fr);
-  width: 100%; min-width: 0; max-width: 360px;
+  width: 64%; min-width: 220px; max-width: 280px;
   margin: 0 auto 14px; gap: 0; padding: 5px 9px;
   border: 1px solid #ffffffb3; border-radius: 13px;
   background: linear-gradient(120deg, #ffffffee, #e6f6ffe0);
@@ -40,12 +39,9 @@
   border: 0; border-radius: 0; background-color: transparent;
   height: 34px; min-height: 34px;
   color: #14263c; font-size: 20px; font-weight: 700;
-  min-width: 0; width: 100%; padding: 0 22px 0 8px; background-position: right 6px center;
+  padding: 0 28px 0 15px; background-position: right 9px center;
 }
-.reference-ui .race-choice { display: flex; align-items: center; min-width: 0; gap: 10px; border-left: 1px solid #7794ac50; }
-.reference-ui .race-choice select { flex: 0 0 66px; }
-.reference-ui .selected-race-deadline { min-width: 0; color: #14263c; font-size: clamp(12px, 3.4vw, 14px); font-weight: 650; line-height: 1.2; white-space: nowrap; font-variant-numeric: tabular-nums; }
-.reference-ui .selected-race-deadline:empty { display: none; }
+.reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
 .reference-ui .selectors select option[data-available="true"] { color: #14263c; }
 .reference-ui .selectors select option:disabled { color: #6b7785; background: #e5e7eb; }
 .reference-ui .game-panel {

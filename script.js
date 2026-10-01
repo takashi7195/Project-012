@@ -42,7 +42,6 @@ const STADIUM_DATA = {
 const startBtn = document.getElementById('start-btn');
 const stadiumSelect = document.getElementById('stadium-select');
 const raceSelect = document.getElementById('race-select');
-const selectedRaceDeadline = document.getElementById('selected-race-deadline');
 const raceDevelopmentText = document.getElementById('race-development-text');
 const predictionStatus = document.getElementById('prediction-status');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
@@ -240,17 +239,6 @@ function formatJstTime(value) {
   return new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
 }
 
-function updateSelectedRaceDeadline(stadiumCode, now = new Date()) {
-  if (!selectedRaceDeadline) return;
-  const raceNumber = Number.parseInt(raceSelect.value, 10);
-  const race = stadiumAvailability.get(Number(stadiumCode))?.races?.find((item) => Number(item.raceNumber) === raceNumber);
-  const deadline = race?.closedAt ? new Date(race.closedAt) : null;
-  const dataMatchesToday = !loadedAvailabilityDate || loadedAvailabilityDate === formatJstDate(now);
-  const closedByApi = apiClosedRaces.has(raceAvailabilityKey(formatJstDate(now), stadiumCode, raceNumber));
-  const open = raceSelect.value && dataMatchesToday && !closedByApi && deadline && Number.isFinite(deadline.getTime()) && now.getTime() < deadline.getTime();
-  selectedRaceDeadline.textContent = open ? `${formatJstTime(deadline)} 締切予定` : '';
-}
-
 function applyRaceAvailability(stadiumCode, now = new Date()) {
   const stadium = stadiumAvailability.get(Number(stadiumCode));
   const previousValue = raceSelect.value;
@@ -274,8 +262,8 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     option.dataset.available = open ? 'true' : 'false';
     const raceLabel = `${raceNumber}R`;
     const deadlineLabel = open ? `${formatJstTime(deadline)} 締切予定` : '締切';
-    option.textContent = raceLabel;
-    option.setAttribute('aria-label', `${raceLabel}、${deadlineLabel}`);
+    option.textContent = `${raceLabel}　${deadlineLabel}`;
+    option.setAttribute('aria-label', open ? `${raceLabel}、${deadlineLabel}` : `${raceLabel}、締切`);
     if (open) hasSelectableRace = true;
   }
   const selected = raceSelect.options[raceSelect.selectedIndex];
@@ -287,7 +275,6 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     if (!preservePredictionDisplay) clearPredictionDisplay('', { idleRoulette: true });
     if (previousValue && !raceSelect.value && raceIsConfirmedClosed(stadiumCode, selectedRaceNumber, now)) setPredictionStatus('このレースは締切です');
   }
-  updateSelectedRaceDeadline(stadiumCode, now);
   updateStartAvailability(hasSelectableRace);
   return hasSelectableRace;
 }
@@ -368,7 +355,6 @@ for (const select of [stadiumSelect, raceSelect]) select.addEventListener('chang
     applyRaceAvailability(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]), new Date());
   }
   else if (select === raceSelect && raceSelect.options?.[raceSelect.selectedIndex]?.disabled) return;
-  updateSelectedRaceDeadline(stadiumCodeForOption(stadiumSelect.options[stadiumSelect.selectedIndex]), new Date());
   clearPredictionDisplay('', { idleRoulette: true });
   updateStartAvailability();
 });

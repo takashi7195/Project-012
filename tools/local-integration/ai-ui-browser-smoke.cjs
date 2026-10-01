@@ -86,14 +86,12 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
     await stadium.selectOption('大村');
     await race.selectOption('12R');
     assert.equal(await start.isDisabled(), false, 'open race should enable START');
-    assert.equal(await race.locator('option:checked').textContent(), '12R', 'race selector should contain only the race number');
-    assert.match(await page.locator('#selected-race-deadline').textContent(), /^\d{2}:\d{2} 締切予定$/, 'selected race deadline should be displayed beside the race selector');
-    assert.equal(await race.getAttribute('aria-describedby'), 'selected-race-deadline');
+    assert.match(await race.locator('option:checked').textContent(), /^12R　\d{2}:\d{2} 締切予定$/, 'race selector should restore the original combined label');
     await race.selectOption('');
     await race.focus();
     await page.keyboard.press('ArrowDown');
     assert.equal(await race.inputValue(), '12R', 'native keyboard selection should remain available');
-    assert.match(await page.locator('#selected-race-deadline').textContent(), /^\d{2}:\d{2} 締切予定$/);
+    assert.match(await race.locator('option:checked').textContent(), /^12R　\d{2}:\d{2} 締切予定$/);
     await race.selectOption('12R');
 
     await start.click();
@@ -145,24 +143,22 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
       const geometry = await page.evaluate(() => {
         const frame = (selector) => { const rect = document.querySelector(selector).getBoundingClientRect(); return { left: rect.left, right: rect.right, width: rect.width }; };
         const race = document.querySelector('#race-select');
-        const time = document.querySelector('#selected-race-deadline');
         const avatar = document.querySelector('.title-avatar').getBoundingClientRect();
         return { scrollWidth: document.documentElement.scrollWidth, roulette: frame('.game-panel'), comments: frame('.comments-section'),
-          raceText: race.selectedOptions[0]?.textContent, timeText: time.textContent, timeFits: time.scrollWidth <= time.clientWidth + 1,
+          raceText: race.selectedOptions[0]?.textContent,
           avatarWidth: avatar.width, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
       });
       assert.ok(geometry.scrollWidth <= width + 1, `horizontal overflow at ${width}px`);
       assert.ok(Math.abs(geometry.roulette.left - geometry.comments.left) <= 1 && Math.abs(geometry.roulette.right - geometry.comments.right) <= 1,
         `white panel edges differ at ${width}px: ${JSON.stringify(geometry)}`);
-      assert.equal(geometry.raceText, '12R', `race label should remain number-only at ${width}px`);
-      assert.ok(geometry.timeFits, `deadline should be fully visible at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.match(geometry.raceText, /^12R　\d{2}:\d{2} 締切予定$/, `race label should match the original format at ${width}px`);
       assert.ok(geometry.avatarWidth >= (width >= 768 ? 80 : 64), `avatar should remain recognizable at ${width}px`);
       assert.ok(geometry.title.left >= 0 && geometry.title.right <= geometry.viewport + 1, `title/avatar exceed viewport at ${width}px`);
     }
     await context.close();
     assert.ok(bundle.narrative.length > 1000, 'fixture narrative must exceed 1000 characters');
     console.log('PASS: Playwright/Edge local UI selection, START/poll/success, secondary bundle, >1000-character multiline narrative, and four failure paths with result clearing');
-    console.log('PASS: layouts 320/375/390/430/768/1280px; title/deadline fit and roulette/comments white frames align; all service traffic was intercepted');
+    console.log('PASS: layouts 320/375/390/430/768/1280px; original race selector format and roulette/comments white frame alignment verified');
   } finally {
     if (browser) await browser.close();
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
