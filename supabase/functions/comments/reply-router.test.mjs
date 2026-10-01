@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { fallbackPlan, generateReplyPlan, normalizeQueries, normalizeStadium, validateReplyPlan } from "./reply-router.mjs";
+import { SHARED_CHARACTER_INSTRUCTION } from "../../../race-prediction/ai-character.mjs";
 
 const base = (overrides = {}) => ({ action: "race_db", sentiment: "neutral", queries: [], prediction_requested: false, ...overrides });
 const q = (overrides = {}) => ({ type: "race_search", from: "2026-09-24", to: "2026-09-24", stadium: "住之江", raceNumber: 12, entryNumber: null, racerName: null, limit: 20, ...overrides });
@@ -17,7 +18,7 @@ test("direct plan requires a non-empty regular reply", () => {
 test("race questions accept basic and prediction plans", () => assert.equal(validateReplyPlan(base({ queries: [q()], prediction_requested: true })).plan.prediction_requested, true));
 test("historical, racer, exhibition and result plans are structured queries", () => assert.equal(normalizeQueries([q({ from: "2026-09-23", to: "2026-09-23", racerName: "峰竜太", raceNumber: null, entryNumber: null })]).valid, true));
 test("information-insufficient race question is not fallback", () => { const r = validateReplyPlan(base()); assert.equal(r.valid, true); assert.equal(r.plan.information_insufficient, true); });
-test("fallback disables tips and prediction", () => { const r = validateReplyPlan({ action: "fallback", tip_reply: "tip", prediction_requested: true }); assert.equal(r.plan.reply_source, "template"); assert.equal(r.plan.tip_reply, null); assert.equal(r.plan.prediction_requested, false); assert.equal(fallbackPlan().action, "fallback"); });
+test("fallback disables tips and prediction and keeps the shared character", () => { const r = validateReplyPlan({ action: "fallback", tip_reply: "tip", prediction_requested: true }); assert.equal(r.plan.reply_source, "template"); assert.equal(r.plan.tip_reply, null); assert.equal(r.plan.prediction_requested, false); assert.equal(fallbackPlan().action, "fallback"); assert.match(fallbackPlan().regular_reply, /酔っ払|酔|ふわ|一杯/u); });
 test("query limit is three and four is invalid", () => { assert.equal(normalizeQueries([q(), q({ raceNumber: 2 }), q({ raceNumber: 3 })]).valid, true); assert.equal(normalizeQueries([q(), q({ raceNumber: 2 }), q({ raceNumber: 3 }), q({ raceNumber: 4 })]).reason, "query_limit"); });
 test("duplicate queries are deduplicated", () => assert.equal(normalizeQueries([q(), q()]).queries.length, 1));
 test("race and entry bounds are validated", () => { assert.equal(validateReplyPlan(base({ queries: [q({ raceNumber: 13 })] })).reason, "race_number"); assert.equal(validateReplyPlan(base({ queries: [q({ entryNumber: 7 })] })).reason, "entry_number"); });
@@ -34,5 +35,7 @@ test("router prompt and structured schema declare the supported query contract",
   assert.deepEqual(generation.responseJsonSchema.properties.queries.items.properties.type.enum, ["race_search", "race_search_filtered"]);
   assert.match(request.contents[0].parts[0].text, /race_search_filtered/u);
   assert.match(request.contents[0].parts[0].text, /regular_reply/u);
+  assert.match(request.contents[0].parts[0].text, /疑問形にせず.*追加コメントを求めず.*一つの返信内で完結/u);
+  assert.ok(request.contents[0].parts[0].text.includes(SHARED_CHARACTER_INSTRUCTION));
 });
 test("planner provider and malformed responses fail safely", async () => { assert.equal(await generateReplyPlan("雑談", "key", async () => new Response("", { status: 429 })), null); assert.equal(await generateReplyPlan("雑談", "key", async () => response({ action: "unknown" })), null); });

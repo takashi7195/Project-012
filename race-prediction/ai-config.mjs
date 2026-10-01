@@ -1,12 +1,14 @@
+import { SHARED_CHARACTER_INSTRUCTION } from "./ai-character.mjs";
+
 export const AI_CONTRACT_VERSION = "ai-bundle-v1";
 export const OUTPUT_SCHEMA_VERSION = "ai-bundle-output-v1";
 export const DEFAULT_AI_CONFIG = Object.freeze({
   provider: "gemini",
   model: "gemini-3.5-flash-lite",
   apiVersion: "v1beta",
-  promptVersion: "ai-bundle-prompt-1",
-  styleVersion: "none-1",
-  styleText: "",
+  promptVersion: "ai-bundle-prompt-2",
+  styleVersion: "shared-drunk-goofy-1",
+  styleText: SHARED_CHARACTER_INSTRUCTION,
   outputSchemaVersion: OUTPUT_SCHEMA_VERSION,
   adapterVersion: "gemini-generate-content-v1",
   totalTimeoutMs: 90_000,

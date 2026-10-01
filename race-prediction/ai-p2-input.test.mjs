@@ -40,6 +40,13 @@ test('I03 preview null, missing, empty object/array, and raw values remain disti
   assert.equal(missingProperty.facts.presence.preview, 'missing');
 });
 
+test('default roulette config uses the shared character and versions the style', () => {
+  assert.equal(DEFAULT_AI_CONFIG.styleVersion, 'shared-drunk-goofy-1');
+  assert.match(DEFAULT_AI_CONFIG.styleText, /酔っ払い/u);
+  assert.match(DEFAULT_AI_CONFIG.styleText, /乱暴/u);
+  assert.equal(resolveAiConfig({}).styleText, DEFAULT_AI_CONFIG.styleText);
+});
+
 test('I06 rejects each malformed six-boat identity shape and accepts only six distinct boats', async t => {
   const cases = [
     ['five entries', p=>{delete p.racers['6'];}],

@@ -10,6 +10,7 @@ import {
   GEMINI_TIMEOUT_MS,
   generateGroundedReply,
 } from "./ai-reply.mjs";
+import { SHARED_CHARACTER_INSTRUCTION } from "../../../race-prediction/ai-character.mjs";
 
 const regularReply = "ごめん！予想が水しぶきで見えなくなった！";
 const tipReply = "当たった！あれ、ぼくのおなかが鳴ったかも！";
@@ -50,11 +51,9 @@ test("one Gemini request returns classification and both short reply candidates"
   assert.match(request.body.contents[0].parts[0].text, /外れたじゃねーか/u);
   assert.match(request.body.contents[0].parts[0].text, /コメントへの返信文/u);
   assert.match(request.body.contents[0].parts[0].text, /軽いおねだり/u);
-  assert.match(request.body.system_instruction.parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
-  assert.match(request.body.system_instruction.parts[0].text, /「1号車」〜「6号車」とは書きません/u);
-  assert.match(request.body.system_instruction.parts[0].text, /「1号艇 山田太郎」/u);
-  assert.match(request.body.system_instruction.parts[0].text, /姓名間には空白を入れず/u);
-  assert.match(request.body.contents[0].parts[0].text, /艇番は「1号艇」〜「6号艇」/u);
+  assert.match(request.body.contents[0].parts[0].text, /疑問形にせず.*追加コメントを求めず.*一つの返信内で完結/u);
+  assert.equal(request.body.system_instruction, undefined);
+  assert.ok(request.body.contents[0].parts[0].text.includes(SHARED_CHARACTER_INSTRUCTION));
   assert.equal(request.body.generationConfig.temperature, 0.9);
   assert.equal(request.body.generationConfig.responseMimeType, "application/json");
   assert.equal(request.body.generationConfig.responseJsonSchema.properties.sentiment.enum.includes("mixed"), true);
@@ -109,6 +108,7 @@ test("the existing ten casual fallback replies remain available", () => {
   assert.equal(TEMPLATE_REPLIES.length, 10);
   for (const reply of TEMPLATE_REPLIES) {
     assert.equal(isUsableReply(reply), true, reply);
+    assert.match(reply, /酔|ふわ|一杯|酒/u);
   }
   for (let index = 0; index < 100; index += 1) assert.ok(TEMPLATE_REPLIES.includes(templateReply()));
 });
@@ -205,23 +205,28 @@ test("search-disabled responses still use the existing JSON contract", async () 
 
 test("grounded reply uses facts without exposing database internals", async () => {
   let prompt = "";
+  let requestBody;
   const result = await generateGroundedReply("今日の住之江12Rの展示は？", { action: "race_db", prediction_requested: false }, {
     races: [{ race_date: "2026-09-24", stadium_name: "住之江", race_number: 12, entries: [{ entry_number: 1, name: "選手", average_st: 0.14 }] }],
     coverage: { truncated: false }, warnings: [],
-  }, "test-key", async (_url, init) => { prompt = JSON.parse(init.body).contents[0].parts[0].text; return geminiResponse({ sentiment: "neutral", serious_distress_or_financial_hardship: false, regular_reply: "1号艇の平均STは0.14だよ〜。", tip_reply: tipReply }); }, () => {}, { status: "available", main: [1, 2, 3], counter: [2, 1, 4], hole: [5, 1, 2] });
+  }, "test-key", async (_url, init) => { requestBody = JSON.parse(init.body); prompt = requestBody.contents[0].parts[0].text; return geminiResponse({ sentiment: "neutral", serious_distress_or_financial_hardship: false, regular_reply: "1号艇の平均STは0.14だよ〜。", tip_reply: tipReply }); }, () => {}, { status: "available", main: [1, 2, 3], counter: [2, 1, 4], hole: [5, 1, 2] });
+  assert.equal(requestBody.system_instruction, undefined);
   assert.equal(result.regularReply, "1号艇の平均STは0.14だよ〜。");
   assert.match(prompt, /raceContext/u);
-  assert.match(prompt, /「1号艇」〜「6号艇」/u);
-  assert.match(prompt, /「1号車」〜「6号車」とは書きません/u);
-  assert.match(prompt, /姓名間には空白を入れず/u);
+  assert.ok(prompt.includes(SHARED_CHARACTER_INSTRUCTION));
+  assert.doesNotMatch(prompt, /1号車.*号艇|姓名間には空白/u);
+  assert.match(prompt, /返信の最後を疑問形にせず、追加コメントを求めず、この返信内で回答を完結/u);
   assert.match(prompt, /取得済みの順位・結果はcontextにある確定形で一度だけ/u);
   assert.match(prompt, /「〜じゃなくて〜」「訂正すると〜」/u);
   assert.match(prompt, /同じ順位について複数候補を列挙しない/u);
   assert.match(prompt, /DB、RPC、SQL/u);
+  assert.match(prompt, /選手名・艇番・数値の対応を変えない/u);
+  assert.match(prompt, /average_stと展示ST/u);
+  assert.match(prompt, /本命・対抗・穴/u);
   assert.match(prompt, /predictionContext/u);
 });
 
-test("boat number terminology is normalized narrowly in generated replies", async () => {
+test("generated reply wording and boat terminology are preserved without normalization", async () => {
   const generated = "1号車と6号車、１号車と６号車。7号車はそのまま、1号艇もそのまま。通常の文章も変えない。";
   const result = await generateGroundedReply("結果を教えて", { action: "race_db" }, { races: [] }, "test-key", async () => geminiResponse({
     sentiment: "neutral",
@@ -230,8 +235,8 @@ test("boat number terminology is normalized narrowly in generated replies", asyn
     tip_reply: "6号車でも乾杯！",
   }));
 
-  assert.equal(result.regularReply, "1号艇と6号艇、1号艇と6号艇。7号車はそのまま、1号艇もそのまま。通常の文章も変えない。");
-  assert.equal(result.tipReply, "6号艇でも乾杯！");
+  assert.equal(result.regularReply, generated);
+  assert.equal(result.tipReply, "6号車でも乾杯！");
 });
 
 test("grounded no-match response remains a normal reply", async () => {

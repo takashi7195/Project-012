@@ -229,7 +229,7 @@ async function submitComment(request: Request, origin: string, deps: {
     };
   } else if (plan?.action === "race_db") {
     const startedAt = Date.now();
-    const safeQueries = plan.queries.map((query) => ({
+    const safeQueries = plan.queries.filter((query) => query !== undefined && query !== null).map((query) => ({
       queryType: query.type,
       from: query.from,
       to: query.to,
