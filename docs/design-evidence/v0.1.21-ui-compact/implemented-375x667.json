@@ -1,0 +1,58 @@
+{
+  "measuredAt": "2026-10-01T11:58:00Z",
+  "browser": "Microsoft Edge 154.0.4258.37",
+  "viewport": {
+    "width": 375,
+    "height": 667,
+    "deviceScaleFactor": 1
+  },
+  "mode": "Local browser with intercepted synthetic Supabase responses. No Gemini or hosted database calls.",
+  "state": "analysis",
+  "elementsCssPx": {
+    "gamePanel": {
+      "x": 22,
+      "y": 141,
+      "width": 331,
+      "height": 186.5625,
+      "bottom": 327.5625
+    },
+    "favoriteTile": {
+      "x": 50.4375,
+      "y": 193.1875,
+      "width": 84.375,
+      "height": 84.375,
+      "bottom": 277.5625
+    },
+    "startButton": {
+      "x": 102.53125,
+      "y": 286.5625,
+      "width": 169.9375,
+      "height": 36,
+      "bottom": 322.5625
+    },
+    "predictionStatus": {
+      "x": 41,
+      "y": 322.5625,
+      "width": 293,
+      "height": 0,
+      "bottom": 322.5625
+    },
+    "raceDevelopment": {
+      "x": 22,
+      "y": 443.5625,
+      "width": 331,
+      "height": 139
+    },
+    "comments": {
+      "x": 22,
+      "y": 592.5625,
+      "width": 331,
+      "height": 111.1875
+    }
+  },
+  "alsoCaptured": [
+    "failure message under START",
+    "deadline message under START"
+  ],
+  "caveats": "Screenshots show mocked race/prediction values and are layout evidence only."
+}

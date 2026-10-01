@@ -72,9 +72,10 @@ import { readFileSync } from 'node:fs';
 function uiHarness(request) {
  const scheduled=new Map();let nextTimer=0;
  const setTimer=(fn,ms)=>{const id=++nextTimer;if(ms===90000)scheduled.set(id,fn);else queueMicrotask(()=>{if(scheduled.has(id)||ms!==90000)fn()});return id};
- const element=()=>({textContent:'old',style:{},childNodes:[],disabled:false,events:{},dataset:{},className:'slot',classList:{add(){},remove(){}},
+ const element=()=>({textContent:'old',style:{},childNodes:[],disabled:false,events:{},dataset:{},className:'slot',classes:new Set(),classList:{add(name){this.owner.classes.add(name)},remove(name){this.owner.classes.delete(name)},toggle(name,force){if(force)this.owner.classes.add(name);else this.owner.classes.delete(name)},contains(name){return this.owner.classes.has(name)},owner:null},
  addEventListener(name,fn){this.events[name]=fn},replaceChildren(...children){this.childNodes=children;this.textContent=''},appendChild(child){this.childNodes.push(child)},removeAttribute(){},querySelector(){return this.reel}});
  const ids=Object.fromEntries(['start-btn','stadium-select','race-select','race-development-text','prediction-status','slot-1','slot-2','slot-3'].map(id=>[id,element()]));
+ for(const item of Object.values(ids)) item.classList.owner=item;
  ids['start-btn'].textContent='START';
  ids['stadium-select'].options=[{value:'',disabled:false,dataset:{},setAttribute(){}}, {value:'桐生',disabled:false,dataset:{stadiumCode:'1',stadiumName:'桐生'},setAttribute(){}}];ids['stadium-select'].selectedIndex=0;ids['stadium-select'].value='';
  ids['race-select'].options=[{value:'',disabled:false,dataset:{},setAttribute(){}}, ...Array.from({length:12},(_,i)=>({value:`${i+1}R`,disabled:false,dataset:{},setAttribute(){}}))];ids['race-select'].selectedIndex=0;ids['race-select'].value='';
@@ -94,8 +95,8 @@ function uiHarness(request) {
 test('UI clears prior picks before awaiting; failure restores controls',async()=>{
  let reject;const ui=uiHarness(()=>new Promise((_,r)=>{reject=r}));const pending=ui.click();
  assert.equal(ui.rows.longshot.textContent,'—');assert.equal(ui.rows.counter.textContent,'—');assert.equal(ui.ids['start-btn'].disabled,true);
- assert.equal(ui.ids['prediction-status'].textContent,'レース解析中…');
- reject(Error('private transport detail'));await pending;assert.equal(ui.ids['start-btn'].disabled,false);assert.equal(ui.ids['stadium-select'].disabled,false);assert.equal(ui.ids['race-select'].disabled,false);assert.equal(ui.ids['prediction-status'].textContent,'予想を生成できませんでした。もう一度お試しください。');
+ assert.equal(ui.ids['prediction-status'].textContent,'レース解析中…');assert.equal(ui.ids['start-btn'].textContent,'解析中…');assert.equal(ui.ids['prediction-status'].classList.contains('is-visually-hidden'),true);
+ reject(Error('private transport detail'));await pending;assert.equal(ui.ids['start-btn'].disabled,false);assert.equal(ui.ids['start-btn'].textContent,'START');assert.equal(ui.ids['stadium-select'].disabled,false);assert.equal(ui.ids['race-select'].disabled,false);assert.equal(ui.ids['prediction-status'].textContent,'予想を生成できませんでした。もう一度お試しください。');assert.equal(ui.ids['prediction-status'].classList.contains('is-visually-hidden'),false);
 });
 test('UI renders null hole/narrative without old content and clears on race switch',async()=>{
  const ui=uiHarness(async()=>displayResult(success.body));await ui.click();assert.equal(ui.rows.longshot.textContent,'—');assert.notEqual(ui.ids['race-development-text'].textContent,'old');assert.equal(ui.ids['start-btn'].disabled,false);
@@ -119,7 +120,7 @@ test('roulette starts while API is pending and secondary results stay hidden',as
  const ui=uiHarness(()=>new Promise(resolve=>{resolveRequest=resolve}));
  const pending=ui.click();
  await Promise.resolve();await Promise.resolve();
- assert.equal(ui.ids['prediction-status'].textContent,'レース解析中…');
+ assert.equal(ui.ids['prediction-status'].textContent,'レース解析中…');assert.equal(ui.ids['start-btn'].textContent,'解析中…');assert.equal(ui.ids['prediction-status'].classList.contains('is-visually-hidden'),true);
  assert.equal(ui.ids['stadium-select'].disabled,true);assert.equal(ui.ids['race-select'].disabled,true);assert.equal(ui.ids['start-btn'].disabled,true);
  assert.equal(ui.rows.counter.textContent,'—');assert.equal(ui.rows.longshot.textContent,'—');assert.equal(ui.stops.length,0);
  resolveRequest({main:[1,2,3],counter:[2,1,4],hole:[4,2,1],narrative:'result'});
@@ -150,11 +151,14 @@ test('closed response resets race without auto-selecting another and reports clo
  assert.equal(ui.ids['stadium-select'].value,'桐生');assert.equal(ui.ids['race-select'].value,'');
  assert.equal(ui.ids['start-btn'].disabled,true);assert.equal(ui.stops.length,0);
 });
-test('status region is directly below START and has a reserved display line',()=>{
+test('status region is below START without a reserved line and version label is removed',()=>{
  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
  assert.match(html,/<button id="start-btn">START<\/button>\s*<p id="prediction-status"[^>]*role="status"[^>]*aria-live="polite"><\/p>/);
+ assert.doesNotMatch(html,/<div class="version">/);
  const css=readFileSync(new URL('../ui-reference.css',import.meta.url),'utf8');
- assert.match(css,/\.reference-ui \.prediction-status\s*\{[^}]*min-height:\s*1\.5em/s);
+ assert.match(css,/\.reference-ui \.prediction-status\s*\{[^}]*min-height:\s*0/s);
+ assert.match(css,/\.reference-ui #start-btn\s*\{[^}]*min-height:\s*36px/s);
+ assert.match(css,/\.prediction-status\.is-visually-hidden\s*\{[^}]*clip-path:\s*inset\(50%\)/s);
 });
 test('excluded ST changes cannot invalidate canonical reuse; numeric strings normalize',async()=>{
  const a=fixture(),b=fixture();a.preview_entries[0].start_timing=-.01;b.preview_entries[0].start_timing='F.02';b.entries[0].average_st='0.14';assert.deepEqual(await predictionKeys(a,SCORE_CONFIG.version,'logic'),await predictionKeys(b,SCORE_CONFIG.version,'logic'));

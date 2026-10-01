@@ -6,15 +6,15 @@
   --panel-inline-inset: 7px;
   font-family: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
   color: var(--ink);
-  padding: max(26px, 7.8svh) max(15px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
+  padding: max(13px, env(safe-area-inset-top)) max(15px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(15px, env(safe-area-inset-left));
   -webkit-text-size-adjust: 100%;
 }
 .reference-ui button, .reference-ui select, .reference-ui input, .reference-ui textarea { font-family: inherit; }
 .reference-ui .site-stack { width: min(100%, 480px); gap: 0; }
-.reference-ui .game-hero { min-height: calc(65svh - max(26px, 7.8svh)); padding-inline: var(--panel-inline-inset); padding-bottom: 44px; }
+.reference-ui .game-hero { min-height: 0; padding-inline: var(--panel-inline-inset); padding-bottom: 10px; }
 .reference-ui #site-title {
   display: flex; align-items: center; justify-content: center; gap: 12px;
-  margin: 0 0 18px;
+  margin: 0 0 10px;
   color: #fff;
   font-size: clamp(20px, 6vw, 30px);
   line-height: 1.35;
@@ -30,7 +30,7 @@
 }
 .reference-ui .selectors {
   width: 64%; min-width: 220px; max-width: 280px;
-  margin: 0 auto 14px; gap: 0; padding: 5px 9px;
+  margin: 0 auto 8px; gap: 0; padding: 5px 9px;
   border: 1px solid #ffffffb3; border-radius: 13px;
   background: linear-gradient(120deg, #ffffffee, #e6f6ffe0);
   box-shadow: inset 0 1px 1px #fff, 0 2px 6px #155d9020;
@@ -61,7 +61,7 @@
 .reference-ui .selectors select option:disabled { color: #6b7785; background: #e5e7eb; }
 .reference-ui .game-panel {
   position: relative; width: 100%; max-width: none;
-  border-radius: 16px; padding: 22px 18px 16px;
+  border-radius: 16px; padding: 16px 18px 4px;
   border: 1px solid #ffffffcc;
   background: linear-gradient(118deg, #edfaffed 0%, #dff3ffd9 55%, #ffffffd9 100%);
   box-shadow: inset 0 1px 2px #fff, 0 4px 14px #1e609224;
@@ -69,8 +69,8 @@
 .reference-ui .favorite-label {
   display: inline-flex;
   align-items: center;
-  min-height: 31px;
-  margin: -2px 0 12px;
+  min-height: 28px;
+  margin: -2px 0 8px;
   padding: 4px 11px;
   border: 1px solid #ffffffd9;
   border-radius: 999px;
@@ -81,7 +81,7 @@
   line-height: 1.2;
   box-shadow: 0 2px 5px #1c609022;
 }
-.reference-ui #results { gap: clamp(10px, 2.8vw, 18px); margin-bottom: 17px; }
+.reference-ui #results { gap: clamp(10px, 2.8vw, 18px); margin-bottom: 9px; }
 .reference-ui .slot {
   --slot-size: clamp(72px, 22.5vw, 108px);
   --item-height: var(--slot-size);
@@ -111,8 +111,12 @@
 .reference-ui #start-btn { width: 64%; min-height: 44px; margin: 0 auto; padding: 8px 16px; font-size: 22px; line-height: 1.2; border-radius: 13px; }
 .reference-ui #start-btn:active, .reference-ui .post-button:active { filter: brightness(.96); transform: translateY(1px); }
 .reference-ui #start-btn:disabled, .reference-ui .post-button:disabled { opacity: .65; cursor: wait; }
-.reference-ui .prediction-status { min-height: 1.5em; margin: 2px 0 0; text-align: center; }
-.reference-ui .game-panel .version { position: absolute; right: 9px; bottom: 3px; font-size: 8px; margin: 0; color: #607991; }
+.reference-ui .prediction-status { min-height: 0; margin: 0; text-align: center; }
+.reference-ui .prediction-status.is-visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%);
+  white-space: nowrap; border: 0;
+}
 .reference-ui .secondary-predictions {
   display: grid;
   gap: 6px;
@@ -278,4 +282,11 @@
 @media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
 @media (min-width: 768px) {
   .reference-ui .title-avatar { flex-basis: 80px; width: 80px; height: 80px; }
+}
+.reference-ui #start-btn {
+  width: min(180px, 58%);
+  min-height: 36px;
+  padding: 5px 12px;
+  font-size: 18px;
+  border-radius: 11px;
 }

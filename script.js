@@ -56,8 +56,11 @@ let availabilityLoading = false;
 const apiClosedRaces = new Set();
 let preservePredictionDisplay = false;
 let predictionRunId = 0;
-function setPredictionStatus(message = '') {
-  if (predictionStatus) predictionStatus.textContent = message;
+function setPredictionStatus(message = '', { progress = false } = {}) {
+  if (predictionStatus) {
+    predictionStatus.textContent = message;
+    predictionStatus.classList.toggle('is-visually-hidden', Boolean(message) && progress);
+  }
 }
 function raceAvailabilityKey(raceDate, stadiumCode, raceNumber) {
   return `${raceDate}:${stadiumCode}:${raceNumber}`;
@@ -302,6 +305,7 @@ function updateStartAvailability(hasSelectableRace = null) {
   const stadiumReady = stadiumAvailabilityReady && stadiumOption && stadiumOption.value !== '' && !stadiumOption.disabled;
   const raceReady = raceOption && raceOption.value !== '' && !raceOption.disabled;
   const busy = Boolean(activePrediction);
+  startBtn.textContent = busy ? '解析中…' : 'START';
   stadiumSelect.disabled = busy || availabilityLoading;
   raceSelect.disabled = busy || availabilityLoading;
   startBtn.disabled = busy || availabilityLoading || hasSelectableRace === false || !stadiumReady || !raceReady;
@@ -404,7 +408,7 @@ async function requestPrediction(signal, selector, deadlineAt, modeForRun = pred
       headers: { 'Content-Type': 'application/json', apikey: SUPABASE_PUBLISHABLE_KEY }, body: JSON.stringify(selector) });
     return { status: response.status, body: await response.json() };
   }, { signal, onGenerating: () => {
-    setPredictionStatus('レース解析中…');
+    setPredictionStatus('レース解析中…', { progress: true });
   }, timeoutMs: Math.max(0, deadlineAt - Date.now()) });
 }
 
@@ -457,8 +461,9 @@ startBtn.addEventListener('click', async () => {
   let timedOut = false;
   const timeoutId = setTimeout(() => { timedOut = true; controller.abort(); }, 90_000);
   startBtn.disabled = true;
+  startBtn.textContent = '解析中…';
   stadiumSelect.disabled = raceSelect.disabled = true;
-  setPredictionStatus('レース解析中…');
+  setPredictionStatus('レース解析中…', { progress: true });
   clearPredictionDisplay();
   slots.forEach((slot, index) => {
     populateReel(slot.querySelector('.reel'));
