@@ -86,12 +86,19 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
     await stadium.selectOption('大村');
     await race.selectOption('12R');
     assert.equal(await start.isDisabled(), false, 'open race should enable START');
-    assert.match(await race.locator('option:checked').textContent(), /^12R　\d{2}:\d{2} 締切予定$/, 'race selector should restore the original combined label');
+    assert.match(await race.locator('option:checked').textContent(), /^12R　\d{2}:\d{2} 締切予定$/, 'native picker must retain deadline text');
+    assert.equal(await page.locator('#race-selected-label').innerText(), '12R');
+    await race.click();
+    await page.keyboard.press('Escape');
+    assert.equal(await race.inputValue(), '12R', 'cancelling native picker preserves selection');
+    assert.equal(await page.locator('#race-selected-label').innerText(), '12R');
     await race.selectOption('');
+    assert.equal(await page.locator('#race-selected-label').innerText(), 'レース');
     await race.focus();
     await page.keyboard.press('ArrowDown');
     assert.equal(await race.inputValue(), '12R', 'native keyboard selection should remain available');
     assert.match(await race.locator('option:checked').textContent(), /^12R　\d{2}:\d{2} 締切予定$/);
+    assert.equal(await page.locator('#race-selected-label').innerText(), '12R', 'keyboard selection syncs short label');
     await race.selectOption('12R');
 
     await start.click();
@@ -146,19 +153,39 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
         const avatar = document.querySelector('.title-avatar').getBoundingClientRect();
         return { scrollWidth: document.documentElement.scrollWidth, roulette: frame('.game-panel'), comments: frame('.comments-section'),
           raceText: race.selectedOptions[0]?.textContent,
+          shortText: document.querySelector('#race-selected-label').textContent,
+          raceFrame: frame('.race-select-shell'), stadiumFrame: frame('#stadium-select'),
+          selectorStyle: { width: document.styleSheets.length && getComputedStyle(document.querySelector('.selectors')).maxWidth },
+          shortFrame: frame('#race-selected-label'), shortScroll: document.querySelector('#race-selected-label').scrollWidth,
+          nativeColor: getComputedStyle(race).color, optionColor: getComputedStyle(race.selectedOptions[0]).color,
           avatarWidth: avatar.width, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
       });
       assert.ok(geometry.scrollWidth <= width + 1, `horizontal overflow at ${width}px`);
       assert.ok(Math.abs(geometry.roulette.left - geometry.comments.left) <= 1 && Math.abs(geometry.roulette.right - geometry.comments.right) <= 1,
         `white panel edges differ at ${width}px: ${JSON.stringify(geometry)}`);
       assert.match(geometry.raceText, /^12R　\d{2}:\d{2} 締切予定$/, `race label should match the original format at ${width}px`);
+      assert.equal(geometry.shortText, '12R');
+      assert.equal(geometry.nativeColor, 'rgba(0, 0, 0, 0)');
+      assert.notEqual(geometry.optionColor, 'rgba(0, 0, 0, 0)');
+      assert.ok(Math.abs(geometry.raceFrame.width - geometry.stadiumFrame.width) <= 1, 'selector widths stay equal');
+      assert.equal(geometry.selectorStyle.width, '280px');
+      assert.ok(geometry.shortScroll <= geometry.shortFrame.width + 1, 'short race number fits without clipping');
       assert.ok(geometry.avatarWidth >= (width >= 768 ? 80 : 64), `avatar should remain recognizable at ${width}px`);
       assert.ok(geometry.title.left >= 0 && geometry.title.right <= geometry.viewport + 1, `title/avatar exceed viewport at ${width}px`);
     }
     await context.close();
+    const noJs = await browser.newContext({ javaScriptEnabled: false });
+    await noJs.route('**/*', route => new URL(route.request().url()).origin === `http://127.0.0.1:${port}` ? route.continue() : route.abort());
+    const noJsPage = await noJs.newPage();
+    await noJsPage.goto(`http://127.0.0.1:${port}/index.html`);
+    assert.equal(await noJsPage.locator('#race-selected-label').isVisible(), false, 'without JS the short overlay stays hidden');
+    assert.equal(await noJsPage.locator('#race-select').isVisible(), true);
+    assert.notEqual(await noJsPage.locator('#race-select').evaluate(el => getComputedStyle(el).color), 'rgba(0, 0, 0, 0)');
+    assert.equal(await noJsPage.locator('#race-development-text').textContent(), '');
+    await noJs.close();
     assert.ok(bundle.narrative.length > 1000, 'fixture narrative must exceed 1000 characters');
     console.log('PASS: Playwright/Edge local UI selection, START/poll/success, secondary bundle, >1000-character multiline narrative, and four failure paths with result clearing');
-    console.log('PASS: layouts 320/375/390/430/768/1280px; original race selector format and roulette/comments white frame alignment verified');
+    console.log('PASS: layouts 320/375/390/430/768/1280px; compact race label and native full option format and roulette/comments white frame alignment verified');
   } finally {
     if (browser) await browser.close();
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));

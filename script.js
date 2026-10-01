@@ -42,6 +42,7 @@ const STADIUM_DATA = {
 const startBtn = document.getElementById('start-btn');
 const stadiumSelect = document.getElementById('stadium-select');
 const raceSelect = document.getElementById('race-select');
+const raceSelectedLabel = document.getElementById('race-selected-label');
 const raceDevelopmentText = document.getElementById('race-development-text');
 const predictionStatus = document.getElementById('prediction-status');
 const PREDICTION_ENDPOINT = 'https://jxjxqfrtvdpvrifktxsf.supabase.co/functions/v1/predictions';
@@ -239,6 +240,16 @@ function formatJstTime(value) {
   return new Intl.DateTimeFormat('ja-JP', { timeZone: 'Asia/Tokyo', hour: '2-digit', minute: '2-digit', hour12: false }).format(date);
 }
 
+// Keep full option labels in the native picker; only the closed display is short.
+function updateRaceSelectedLabel() {
+  if (!raceSelectedLabel) return;
+  raceSelectedLabel.textContent = raceSelect.value || 'レース';
+  raceSelect.classList.add('race-compact');
+}
+updateRaceSelectedLabel();
+raceSelect.addEventListener('input', updateRaceSelectedLabel);
+raceSelect.addEventListener('change', updateRaceSelectedLabel);
+
 function applyRaceAvailability(stadiumCode, now = new Date()) {
   const stadium = stadiumAvailability.get(Number(stadiumCode));
   const previousValue = raceSelect.value;
@@ -275,6 +286,7 @@ function applyRaceAvailability(stadiumCode, now = new Date()) {
     if (!preservePredictionDisplay) clearPredictionDisplay('', { idleRoulette: true });
     if (previousValue && !raceSelect.value && raceIsConfirmedClosed(stadiumCode, selectedRaceNumber, now)) setPredictionStatus('このレースは締切です');
   }
+  updateRaceSelectedLabel();
   updateStartAvailability(hasSelectableRace);
   return hasSelectableRace;
 }

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AIタカシの3連単予想</title>
     <link rel="stylesheet" href="style.css?ui=bg-v2-fixed">
-    <link rel="stylesheet" href="ui-reference.css?ui=reference10">
+    <link rel="stylesheet" href="ui-reference.css?ui=reference11">
 </head>
 <body class="reference-ui">
     <main class="site-stack" id="site-content">
@@ -39,6 +39,7 @@
                 <option value="唐津" data-stadium-code="23" data-stadium-name="唐津">唐津</option>
                 <option value="大村" data-stadium-code="24" data-stadium-name="大村">大村</option>
             </select>
+            <div class="race-select-shell">
             <select id="race-select" aria-label="レース">
                 <option value="" selected>レース</option>
                 <option value="1R">1R</option>
@@ -54,6 +55,8 @@
                 <option value="11R">11R</option>
                 <option value="12R">12R</option>
             </select>
+            <span id="race-selected-label" aria-hidden="true">レース</span>
+            </div>
         </div>
 
         <div class="container game-panel">
@@ -132,7 +135,7 @@
             </form>
         </section>
     </div>
-    <script src="script.js?ui=v0.1.20-display3"></script>
+    <script src="script.js?ui=v0.1.20-display4"></script>
     <script src="comment-safety.js?api=live03"></script>
     <script src="comments.js?api=reference04"></script>
 </body>

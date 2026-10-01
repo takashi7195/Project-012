@@ -70,6 +70,7 @@ const server = http.createServer((request, response) => {
 
     await page.clock.fastForward(65_000);
     await page.waitForFunction(() => document.querySelector('#race-select')?.value === '');
+    assert.equal(await page.locator('#race-selected-label').innerText(), 'レース', 'automatic clearing also clears short label');
     assert.equal(await start.isDisabled(), true, 'race must become unselectable after its deadline');
     assert.match(await page.locator('#prediction-status').textContent(), /締切/);
 
@@ -99,6 +100,7 @@ const server = http.createServer((request, response) => {
     await page.getByRole('status').filter({ hasText: 'レース解析中…' }).waitFor({ timeout: 5_000 });
     await page.clock.fastForward(105_000);
     await page.waitForFunction(() => document.querySelector('#race-select')?.value === '');
+    assert.equal(await page.locator('#race-selected-label').innerText(), 'レース', 'automatic clearing also clears short label');
     const finalStatus = await page.locator('#prediction-status').textContent();
     assert.match(finalStatus, /締切/);
     assert.doesNotMatch(finalStatus, /もう一度|再試行/);

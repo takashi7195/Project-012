@@ -41,7 +41,22 @@
   color: #14263c; font-size: 20px; font-weight: 700;
   padding: 0 28px 0 15px; background-position: right 9px center;
 }
-.reference-ui .selectors select + select { border-left: 1px solid #7794ac50; }
+.reference-ui .race-select-shell { position: relative; flex: 1; min-width: 0; height: 34px; padding: 0 28px 0 15px; border-left: 1px solid #7794ac50; }
+.reference-ui .race-select-shell select { position: absolute; inset: 0; display: block; width: 100%; }
+.reference-ui #race-selected-label { display: none; }
+.reference-ui #race-select.race-compact { color: transparent; }
+.reference-ui #race-select option { color: #14263c; }
+.reference-ui #race-select.race-compact + #race-selected-label {
+  display: flex; align-items: center; position: absolute; inset: 0 28px 0 15px;
+  pointer-events: none; color: #14263c; font-size: 20px; font-weight: 700;
+  white-space: nowrap;
+}
+.reference-ui #race-select:disabled + #race-selected-label { opacity: .55; }
+@media (forced-colors: active) {
+  .reference-ui #race-select.race-compact { forced-color-adjust: none; }
+  .reference-ui #race-select.race-compact + #race-selected-label { color: CanvasText; }
+  .reference-ui #race-select:disabled + #race-selected-label { color: GrayText; opacity: 1; }
+}
 .reference-ui .selectors select option[data-available="true"] { color: #14263c; }
 .reference-ui .selectors select option:disabled { color: #6b7785; background: #e5e7eb; }
 .reference-ui .game-panel {
