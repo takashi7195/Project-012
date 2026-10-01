@@ -1,6 +1,6 @@
 # UIコンパクト化 試験成績書 v0.1.21
 
-作成: 2026-10-01 JST。状態: コンパクトUI公開済み。タイトル画像の追加変更はローカル実装・Edge試験済み、未公開。一部WebKit実機試験は未実施。
+作成: 2026-10-01 JST。状態: コンパクトUIとタイトル画像の独立配置を公開済み。Edge/Chromeのローカル試験済み。一部WebKit実機試験は未実施。
 
 ## 初回案の実測結果（状態欄予約あり・最新案とは区別）
 
@@ -37,7 +37,7 @@
 | C06 | 合格 | 対抗・穴の表示、1000文字超の複数行展開をローカルEdgeで確認 |
 | C07 | 一部合格 | Edgeの6幅は合格。iOS Safari/WebKit実機は未確認 |
 | C08 | 一部合格 | ブラウザー操作は成功。実機タップの誤操作性は未確認 |
-| C09 | 前段階のみ合格 | 2026-10-01 21:14 JSTにコンパクトUIのPages配信を確認。今回のタイトル配置変更は未公開で、公開確認は未実施 |
+| C09 | 合格 | 2026-10-01 21:59 JSTにPagesビルド成功を確認。公開HTMLが新CSSと透過PNGを参照し、両アセットHTTP 200 |
 | C10 | 一部合格 | 成功・失敗後のSTART復帰は単体試験で確認。旧処理と新処理の競合は未確認 |
 | C11 | 未確認 | aria-liveの属性と視覚上の隠し方を確認。実スクリーンリーダー確認は未実施 |
 | C12 | 合格 | Edge/Chromeで320/375/390/430/768/1280px。タイトル中央±1px、文字の画面内表示、画像・タイトル・選択欄の非重複、横はみ出しなし |
@@ -45,4 +45,4 @@
 
 実行した検証: `node --test race-prediction/release-regression.test.mjs`（33/33 pass）。`node tools/local-integration/ai-ui-browser-smoke.cjs`（Edge pass: 320/375/390/430/768/1280px、中央タイトル・左上透過画像・重なりなし・選択・生成成功・失敗経路）。同じUI smokeをChromeでも実施しpass。FirefoxはPlaywright起動後すぐ終了したため未確認。Supabase/Geminiの本番呼び出しは行っていない。
 
-公開URL: https://takashi7195.github.io/Project-012/ 。前段階のコンパクトUIは公開確認済み。今回のタイトル画像配置変更は公開していない。Firefox・実機Safari・スクリーンリーダー確認は未実施。
+公開URL: https://takashi7195.github.io/Project-012/ 。今回のタイトル画像配置変更を公開し、HTML/CSS/PNGの配信を確認済み。Firefox・実機Safari・スクリーンリーダー確認は未実施。
