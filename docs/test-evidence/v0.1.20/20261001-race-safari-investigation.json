@@ -1,0 +1,800 @@
+[
+  {
+    "engine": "webkit",
+    "variant": "previous",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      }
+    ],
+    "samples": 52,
+    "minScale": 1,
+    "maxScrollWidth": 387,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  },
+  {
+    "engine": "webkit",
+    "variant": "short-options",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      }
+    ],
+    "samples": 56,
+    "minScale": 1,
+    "maxScrollWidth": 387,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  },
+  {
+    "engine": "webkit",
+    "variant": "current",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 387,
+        "bodyWidth": 387,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      }
+    ],
+    "samples": 55,
+    "minScale": 1,
+    "maxScrollWidth": 387,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  },
+  {
+    "engine": "edge",
+    "variant": "short-options",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      }
+    ],
+    "samples": 900,
+    "minScale": 1,
+    "maxScrollWidth": 375,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  },
+  {
+    "engine": "edge",
+    "variant": "current",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 188,
+          "right": 287.5,
+          "width": 99.5
+        }
+      }
+    ],
+    "samples": 900,
+    "minScale": 1,
+    "maxScrollWidth": 375,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  },
+  {
+    "engine": "edge",
+    "variant": "previous",
+    "posts": 1,
+    "stages": [
+      {
+        "stage": "initial",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "venue",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "race",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "start",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "spinning",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      },
+      {
+        "stage": "complete",
+        "innerWidth": 375,
+        "scrollWidth": 375,
+        "bodyWidth": 375,
+        "scrollX": 0,
+        "scale": 1,
+        "offsetLeft": 0,
+        "viewportWidth": 375,
+        "stack": {
+          "left": 15,
+          "right": 360,
+          "width": 345
+        },
+        "race": {
+          "left": 187,
+          "right": 287.5,
+          "width": 100.5
+        }
+      }
+    ],
+    "samples": 900,
+    "minScale": 1,
+    "maxScrollWidth": 375,
+    "maxInnerWidth": 375,
+    "minStackLeft": 15,
+    "maxOffset": 0
+  }
+]

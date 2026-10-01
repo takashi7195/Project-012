@@ -1,7 +1,7 @@
 # トップページ表示調整 詳細設計書 v0.1.20
 
 作成日: 2026-10-01 JST
-状態: レース欄の番号のみ表示（A案）を実装済み。公開反映済み。
+状態: Safari横はみ出し対策まで実装済み。公開前。
 
 関連: [基本設計](TOP-PAGE-FIX-BASIC-DESIGN-v0.1.20.md)、[試験仕様](TOP-PAGE-FIX-TEST-SPEC-v0.1.20.md)
 
@@ -25,7 +25,7 @@ race-selectを等分幅のrace-select-shellで囲む。既存selectは全面で�
 
 updateRaceSelectedLabel()は選択値から番号または「レース」を表示する。applyRaceAvailability()の選択解除後、change/input、および初期化時に同期する。締切後・会場変更・日付更新も同関数経由で同期する。フォーカス表示・disabled・ネイティブの開閉・Escapeキャンセルはselect本体が担う。重ねるラベルにはフォーカスを与えない。
 
-optionの表示とaria-labelは従来どおり、締切前は「9R　18:52 締切予定」、締切後は「9R　締切」。親幅64%・最小220px・最大280px、均等配分・フォント・padding・矢印を維持する。高コントラスト表示ではラベルにCanvasText/GrayTextを使用する。
+iOS Safari WebKitでは、選択中のselectのscrollWidthが欄を越えてdocument幅に伝播することを再現。select自身にoverflow-x:hiddenを指定し、横方向の内部はみ出しを欄内に収める。実幅・optionの内容・フォーカス操作は変えない。optionの表示とaria-labelは従来どおり、締切前は「9R　18:52 締切予定」、締切後は「9R　締切」。親幅64%・最小220px・最大280px、均等配分・フォント・padding・矢印を維持する。高コントラスト表示ではラベルにCanvasText/GrayTextを使用する。
 
 ## 4. 展開本文
 

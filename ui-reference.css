@@ -42,7 +42,7 @@
   padding: 0 28px 0 15px; background-position: right 9px center;
 }
 .reference-ui .race-select-shell { position: relative; flex: 1; min-width: 0; height: 34px; padding: 0 28px 0 15px; border-left: 1px solid #7794ac50; }
-.reference-ui .race-select-shell select { position: absolute; inset: 0; display: block; width: 100%; }
+.reference-ui .race-select-shell select { position: absolute; inset: 0; display: block; width: 100%; overflow-x: hidden; }
 .reference-ui #race-selected-label { display: none; }
 .reference-ui #race-select.race-compact { color: transparent; }
 .reference-ui #race-select option { color: #14263c; }

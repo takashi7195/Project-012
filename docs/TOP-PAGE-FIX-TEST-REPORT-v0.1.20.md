@@ -1,7 +1,7 @@
 # トップページ表示調整 試験成績書 v0.1.20
 
 更新日: 2026-10-01 JST
-対象: レース欄A案（閉じた欄は番号だけ、標準選択肢には締切時刻）。公開反映済み。
+対象: レース欄A案（閉じた欄は番号だけ、標準選択肢には締切時刻）。公開前。
 
 関連: [試験仕様書](TOP-PAGE-FIX-TEST-SPEC-v0.1.20.md)
 
@@ -14,10 +14,12 @@
 | UI05 | 合格 | 初期展開本文は空。JavaScript無効時は重ねたラベルが非表示で、標準selectの文字が表示される |
 | UI06 | 合格 | START/poll/成功、対抗・穴、4種の失敗時消去、締切越え動作を再確認 |
 | UI07 | 合格（自動操作） | 標準selectのマウス開閉、Escape取消、キーボード選択と番号同期。optionのaria-labelに締切情報を保持。実機タッチと読み上げ音声は未確認 |
-| UI08 | 合格 | f422c05のGitHub Pages build=built。公開HTML/CSS/JSがローカルの公開対象とバイト単位で一致 |
+| UI08 | 実施待ち | 今回のSafari対策を含むビルドは公開前 |
 | UI09 | 合格 | 6画面幅の白枠の左右端一致を再確認。コメント2件入りの詳細確認は前回結果を引き継ぐ |
 
-実行: stadium-selection.test.mjs（12件合格）、ai-ui-browser-smoke.cjs、ai-ui-date-refresh-smoke.cjs。
+| UI10 | 合格（WebKit自動試験） | 375×812 CSS px、DPR3で選択中・START・結果までdocumentWidth=375、scale=1、offsetLeft=0、幅・中央位置を維持。修正前のWebKit計測は387px。実機Safariは未確認 |
+
+実行: stadium-selection.test.mjs（12件合格）、ai-ui-browser-smoke.cjs、ai-ui-date-refresh-smoke.cjs、ai-ui-webkit-viewport-smoke.cjs。
 ブラウザーはWindows Edge。外部サービスへの通信はモックし、Gemini・本番DBへの試験リクエストなし。
 
-対象9項目中、9項目合格（UI07は自動操作の範囲）。実機スマートフォンでのタッチ操作は未確認。
+ローカル9項目合格。UI08公開反映試験とiPhone実機確認は未完了。実機スマートフォンでのタッチ操作は未確認。

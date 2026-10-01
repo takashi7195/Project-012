@@ -1,0 +1,170 @@
+[
+  {
+    "engine": "webkit",
+    "variant": "current",
+    "report": [
+      {
+        "stage": "initial",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "venue",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "race-focus-empty",
+        "width": 375,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": []
+      },
+      {
+        "stage": "race-selected-focused",
+        "width": 387,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": [
+          {
+            "tag": "MAIN",
+            "id": "site-content",
+            "cls": "site-stack",
+            "left": 15,
+            "right": 360,
+            "client": 345,
+            "scroll": 372
+          },
+          {
+            "tag": "SECTION",
+            "id": "",
+            "cls": "game-hero",
+            "left": 15,
+            "right": 360,
+            "client": 345,
+            "scroll": 372
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "cls": "selectors",
+            "left": 77.5,
+            "right": 297.5,
+            "client": 218,
+            "scroll": 308
+          },
+          {
+            "tag": "DIV",
+            "id": "",
+            "cls": "race-select-shell",
+            "left": 187,
+            "right": 287.5,
+            "client": 100,
+            "scroll": 199
+          }
+        ]
+      },
+      {
+        "stage": "race-blur",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "race-disabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "race-enabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "race-overflow-hidden-focus",
+        "width": 375,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": [
+          {
+            "tag": "SELECT",
+            "id": "race-select",
+            "cls": "race-compact",
+            "left": 188,
+            "right": 287.5,
+            "client": 100,
+            "scroll": 199
+          }
+        ]
+      },
+      {
+        "stage": "race-overflow-hidden-disabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": [
+          {
+            "tag": "SELECT",
+            "id": "race-select",
+            "cls": "race-compact",
+            "left": 188,
+            "right": 287.5,
+            "client": 100,
+            "scroll": 199
+          }
+        ]
+      },
+      {
+        "stage": "shell-overflow-clip-focus",
+        "width": 375,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": []
+      },
+      {
+        "stage": "shell-overflow-clip-disabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "shell-overflow-hidden-focus",
+        "width": 375,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": []
+      },
+      {
+        "stage": "shell-overflow-hidden-disabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      },
+      {
+        "stage": "race-font-16-focus",
+        "width": 375,
+        "scale": 1,
+        "active": "race-select",
+        "overflow": []
+      },
+      {
+        "stage": "race-font-16-disabled",
+        "width": 375,
+        "scale": 1,
+        "active": "",
+        "overflow": []
+      }
+    ]
+  }
+]
