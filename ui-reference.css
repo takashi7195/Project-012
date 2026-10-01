@@ -13,10 +13,11 @@
 .reference-ui .site-stack { width: min(100%, 480px); gap: 0; }
 .reference-ui .game-hero { min-height: 0; padding-inline: var(--panel-inline-inset); padding-bottom: 10px; }
 .reference-ui #site-title {
-  display: flex; align-items: center; justify-content: center; gap: 12px;
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 0;
+  height: clamp(84px, 22vw, 112px);
   margin: 0 0 10px;
   color: #fff;
-  font-size: clamp(20px, 6vw, 30px);
+  font-size: clamp(18px, 5.4vw, 30px);
   line-height: 1.35;
   letter-spacing: -.04em;
   font-weight: 800;
@@ -24,9 +25,16 @@
   overflow-wrap: anywhere;
   text-shadow: 0 2px 3px #195c9466, 0 5px 14px #15549b44;
 }
+.reference-ui #site-title span {
+  position: absolute; z-index: 2; left: 50%; top: 50%;
+  transform: translate(-50%, -50%); width: max-content; max-width: 100%;
+  white-space: nowrap; text-align: center;
+}
 .reference-ui .title-avatar {
-  flex: 0 0 64px; width: 64px; height: 64px;
-  border-radius: 50%; object-fit: contain;
+  position: absolute; z-index: 1; left: -31px; top: -13px;
+  flex: none; width: clamp(86px, 27.2vw, 112px); height: clamp(86px, 27.2vw, 112px);
+  max-width: none; max-height: none; border-radius: 0; object-fit: contain;
+  pointer-events: none;
 }
 .reference-ui .selectors {
   width: 64%; min-width: 220px; max-width: 280px;
@@ -267,6 +275,8 @@
 .reference-ui .character-count { font-size: 14px; color: #7c899f; font-weight: 600; }
 .reference-ui .post-button { width: 86px; min-height: 42px; padding: 8px 16px; border-radius: 10px; font-size: 21px; box-shadow: inset 0 1px 2px #ffffff45; }
 @media (max-width: 350px) {
+  .reference-ui #site-title { height: 84px; font-size: 18px; }
+  .reference-ui .title-avatar { left: -34px; top: -10px; width: 76px; height: 76px; }
   .reference-ui .game-panel { padding-inline: 12px; }
   .reference-ui .comment-heading { padding-inline: 10px; }
   .reference-ui .comment-title { font-size: 20px; }
@@ -280,9 +290,6 @@
   .reference-ui .prediction-boat { width: 27px; height: 27px; font-size: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { .reference-ui #start-btn:active, .reference-ui .post-button:active { transform: none; } }
-@media (min-width: 768px) {
-  .reference-ui .title-avatar { flex-basis: 80px; width: 80px; height: 80px; }
-}
 .reference-ui #start-btn {
   width: min(180px, 58%);
   min-height: 36px;

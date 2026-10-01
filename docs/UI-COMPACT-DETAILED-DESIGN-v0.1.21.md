@@ -8,8 +8,9 @@
 
 | ファイル | 変更内容 |
 |---|---|
-| index.html | game-panel内のdiv.versionを削除。CSS/JSのキャッシュ識別子を更新 |
-| ui-reference.css | 縦余白・START・本命ラベル・状態欄を変更。不要なversion規則を削除 |
+| index.html | game-panel内のdiv.versionを削除。CSS/JSのキャッシュ識別子を更新し、透過アイコンを指定 |
+| ui-reference.css | 縦余白・START・本命ラベル・状態欄・タイトル画像配置を変更。不要なversion規則を削除 |
+| ai-takashi-cutout.png | 利用者提供の透過キャラクター画像をタイトル装飾として追加 |
 | script.js | 解析開始・終了に応じたボタン表示と状態通知の表示先を制御 |
 
 style.css、プレビューHTML、AI、API、DBは対象外。旧プレビュー用の.version定義は残す。
@@ -52,7 +53,7 @@ style.css、プレビューHTML、AI、API、DBは対象外。旧プレビュー
 
 index.htmlの `<div class="version">v0.1.20</div>` のみ削除する。画面上にv0.1.21を追加しない。状態表示のp#prediction-statusはrole=statusとaria-live=politeを含めて維持する。
 
-ui-reference.cssのクエリーを `?ui=v0.1.21-compact1` とする。script.jsの表示制御を更新し、読み込みクエリーも `?ui=v0.1.21-compact1` とする。画面のバージョン文字がなくてもリリース管理はGit・設計書・CSS識別子で行う。
+コンパクト化時のCSSクエリーは `?ui=v0.1.21-compact1`。タイトル配置の追加変更ではCSSクエリーを `?ui=v0.1.21-title-centered1` へ更新し、script.jsは変更せず既存の `?ui=v0.1.21-compact1` を保つ。画面のバージョン文字がなくてもリリース管理はGit・設計書・CSS識別子で行う。
 
 ## 5. 状態別レイアウトと表示制御
 
@@ -84,3 +85,19 @@ ui-reference.cssのクエリーを `?ui=v0.1.21-compact1` とする。script.js�
 旧案のmeasurements.jsonとproposal画像は初回測定の証拠として残し、最新仕様の合格証拠として転用しない。最新の状態別画像には合成の買い目・展開文が残るが、実装の失敗時表示は既存のクリア処理に従う。
 
 実装はこの設計書の値に一致。単体試験33件とローカルブラウザー画面試験に合格。
+
+## 7. 追加詳細：タイトル画像を左上装飾として配置
+
+この追加仕様は、旧「サイズを維持する要素」のタイトル画像64/80pxという記述を置き換える。買い目・白枠・選択欄の既存幅には影響させない。
+
+| セレクター／要素 | 設計値・挙動 |
+|---|---|
+| `#site-title` | `position:relative`。横幅は既存コンテンツ内。見出し領域高 `clamp(84px, 22vw, 112px)`。タイトル文字は `left:50%; top:50%; transform:translate(-50%,-50%)` で中央配置 |
+| `.title-avatar` | 透過PNG `ai-takashi-cutout.png`。absolute配置、`object-fit:contain`、`border-radius:0`、クリック対象外。幅・高さ `clamp(86px, 27.2vw, 112px)`、left:-31px、top:-13px |
+| 375px幅付近 | 画像左端を見出しの左側へ寄せ、見出しの外へ少しはみ出す。文字は画面中央。選択欄が画像の下に来る高さを確保 |
+| 350px以下 | 画像を76×76px、left:-34px、top:-10pxへ変更。タイトル文字を18pxにし、画像と文字の領域を重ねない |
+| 768px以上 | 画像は最大112px。見出し文字の中央はviewport中央。site-stackが480pxに制限されても画像はその左上に配置 |
+
+実測に基づき、画像・文字・会場／レース選択欄が交差しないよう数値を設定済み。CSSは `.reference-ui` の中だけに限定し、他ページの`.title-avatar`規則に影響させない。見出し文字は読み上げ順でh1内に残し、画像は `alt=""` として装飾扱いにする。相対URLでリポジトリ内の `ai-takashi-cutout.png` を読み込む。
+
+試験結果: 320/375/390/430/768/1280pxの各幅でタイトル中心がviewport中心から1px以内、画像とタイトル文字・選択欄が視覚上重ならず、`document.documentElement.scrollWidth <= viewport width + 1` をEdgeとChromeで確認。実スクリーンショットを試験成績書へ記録。Firefox自動試験とiOS Safari実機は未確認。

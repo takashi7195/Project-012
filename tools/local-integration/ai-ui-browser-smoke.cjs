@@ -151,6 +151,8 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
         const frame = (selector) => { const rect = document.querySelector(selector).getBoundingClientRect(); return { left: rect.left, right: rect.right, width: rect.width }; };
         const race = document.querySelector('#race-select');
         const avatar = document.querySelector('.title-avatar').getBoundingClientRect();
+        const titleText = document.querySelector('#site-title span').getBoundingClientRect();
+        const selectorBox = document.querySelector('.selectors').getBoundingClientRect();
         return { scrollWidth: document.documentElement.scrollWidth, roulette: frame('.game-panel'), comments: frame('.comments-section'),
           raceText: race.selectedOptions[0]?.textContent,
           shortText: document.querySelector('#race-selected-label').textContent,
@@ -158,7 +160,9 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
           selectorStyle: { width: document.styleSheets.length && getComputedStyle(document.querySelector('.selectors')).maxWidth },
           shortFrame: frame('#race-selected-label'), shortScroll: document.querySelector('#race-selected-label').scrollWidth,
           nativeColor: getComputedStyle(race).color, optionColor: getComputedStyle(race.selectedOptions[0]).color,
-          avatarWidth: avatar.width, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
+          avatarWidth: avatar.width, avatarHeight: avatar.height, avatarRight: avatar.right, avatarBottom: avatar.bottom,
+          titleText: { left: titleText.left, right: titleText.right, center: (titleText.left + titleText.right) / 2 },
+          selectorTop: selectorBox.top, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
       });
       assert.ok(geometry.scrollWidth <= width + 1, `horizontal overflow at ${width}px`);
       assert.ok(Math.abs(geometry.roulette.left - geometry.comments.left) <= 1 && Math.abs(geometry.roulette.right - geometry.comments.right) <= 1,
@@ -170,8 +174,12 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
       assert.ok(Math.abs(geometry.raceFrame.width - geometry.stadiumFrame.width) <= 1, 'selector widths stay equal');
       assert.equal(geometry.selectorStyle.width, '280px');
       assert.ok(geometry.shortScroll <= geometry.shortFrame.width + 1, 'short race number fits without clipping');
-      assert.ok(geometry.avatarWidth >= (width >= 768 ? 80 : 64), `avatar should remain recognizable at ${width}px`);
-      assert.ok(geometry.title.left >= 0 && geometry.title.right <= geometry.viewport + 1, `title/avatar exceed viewport at ${width}px`);
+      assert.ok(geometry.avatarWidth >= (width <= 350 ? 76 : 86), `cutout should remain recognizable at ${width}px`);
+      assert.ok(Math.abs(geometry.titleText.center - width / 2) <= 1, `title should stay centered at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.titleText.left >= 0 && geometry.titleText.right <= width, `title text should fit at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.avatarRight <= geometry.titleText.left + 1, `cutout overlaps title at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.avatarBottom <= geometry.selectorTop + 1, `cutout overlaps selectors at ${width}px: ${JSON.stringify(geometry)}`);
+      assert.ok(geometry.title.left >= 0 && geometry.title.right <= geometry.viewport + 1, `title container exceeds viewport at ${width}px`);
     }
     await context.close();
     const noJs = await browser.newContext({ javaScriptEnabled: false });
@@ -185,7 +193,7 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
     await noJs.close();
     assert.ok(bundle.narrative.length > 1000, 'fixture narrative must exceed 1000 characters');
     console.log('PASS: Playwright/Edge local UI selection, START/poll/success, secondary bundle, >1000-character multiline narrative, and four failure paths with result clearing');
-    console.log('PASS: layouts 320/375/390/430/768/1280px; compact race label and native full option format and roulette/comments white frame alignment verified');
+    console.log('PASS: layouts 320/375/390/430/768/1280px; centered title, independent transparent mascot placement, no overlap/horizontal overflow, compact race label and roulette/comments white frame alignment verified');
   } finally {
     if (browser) await browser.close();
     await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));

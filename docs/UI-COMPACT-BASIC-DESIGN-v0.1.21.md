@@ -1,6 +1,6 @@
 # UIコンパクト化 基本設計書 v0.1.21
 
-作成: 2026-10-01 JST。状態: 実装済み。375×667pxのローカル実測とEdge表示試験を実施。
+作成: 2026-10-01 JST。状態: コンパクト化とタイトル画像の独立配置を実装済み。Edge 6画面幅で表示試験済み。
 
 関連: [詳細設計](UI-COMPACT-DETAILED-DESIGN-v0.1.21.md) / [試験仕様](UI-COMPACT-TEST-SPEC-v0.1.21.md) / [試験成績](UI-COMPACT-TEST-REPORT-v0.1.21.md)
 
@@ -59,3 +59,13 @@ STARTの高さ36pxは採用画像と同じ。現在より押せる面積が小�
 [現在のUI](design-evidence/v0.1.21-ui-compact/current-375x667.png) / [旧案（状態欄予約あり）](design-evidence/v0.1.21-ui-compact/proposal-375x667.png)
 
 実装後の表示記録: [解析中](design-evidence/v0.1.21-ui-compact/implemented-analysis-375x667.png) / [失敗](design-evidence/v0.1.21-ui-compact/implemented-failure-375x667.png) / [締切](design-evidence/v0.1.21-ui-compact/implemented-closed-375x667.png)。
+
+## 7. 追加設計：タイトル画像と文字の分離
+
+利用者が承認した比較サンプルの右案を採用する。透過PNGのAIタカシ画像をタイトル見出しの左上へ独立して置き、タイトル文字は画面幅の中央に配置する。画像を丸く切り抜かず、画像全体を透過状態で表示する。見出し文字の中央位置は画像サイズに依存させない。
+
+画像は左側の装飾要素として見出し上部に重ねる。タイトル文字と会場・レース選択欄に重ならないよう、見出し領域の高さを確保する。375px幅で現行より約20px選択欄が下がる比較サンプルを基準とする。320px幅では画像を小さくし、左端での切れと文字との重なりを防ぐ。サイト最大幅が480pxのデスクトップでも、画像はコンテンツ領域左上、タイトル文字は画面中央に保つ。
+
+この変更で画像の見える領域とタイトル周辺の高さは増える。背景・白枠・買い目・予想ロジック・選択仕様は変更しない。320/375/390/430/768/1280px幅でタイトルの中央位置、画像と文字・選択欄の非重複、横はみ出しがないことをEdgeとChromeで確認済み。Firefox自動試験とWebKit実機の確認は未実施。
+
+追加画像: [透過画像を用いた右案の比較](design-evidence/v0.1.21-ui-compact/title-centered-background-comparison.png)。
