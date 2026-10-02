@@ -198,6 +198,7 @@
   font-size: 16px;
   font-weight: 500;
   line-height: 1.6;
+  color: #111111;
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
@@ -220,14 +221,14 @@
 .reference-ui .comment-author-line { display: flex; align-items: baseline; flex-wrap: wrap; gap: 6px 10px; min-height: 28px; }
 .reference-ui .comment-author { font-weight: 800; color: #12243b; overflow-wrap: anywhere; }
 .reference-ui .comment-time { font-size: 12px; font-weight: 600; color: #8192a9; }
-.reference-ui .comment-text { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.6; color: #172235; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reference-ui .comment-text { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.6; color: #111111; white-space: pre-wrap; overflow-wrap: anywhere; }
 .reference-ui .reply { display: grid; grid-template-columns: 40px minmax(0, 1fr); gap: 5px 10px; padding: 0; border: 0; align-items: start; }
 .reference-ui .reply-avatar-button { display: block; width: 40px; height: 40px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer; grid-row: 1; }
 .reference-ui .reply-avatar { display: block; width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
 .reference-ui .reply-avatar-button:focus-visible { outline: 2px solid #0069ef; outline-offset: 3px; }
 .reference-ui .reply-content { min-width: 0; }
 .reference-ui .reply-label { width: fit-content; border-radius: 5px; padding: 3px 8px; background: #d5eaff; color: #0675ed; font-weight: 700; font-size: 12px; line-height: 1.5; white-space: nowrap; }
-.reference-ui .reply-text { font-size: 16px; font-weight: 500; color: #172235; line-height: 1.6; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
+.reference-ui .reply-text { font-size: 16px; font-weight: 500; color: #111111; line-height: 1.6; margin: 0; white-space: pre-line; overflow-wrap: anywhere; }
 .reference-ui .tip-link { display: inline-flex; margin-top: 3px; font-size: 12px; }
 .reference-ui .comments-loading, .reference-ui .comments-load-status, .reference-ui .comments-empty { color: #41566a; text-shadow: none; padding-inline: 12px; }
 .reference-ui .comments-retry { display: block; width: auto; margin: 12px auto; }
