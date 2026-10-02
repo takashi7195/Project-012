@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildAiInput } from './ai-input.mjs';
-import { buildPrompt } from './ai-prompt.mjs';
+import { BASE_PROMPT_TEXT, buildPrompt } from './ai-prompt.mjs';
 import { buildGeminiPayload } from './providers/gemini.mjs';
 import { DEFAULT_AI_CONFIG, hashAiConfig, resolveAiConfig } from './ai-config.mjs';
 import { validateAiOutput } from './ai-output.mjs';
@@ -88,9 +88,15 @@ test('I11 name and registration omissions do not trigger inferred replacements',
 });
 
 
-test('G01 generated request carries unconstrained style and the four-field bundle request', () => {
+test('G01 generated request carries big-longshot definitions and the four-field bundle request', () => {
   const prompt=buildPrompt({identity,facts:{},provenance:{}},'');
-  assert.match(prompt,/本命・対抗・穴/); assert.match(prompt,/展開文は500文字前後/);
+  assert.match(prompt,/本命・対抗・大穴/);
+  assert.match(prompt,/本命: 最も成立しやすいと判断する3連単1点/);
+  assert.match(prompt,/対抗: 本命に次いで有力と判断する3連単1点/);
+  assert.match(prompt,/大穴: 成立する可能性は低いものの、提供データから説明できる大きな波乱を想定した3連単1点/);
+  assert.match(prompt,/JSONのmainは本命、counterは対抗、holeは大穴に対応します/);
+  assert.doesNotMatch(prompt,/本命・対抗・穴/);
+  assert.match(prompt,/展開文は500文字前後/);
   assert.match(prompt,/読みやすいまとまりごとに、空行を1行入れてください。/);
   assert.doesNotMatch(prompt,/段落数|必須.*文|文体|採点|固定順位|定型の展開/);
   assert.deepEqual(buildGeminiPayload({prompt,input:{identity,facts:{},provenance:{}},settings:DEFAULT_AI_CONFIG}).generationConfig.responseSchema.required,
@@ -146,4 +152,19 @@ test('G11/G12 settings hashes change and unsupported provider/settings are rejec
     assert.notEqual(await hashAiConfig({...DEFAULT_AI_CONFIG,[field]:value},'base'),base,field);
   assert.throws(()=>resolveAiConfig({RACE_AI_PROVIDER:'other'}),/invalid_ai_config/);
   assert.throws(()=>resolveAiConfig({RACE_AI_THINKING_LEVEL:'unknown'}),/invalid_ai_config/);
+});
+
+test('G13 big-longshot prompt and version invalidate results generated with the former category prompt', async () => {
+  const oldPrompt = [
+    '以下は対象レースについて取得した出走表・直前情報です。',
+    'この情報を根拠に分析し、本命・対抗・穴の3連単を各1点と、それらと整合する日本語のレース展開を一緒に返してください。',
+    '展開文は500文字前後を目安にしてください。',
+    '読みやすいまとまりごとに、空行を1行入れてください。',
+    '買い目は1着、2着、3着の艇番順です。各買い目内に同じ艇番を重複させず、本命・対抗・穴は互いに異なる買い目にしてください。',
+    '提供データにない事実や数値を事実として作らないでください。',
+    '指定のJSON形式で返してください。',
+  ].join('\n\n');
+  const oldConfig = { ...DEFAULT_AI_CONFIG, promptVersion: 'ai-bundle-prompt-4' };
+  assert.notEqual(await hashAiConfig(oldConfig, oldPrompt), await hashAiConfig(DEFAULT_AI_CONFIG, BASE_PROMPT_TEXT));
+  assert.equal(await hashAiConfig(DEFAULT_AI_CONFIG, BASE_PROMPT_TEXT), await hashAiConfig({ ...DEFAULT_AI_CONFIG }, BASE_PROMPT_TEXT));
 });

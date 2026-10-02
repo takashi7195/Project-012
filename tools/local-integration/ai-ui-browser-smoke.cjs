@@ -76,6 +76,10 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
 
     const page = await context.newPage();
     await page.goto(`http://127.0.0.1:${port}/index.html`, { waitUntil: 'domcontentloaded' });
+    assert.equal(await page.locator('.secondary-predictions').getAttribute('aria-label'), '対抗と大穴の予想');
+    assert.equal(await page.locator('.prediction-row').nth(0).locator('.prediction-label').textContent(), '○ 対抗');
+    assert.equal(await page.locator('.prediction-row').nth(1).locator('.prediction-label').textContent(), '☆ 大穴');
+    assert.equal(await page.locator('[data-prediction="longshot"]').getAttribute('aria-label'), '大穴予想');
     const blankLineLayout = await page.locator('#race-development-text').evaluate((node) => {
       node.textContent = '一つ目のまとまりです。\n\n二つ目のまとまりです。';
       const style = getComputedStyle(node);
@@ -159,6 +163,7 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
       'prediction display must not add source timestamps or model details');
     assert.equal((await page.locator('[data-prediction="counter"]').textContent()).replace(/\s+/g, ''), '2-4-1');
     assert.equal((await page.locator('[data-prediction="longshot"]').textContent()).replace(/\s+/g, ''), '6-5-4');
+    assert.equal(await page.locator('.prediction-row').nth(1).locator('.prediction-label').textContent(), '☆ 大穴', 'hole data should appear under the big-longshot UI label');
     assert.equal(await page.locator('#prediction-status').textContent(), '');
     assert.equal(await start.isDisabled(), false);
     assert.equal(starts, 1);
@@ -193,6 +198,9 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
         const avatar = document.querySelector('.title-avatar').getBoundingClientRect();
         const titleText = document.querySelector('#site-title span').getBoundingClientRect();
         const selectorBox = document.querySelector('.selectors').getBoundingClientRect();
+        const predictionLabels = [...document.querySelectorAll('.prediction-label')].map(node => ({
+          text: node.textContent.trim(), clientWidth: node.clientWidth, scrollWidth: node.scrollWidth,
+        }));
         return { scrollWidth: document.documentElement.scrollWidth, roulette: frame('.game-panel'), comments: frame('.comments-section'),
           raceText: race.selectedOptions[0]?.textContent,
           shortText: document.querySelector('#race-selected-label').textContent,
@@ -201,6 +209,7 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
           shortFrame: frame('#race-selected-label'), shortScroll: document.querySelector('#race-selected-label').scrollWidth,
           nativeColor: getComputedStyle(race).color, optionColor: getComputedStyle(race.selectedOptions[0]).color,
           avatarWidth: avatar.width, avatarHeight: avatar.height, avatarRight: avatar.right, avatarBottom: avatar.bottom,
+          predictionLabels,
           titleText: { left: titleText.left, right: titleText.right, center: (titleText.left + titleText.right) / 2 },
           selectorTop: selectorBox.top, title: document.querySelector('#site-title').getBoundingClientRect(), viewport: innerWidth };
       });
@@ -214,6 +223,10 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
       assert.ok(Math.abs(geometry.raceFrame.width - geometry.stadiumFrame.width) <= 1, 'selector widths stay equal');
       assert.equal(geometry.selectorStyle.width, '280px');
       assert.ok(geometry.shortScroll <= geometry.shortFrame.width + 1, 'short race number fits without clipping');
+      for (const label of geometry.predictionLabels) {
+        assert.ok(label.scrollWidth <= label.clientWidth + 1,
+          `prediction label is clipped at ${width}px: ${JSON.stringify(label)}`);
+      }
       assert.ok(geometry.avatarWidth >= (width <= 350 ? 76 : 86), `cutout should remain recognizable at ${width}px`);
       assert.ok(Math.abs(geometry.titleText.center - width / 2) <= 1, `title should stay centered at ${width}px: ${JSON.stringify(geometry)}`);
       assert.ok(geometry.titleText.left >= 0 && geometry.titleText.right <= width, `title text should fit at ${width}px: ${JSON.stringify(geometry)}`);

@@ -35,6 +35,8 @@ test("input rejects malformed or contradictory boat identities, not missing name
 
 test("output checks structure and distinct tickets without narrative length rules", () => {
   assert.equal(validateAiOutput({ main: [1, 2, 3], counter: [2, 3, 4], hole: [6, 5, 4], narrative: "展開".repeat(700) }).valid, true);
+  assert.equal(validateAiOutput({ main: [1, 6, 2], counter: [1, 2, 6], hole: [6, 1, 2], narrative: "大穴を含む3点" }).valid, true,
+    "same boat set in different orders stays allowed by the approved design");
   assert.deepEqual(validateAiOutput({ main: [1, 1, 3], counter: [2, 3, 4], hole: [6, 5, 4], narrative: "有効" }).errors, ["main_duplicate_boat"]);
   assert.deepEqual(validateAiOutput({ main: [1, 2, 3], counter: [1, 2, 3], hole: [6, 5, 4], narrative: "有効" }).errors, ["bets_duplicate"]);
   assert.equal(validateAiOutput({ main: ["1", 2, 3], counter: [2, 3, 4], hole: [6, 5, 4], narrative: "有効" }).valid, false);
@@ -42,6 +44,7 @@ test("output checks structure and distinct tickets without narrative length rule
 
 test("default model and settings are configurable within the designed limits", () => {
   assert.equal(DEFAULT_AI_CONFIG.model, "gemini-3.5-flash-lite");
+  assert.equal(DEFAULT_AI_CONFIG.promptVersion, "ai-bundle-prompt-5");
   assert.equal(resolveAiConfig({}).maxAttempts, 2);
   assert.throws(() => resolveAiConfig({ RACE_AI_TOTAL_TIMEOUT_MS: "90001" }), /invalid_ai_config/);
 });
@@ -75,6 +78,11 @@ test("bundle client starts once, polls the shared job and validates the whole re
 
 test("prompt leaves paragraphs, tone and narrative lengths unconstrained", () => {
   const prompt = buildPrompt({ identity, facts: {}, provenance: {} });
+  assert.match(prompt, /本命: 最も成立しやすいと判断する3連単1点。/);
+  assert.match(prompt, /対抗: 本命に次いで有力と判断する3連単1点。/);
+  assert.match(prompt, /大穴: 成立する可能性は低いものの、提供データから説明できる大きな波乱を想定した3連単1点。/);
+  assert.match(prompt, /JSONのmainは本命、counterは対抗、holeは大穴に対応します。/);
+  assert.doesNotMatch(prompt, /本命・対抗・穴/);
   assert.match(prompt, /500文字前後/);
   assert.match(prompt, /読みやすいまとまりごとに、空行を1行入れてください。/);
   assert.doesNotMatch(prompt, /段落数|必ず.*文|文字数.*以内/);
