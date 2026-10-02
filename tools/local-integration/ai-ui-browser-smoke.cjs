@@ -76,6 +76,15 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
 
     const page = await context.newPage();
     await page.goto(`http://127.0.0.1:${port}/index.html`, { waitUntil: 'domcontentloaded' });
+    const blankLineLayout = await page.locator('#race-development-text').evaluate((node) => {
+      node.textContent = '一つ目のまとまりです。\n\n二つ目のまとまりです。';
+      const style = getComputedStyle(node);
+      const result = { height: node.getBoundingClientRect().height, lineHeight: Number.parseFloat(style.lineHeight) };
+      node.textContent = '';
+      return result;
+    });
+    assert.ok(blankLineLayout.height >= blankLineLayout.lineHeight * 2.9,
+      'pre-line should visibly preserve one blank line between narrative blocks');
     const readableTextStyles = await page.evaluate(() => {
       const root = document.querySelector('.reference-ui');
       return ['#race-development-text', '.comment-text', '.reply-text'].map((selector) => {

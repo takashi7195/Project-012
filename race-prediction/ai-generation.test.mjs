@@ -25,6 +25,7 @@ function harness(responses, options = {}) {
 
 test('valid first response is saved as one bundle without another AI request', async () => {
   const h = harness([success()]); await h.run(); assert.equal(h.sent.length, 1); assert.deepEqual(h.saved[0].output, good); assert.equal(h.failed.length, 0);
+  assert.match(h.sent[0].systemInstruction.parts[0].text, /読みやすいまとまりごとに、空行を1行入れてください。/);
   assert.equal(JSON.stringify(h.saved[0].requestPayload).includes('fake-key'), false);
 });
 test('invalid first response is repaired once using the same facts', async () => {
