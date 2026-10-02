@@ -1,6 +1,6 @@
 # 本命・対抗・大穴 基本設計書 v0.1.22
 
-状態: 実装済み。自動試験 C01–C04・C07 合格、C08 一部確認。実レース生成 C05・公開確認 C06 は未実施。
+状態: 実装・公開済み。自動試験 C01–C04・C07 合格、C08 一部確認。実レース生成 C05・公開URLでの新規生成表示 C06 は未確認。
 
 関連: [実装計画](AI-BET-CATEGORY-IMPLEMENTATION-PLAN-v0.1.22.md) / [詳細設計](AI-BET-CATEGORY-DETAILED-DESIGN-v0.1.22.md) / [試験仕様](AI-BET-CATEGORY-TEST-SPEC-v0.1.22.md)
 
