@@ -217,7 +217,7 @@ function applyStadiumAvailability(stadiums, now = new Date()) {
     option.disabled = !available;
     option.dataset.available = available ? 'true' : 'false';
     const baseName = option.dataset.stadiumName || option.value;
-    option.textContent = baseName;
+    option.textContent = available ? `${baseName}　開催中` : baseName;
     option.setAttribute('aria-label', option.textContent);
   }
   const selected = stadiumSelect.options[stadiumSelect.selectedIndex];
