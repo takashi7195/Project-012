@@ -163,8 +163,8 @@ test('race selector restores the original width and comment frame matches roulet
   assert.match(css, /--panel-inline-inset:\s*7px/);
   assert.match(css, /\.reference-ui \.comments-section\s*\{[^}]*calc\(100% - var\(--panel-inline-inset\) - var\(--panel-inline-inset\)\)/s);
   assert.match(css, /\.reference-ui \.selectors select\s*\{[^}]*font-size:\s*20px/s);
-  assert.match(css, /\.reference-ui \.title-avatar\s*\{[^}]*64px/s);
-  assert.match(css, /@media \(min-width: 768px\)\s*\{[^}]*\.title-avatar[^}]*80px/s);
+  assert.match(css, /\.reference-ui \.title-avatar\s*\{[^}]*width:\s*clamp\(86px, 27\.2vw, 112px\)/s);
+  assert.match(css, /@media \(max-width: 350px\)[\s\S]*?\.reference-ui \.title-avatar\s*\{[^}]*width:\s*76px/s);
 });
 
 test('venue availability states differ by text color only', () => {
