@@ -76,6 +76,26 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
 
     const page = await context.newPage();
     await page.goto(`http://127.0.0.1:${port}/index.html`, { waitUntil: 'domcontentloaded' });
+    const readableTextStyles = await page.evaluate(() => {
+      const root = document.querySelector('.reference-ui');
+      return ['#race-development-text', '.comment-text', '.reply-text'].map((selector) => {
+        let node = root.querySelector(selector);
+        if (!node) {
+          node = document.createElement('p');
+          node.className = selector.slice(1);
+          root.append(node);
+        }
+        const style = getComputedStyle(node);
+        return { selector, fontFamily: style.fontFamily, fontSize: style.fontSize, fontWeight: style.fontWeight, lineHeight: style.lineHeight };
+      });
+    });
+    for (const style of readableTextStyles) {
+      assert.equal(style.fontSize, '16px', `${style.selector} should use the shared 16px text size`);
+      assert.equal(style.fontWeight, '500', `${style.selector} should use the shared 500 font weight`);
+      assert.equal(style.lineHeight, '25.6px', `${style.selector} should use the shared 1.6 line height`);
+      assert.match(style.fontFamily, /Noto Sans JP.*Hiragino Kaku Gothic ProN.*Yu Gothic.*Meiryo.*sans-serif/,
+        `${style.selector} should inherit the shared platform font stack`);
+    }
     const stadium = page.locator('#stadium-select');
     const race = page.locator('#race-select');
     const start = page.locator('#start-btn');
