@@ -704,3 +704,12 @@
 - 試験: AIタカシ応答・ルーティングのNode試験32件がpass。トップページのEdge/Playwright表示試験、締切・日付更新試験、レース選択Node試験12件、モバイルWebKit 375x812/DPR3の選択・START・結果試験がpass。WebKit試験では幅375px・倍率1・横offset 0を維持。試験計画と結果は`docs/TOP-PAGE-FIX-TEST-SPEC-v0.1.20.md`、`docs/TOP-PAGE-FIX-TEST-REPORT-v0.1.20.md`、Safari調査記録に保存した。
 - 既知の確認事項: Playwright WebKitによる再現・修正確認はpassしたが、iPhone 13 mini / iOS 26.6.2実機で左寄り・縮小が解消したことは利用者による確認待ち。実機の合否を自動試験済みとは扱わない。
 - タグ付与後に本記録を追記した。v0.1.20の公開コード状態は上記tagで固定し、以後の開発は`v0.1.21`として扱う。
+
+## 2026-10-02 15:42 JST — v0.1.22 確定・公開
+
+- ルーレットAIの区分を「◎ 本命・○ 対抗・☆ 大穴」とし、本命・対抗・大穴の定義を生成プロンプトへ追加した。JSON/DB項目`main`・`counter`・`hole`は維持し、プロンプト版を`ai-bundle-prompt-5`へ更新した。
+- UI表示と読み上げラベルを「☆ 大穴」に統一した。設計・詳細設計・試験仕様・試験成績書は`docs/AI-BET-CATEGORY-*-v0.1.22.md`に保存。
+- Supabase Project-012の`predictions` Functionを再配信し、ACTIVE version 43を確認。無効な選択値の公開ルート確認で`ai_bundle`モードの応答を確認した。確認時にGemini API・DB処理は呼び出していない。
+- GitHub Pagesの公開URLは https://takashi7195.github.io/Project-012/ 。コード変更commit `060e6c3`、公開記録更新commit `b0009f3`でbuild `built`とHTML上の「☆ 大穴」表示を確認。
+- 試験: Node.js試験30件、Playwright UI smoke、Edge typecheckが合格。表示幅は320/375/390/430/768/1280pxを確認。360pxの再確認はWSL/Windows連携エラーで未実施。実機の確認範囲、実レース生成の検証状況は試験成績書を参照。利用者から公開変更について「非常によくなりました」と評価を受けた。
+- v0.1.22の公開内容をannotated tag `v0.1.22`（`Release v0.1.22`）で固定する。以降の開発は`v0.1.23`として扱う。
