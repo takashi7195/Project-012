@@ -167,11 +167,11 @@ test('race selector restores the original width and comment frame matches roulet
   assert.match(css, /@media \(min-width: 768px\)\s*\{[^}]*\.title-avatar[^}]*80px/s);
 });
 
-test('venue availability states differ by text color only', () => {
+test('open venues are bold while unavailable venues stay grey and disabled', () => {
   const css = readFileSync(join(root, 'ui-reference.css'), 'utf8');
-  assert.match(css, /\.reference-ui \.selectors select option\[data-available="true"\]\s*\{\s*color:\s*#14263c;\s*\}/);
+  assert.match(css, /\.reference-ui \.selectors select option\[data-available="true"\]\s*\{\s*color:\s*#14263c;\s*font-weight:\s*700;\s*\}/);
   assert.match(css, /\.reference-ui \.selectors select option:disabled\s*\{\s*color:\s*#6b7785;\s*background:\s*#e5e7eb;\s*\}/);
-  assert.doesNotMatch(css, /\.reference-ui \.selectors select option(?::disabled|\[data-available="true"\])\s*\{[^}]*font-weight\s*:/s);
+  assert.doesNotMatch(css, /\.reference-ui \.selectors select option:disabled\s*\{[^}]*font-weight\s*:/s);
 });
 
 test('initial and changed selector states show idle roulette digits instead of blanks', () => {
