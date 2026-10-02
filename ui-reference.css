@@ -300,3 +300,8 @@
   font-size: 18px;
   border-radius: 11px;
 }
+@media (max-width: 430px) {
+  .reference-ui .race-development p,
+  .reference-ui .comment-text,
+  .reference-ui .reply-text { color: #000000; }
+}
