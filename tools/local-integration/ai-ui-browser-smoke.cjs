@@ -86,15 +86,26 @@ function listen() { return new Promise((resolve, reject) => { server.once('error
           root.append(node);
         }
         const style = getComputedStyle(node);
-        return { selector, fontFamily: style.fontFamily, fontSize: style.fontSize, fontWeight: style.fontWeight, lineHeight: style.lineHeight };
+        return { selector, fontFamily: style.fontFamily, fontSize: style.fontSize, fontWeight: style.fontWeight,
+          lineHeight: style.lineHeight, color: style.color, marginTop: style.marginTop, marginBottom: style.marginBottom,
+          whiteSpace: style.whiteSpace, overflowWrap: style.overflowWrap };
       });
     });
     for (const style of readableTextStyles) {
       assert.equal(style.fontSize, '16px', `${style.selector} should use the shared 16px text size`);
       assert.equal(style.fontWeight, '500', `${style.selector} should use the shared 500 font weight`);
       assert.equal(style.lineHeight, '25.6px', `${style.selector} should use the shared 1.6 line height`);
+      assert.equal(style.color, 'rgb(23, 34, 53)', `${style.selector} should use the shared dark text color`);
+      assert.equal(style.marginTop, '0px', `${style.selector} should have no top margin`);
+      assert.equal(style.marginBottom, '0px', `${style.selector} should have no bottom margin`);
       assert.match(style.fontFamily, /Noto Sans JP.*Hiragino Kaku Gothic ProN.*Yu Gothic.*Meiryo.*sans-serif/,
         `${style.selector} should inherit the shared platform font stack`);
+    }
+    assert.equal(readableTextStyles[0].whiteSpace, 'pre-line', 'race narrative should preserve its existing line-break behavior');
+    assert.equal(readableTextStyles[1].whiteSpace, 'pre-wrap', 'comments should preserve their existing whitespace behavior');
+    assert.equal(readableTextStyles[2].whiteSpace, 'pre-line', 'AI replies should collapse repeated spaces while preserving line breaks');
+    for (const style of readableTextStyles) {
+      assert.equal(style.overflowWrap, 'anywhere', `${style.selector} should wrap long unbroken text`);
     }
     const stadium = page.locator('#stadium-select');
     const race = page.locator('#race-select');
