@@ -100,7 +100,7 @@ test('start remains disabled until both venue and race are explicitly selected',
   assert.equal(context.document.getElementById('start-btn').disabled, true);
 });
 
-test('only open venues get a status label; other venues remain visible and disabled', () => {
+test('venues without future races remain visible, disabled, and name-only', () => {
   const options = [option('桐生', 1), option('戸田', 2), option('江戸川', 3)];
   const { stadium, context } = loadUi(options);
   context.applyStadiumAvailability([
@@ -108,9 +108,8 @@ test('only open venues get a status label; other venues remain visible and disab
     { stadiumCode: 2, hasRaces: false, races: [] },
   ], new Date('2026-09-23T00:00:00Z'));
   assert.equal(options[0].disabled, false);
-  assert.equal(options[0].textContent, '桐生　開催中');
-  assert.doesNotMatch(options[0].textContent, /[()（）]/);
-  assert.equal(options[0].getAttribute('aria-label'), '桐生　開催中');
+  assert.equal(options[0].textContent, '桐生');
+  assert.equal(options[0].getAttribute('aria-label'), '桐生');
   assert.equal(options[1].disabled, true);
   assert.equal(options[1].textContent, '戸田');
   assert.equal(options[1].getAttribute('aria-label'), '戸田');
@@ -239,5 +238,5 @@ test('venue availability requires at least one future deadline', () => {
   assert.equal(options[0].disabled, true);
   assert.equal(options[1].disabled, false);
   assert.equal(options[2].disabled, true);
-  assert.deepEqual(options.map((item) => item.textContent), ['桐生', '戸田　開催中', '江戸川']);
+  assert.deepEqual(options.map((item) => item.textContent), ['桐生', '戸田', '江戸川']);
 });
