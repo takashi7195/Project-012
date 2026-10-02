@@ -303,5 +303,5 @@
 @media (max-width: 430px) {
   .reference-ui .race-development p,
   .reference-ui .comment-text,
-  .reference-ui .reply-text { color: #000000; }
+  .reference-ui .reply-text { color: #000000; font-weight: 600; }
 }
