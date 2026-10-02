@@ -65,7 +65,7 @@
   .reference-ui #race-select.race-compact + #race-selected-label { color: CanvasText; }
   .reference-ui #race-select:disabled + #race-selected-label { color: GrayText; opacity: 1; }
 }
-.reference-ui .selectors select option[data-available="true"] { color: #14263c; font-weight: 700; }
+.reference-ui .selectors select option[data-available="true"] { color: #14263c; }
 .reference-ui .selectors select option:disabled { color: #6b7785; background: #e5e7eb; }
 .reference-ui .game-panel {
   position: relative; width: 100%; max-width: none;
