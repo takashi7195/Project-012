@@ -91,6 +91,7 @@ test('I11 name and registration omissions do not trigger inferred replacements',
 test('G01 generated request carries unconstrained style and the four-field bundle request', () => {
   const prompt=buildPrompt({identity,facts:{},provenance:{}},'');
   assert.match(prompt,/本命・対抗・穴/); assert.match(prompt,/展開文は500文字前後/);
+  assert.match(prompt,/読みやすい位置で改行してください。/);
   assert.doesNotMatch(prompt,/段落数|必須.*文|文体|採点|固定順位|定型の展開/);
   assert.deepEqual(buildGeminiPayload({prompt,input:{identity,facts:{},provenance:{}},settings:DEFAULT_AI_CONFIG}).generationConfig.responseSchema.required,
     ['main','counter','hole','narrative']);

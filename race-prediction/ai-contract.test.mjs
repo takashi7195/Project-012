@@ -76,5 +76,6 @@ test("bundle client starts once, polls the shared job and validates the whole re
 test("prompt leaves paragraphs, tone and narrative lengths unconstrained", () => {
   const prompt = buildPrompt({ identity, facts: {}, provenance: {} });
   assert.match(prompt, /500文字前後/);
+  assert.match(prompt, /読みやすい位置で改行してください。/);
   assert.doesNotMatch(prompt, /段落数|必ず.*文|文字数.*以内/);
 });

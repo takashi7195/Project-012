@@ -6,7 +6,7 @@ export const DEFAULT_AI_CONFIG = Object.freeze({
   provider: "gemini",
   model: "gemini-3.5-flash-lite",
   apiVersion: "v1beta",
-  promptVersion: "ai-bundle-prompt-2",
+  promptVersion: "ai-bundle-prompt-3",
   styleVersion: "shared-drunk-goofy-1",
   styleText: SHARED_CHARACTER_INSTRUCTION,
   outputSchemaVersion: OUTPUT_SCHEMA_VERSION,
